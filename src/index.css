@@ -28,6 +28,7 @@
   --radius-lg: 20px;
   --radius-xl: 24px;
   --radius-full: 50px;
+  --header-height-desktop: 148px;
 }
 
 * {
@@ -69,7 +70,7 @@ svg {
   align-items: center;
   justify-content: space-between;
   width: 100vw;
-  height: 148px;
+  height: var(--header-height-desktop);
   margin: 0 auto;
   padding: 0 4em;
   transform: translateX(-50%);
@@ -174,6 +175,7 @@ svg {
 
 .landing-wrapper {
   position: relative;
+  min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
 }
@@ -205,11 +207,12 @@ svg {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  min-height: 1000px;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
   max-width: calc(1200px + 6em);
   margin: 0 auto;
-  padding: 0 4em;
+  padding: calc(var(--header-height-desktop) + clamp(1.75rem, 5vh, 4.5rem)) 4em clamp(2.5rem, 7vh, 6rem);
 }
 
 .landing-title {
@@ -267,7 +270,7 @@ svg {
   align-items: center;
   width: min(100%, 68rem);
   max-width: 100%;
-  transform: translateY(-6px);
+  transform: none;
 }
 
 .hero-text-animate {
