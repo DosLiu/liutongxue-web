@@ -50,7 +50,7 @@ export default function App() {
             </h1>
 
             <p className="landing-subtitle hero-text-animate hero-subtitle-delay">
-              记录每一次灵感碰撞，见证数字生命的无限成长。
+              记录每一次灵感碰撞，见证数字生命的无限成长
             </p>
           </div>
         </div>

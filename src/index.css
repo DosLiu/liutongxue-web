@@ -112,23 +112,7 @@ svg {
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
   color: var(--text-primary);
-}
-
-.brand-wordmark__badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(82, 39, 255, 0.9), rgba(177, 158, 239, 0.4));
-  box-shadow: 0 10px 30px rgba(82, 39, 255, 0.28);
-  font-size: 0.92rem;
-  font-weight: 700;
-  line-height: 1;
 }
 
 .brand-wordmark__text {
@@ -231,36 +215,37 @@ svg {
 .landing-title {
   position: relative;
   z-index: 6;
-  max-width: 12ch;
+  max-width: none;
   margin-bottom: 1.2rem;
   color: var(--text-primary);
-  font-size: clamp(3.4rem, 5.5vw, 5rem);
+  font-size: clamp(3rem, 4.8vw, 4.4rem);
   font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.045em;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
   text-align: center;
-  text-wrap: balance;
+  white-space: nowrap;
   user-select: none;
 }
 
 .hero-title-line {
+  display: inline-block;
   max-width: 100%;
-  text-wrap: balance;
+  white-space: nowrap;
 }
 
 .landing-subtitle {
   position: relative;
   z-index: 6;
-  max-width: 31ch;
+  max-width: none;
   margin-bottom: 0;
   overflow: visible !important;
   color: #d3d3d3b7;
-  font-size: clamp(1rem, 1.55vw, 1.32rem);
+  font-size: clamp(0.95rem, 1.32vw, 1.16rem);
   font-weight: 400;
-  line-height: 1.75;
+  line-height: 1.45;
   letter-spacing: 0.01em;
   text-align: center;
-  text-wrap: balance;
+  white-space: nowrap;
   user-select: none;
 }
 
@@ -280,6 +265,7 @@ svg {
   flex: 1;
   flex-direction: column;
   align-items: center;
+  width: min(100%, 68rem);
   max-width: 100%;
   transform: translateY(-6px);
 }
@@ -337,13 +323,11 @@ svg {
 
 @media (max-width: 1440px) {
   .landing-title {
-    max-width: 11ch;
-    font-size: clamp(3rem, 5vw, 4.3rem);
+    font-size: clamp(2.7rem, 4.2vw, 4rem);
   }
 
   .landing-subtitle {
-    max-width: 29ch;
-    font-size: clamp(0.95rem, 1.25vw, 1.2rem);
+    font-size: clamp(0.9rem, 1.12vw, 1.08rem);
   }
 }
 
@@ -376,12 +360,6 @@ svg {
     justify-content: center;
   }
 
-  .brand-wordmark__badge {
-    width: 1.8rem;
-    height: 1.8rem;
-    font-size: 0.84rem;
-  }
-
   .brand-wordmark__text {
     font-size: 1.05rem;
   }
@@ -407,16 +385,6 @@ svg {
     justify-content: center;
   }
 
-  .brand-wordmark {
-    gap: 0.65rem;
-  }
-
-  .brand-wordmark__badge {
-    width: 1.7rem;
-    height: 1.7rem;
-    font-size: 0.82rem;
-  }
-
   .brand-wordmark__text {
     font-size: 1rem;
   }
@@ -427,17 +395,15 @@ svg {
   }
 
   .landing-title {
-    max-width: 9ch;
-    font-size: clamp(2.2rem, 7vw, 3.2rem);
-    line-height: 1.12;
-    letter-spacing: -0.035em;
+    font-size: clamp(1.8rem, 4.8vw, 2.7rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
     text-align: center;
   }
 
   .landing-subtitle {
-    max-width: min(88%, 24ch);
-    font-size: clamp(0.92rem, 2.4vw, 1.02rem);
-    line-height: 1.7;
+    font-size: clamp(0.72rem, 1.9vw, 0.9rem);
+    line-height: 1.45;
     text-align: center;
   }
 
@@ -467,16 +433,6 @@ svg {
     padding: 0 1rem;
   }
 
-  .brand-wordmark {
-    gap: 0.55rem;
-  }
-
-  .brand-wordmark__badge {
-    width: 1.55rem;
-    height: 1.55rem;
-    font-size: 0.76rem;
-  }
-
   .brand-wordmark__text {
     font-size: 0.92rem;
   }
@@ -487,15 +443,13 @@ svg {
   }
 
   .landing-title {
-    max-width: 8ch;
-    font-size: clamp(1.85rem, 8vw, 2.1rem);
-    letter-spacing: -0.03em;
+    font-size: clamp(1.45rem, 5.8vw, 1.8rem);
+    letter-spacing: -0.02em;
   }
 
   .landing-subtitle {
-    max-width: min(92%, 22ch);
-    font-size: 0.9rem;
-    line-height: 1.68;
+    font-size: clamp(0.6rem, 2.8vw, 0.72rem);
+    line-height: 1.4;
   }
 
   .landing-content {
@@ -510,16 +464,6 @@ svg {
     top: 0;
     height: 80px;
     padding: 0 0.8rem;
-  }
-
-  .brand-wordmark {
-    gap: 0.5rem;
-  }
-
-  .brand-wordmark__badge {
-    width: 1.4rem;
-    height: 1.4rem;
-    font-size: 0.72rem;
   }
 
   .brand-wordmark__text {
