@@ -60,91 +60,16 @@ svg {
   min-height: 100vh;
 }
 
-.header-announcement-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  width: 100vw;
-  height: 50px;
-  margin: 0;
-  padding: 0;
-  display: block;
-  text-decoration: none;
-  cursor: pointer;
-  background: rgba(0, 0, 0, 0.5);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  transition: background 0.2s ease;
-}
-
-.header-announcement-bar.landing-bar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(to right, rgba(255, 159, 252, 0.3), transparent, rgba(133, 39, 255, 0.3));
-}
-
-.header-announcement-bar:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.header-announcement-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100%;
-  margin: 0;
-  padding: 12px 24px;
-}
-
-.header-announcement-inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.header-announcement-message {
-  display: inline;
-  margin: 0;
-  padding: 0;
-  color: #ffffff;
-  font-size: 15px;
-  line-height: 1.4;
-  letter-spacing: -0.25px;
-  text-align: center;
-}
-
-.header-announcement-link-text {
-  display: inline;
-  color: #ffffff;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.header-announcement-link-arrow {
-  display: inline-flex;
-  margin-left: 4px;
-  vertical-align: middle;
-}
-
 .header {
   position: fixed;
-  top: 44px;
+  top: 0;
   left: 50%;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100vw;
-  height: 160px;
+  height: 148px;
   margin: 0 auto;
   padding: 0 4em;
   transform: translateX(-50%);
@@ -158,12 +83,6 @@ svg {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.nav-cta-group {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
 }
 
 .logo {
@@ -201,6 +120,7 @@ svg {
   justify-content: space-between;
   gap: 2rem;
   height: 60px;
+  margin-left: auto;
   padding: 0 2.4rem 0 calc(2.4rem + 6px);
   color: #ffffff;
   background: rgba(6, 0, 16, 0.6);
@@ -242,46 +162,6 @@ svg {
 .nav-link:hover::after,
 .active-link::after {
   width: 6px;
-}
-
-.cta-button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 58px;
-  padding: 0 0 0 1.4rem;
-  color: #ffffff;
-  text-decoration: none;
-  white-space: nowrap;
-  background: var(--color-primary);
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  border-right: 1px solid rgba(255, 255, 255, 0.07);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 50px;
-  transition: 0.3s ease;
-}
-
-.cta-button span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100px;
-  height: 45px;
-  margin-left: 1em;
-  margin-right: calc(1em - 10px);
-  padding-top: 0.1em;
-  font-weight: 600;
-  background: var(--bg-body);
-  border-radius: 50px;
-}
-
-.cta-button:hover span svg {
-  transform: scale(1.2);
-}
-
-.cta-button span svg {
-  transition: 0.3s ease;
 }
 
 .landing-wrapper {
@@ -571,9 +451,6 @@ svg {
     display: flex;
   }
 
-  .nav-cta-group {
-    gap: 2rem;
-  }
 }
 
 @media (max-width: 1440px) {
@@ -592,7 +469,7 @@ svg {
     align-items: center;
     max-width: calc(1200px + 2em);
     height: auto;
-    margin-top: 250px;
+    margin-top: 220px;
     padding: 0 2em;
   }
 
@@ -611,6 +488,10 @@ svg {
     padding: 0 2em;
   }
 
+  .header-container {
+    justify-content: center;
+  }
+
   .logo svg {
     height: 30px;
   }
@@ -620,19 +501,6 @@ svg {
     height: 120px;
   }
 
-  .cta-button {
-    height: 50px;
-    padding: 0 0 0 1rem;
-    font-size: 0.9rem;
-  }
-
-  .cta-button span {
-    width: 80px;
-    height: 38px;
-    margin-left: 0.8em;
-    margin-right: calc(0.8em - 6px);
-  }
-
   .landing-wrapper::before,
   .landing-wrapper::after {
     width: 100px;
@@ -640,26 +508,13 @@ svg {
 }
 
 @media (max-width: 768px) {
-  .header-announcement-inner {
-    gap: 0;
-  }
-
-  .header-announcement-inner > svg {
-    display: none;
-  }
-
-  .header-announcement-content {
-    padding: 10px 16px;
-  }
-
-  .header-announcement-message {
-    padding: 1em;
-    font-size: 0.85rem;
-  }
-
   .header {
     height: 100px;
     padding: 0 1.5em;
+  }
+
+  .header-container {
+    justify-content: center;
   }
 
   .logo svg {
@@ -669,19 +524,6 @@ svg {
   .logo::before {
     width: 160px;
     height: 110px;
-  }
-
-  .cta-button {
-    height: 45px;
-    padding: 0 0 0 0.8rem;
-    font-size: 0.85rem;
-  }
-
-  .cta-button span {
-    width: 60px;
-    height: 35px;
-    margin-left: 0.6em;
-    margin-right: calc(0.6em - 4px);
   }
 
   .landing-title {
@@ -698,7 +540,7 @@ svg {
 
   .landing-content {
     align-items: center;
-    margin-top: 260px;
+    margin-top: 210px;
     min-height: 600px;
     padding: 0 1.5rem;
   }
@@ -727,16 +569,8 @@ svg {
 }
 
 @media (max-width: 480px) {
-  .header-announcement-content {
-    padding: 8px 12px;
-  }
-
-  .header-announcement-message {
-    font-size: 0.8rem;
-  }
-
   .header {
-    top: 36px;
+    top: 0;
     height: 90px;
     padding: 0 1rem;
   }
@@ -750,20 +584,6 @@ svg {
     height: 95px;
   }
 
-  .cta-button {
-    height: 40px;
-    padding: 0 0 0 0.6rem;
-    font-size: 0.8rem;
-  }
-
-  .cta-button span {
-    width: 60px;
-    height: 32px;
-    margin-left: 0.5em;
-    margin-right: calc(0.5em - 3px);
-    font-weight: 500;
-  }
-
   .landing-title {
     font-size: clamp(1.6rem, 5vw, 1.8rem);
     letter-spacing: -1px;
@@ -771,7 +591,7 @@ svg {
 
   .landing-content {
     min-height: 500px;
-    margin-top: 210px;
+    margin-top: 170px;
   }
 
   .landing-button {
@@ -787,7 +607,7 @@ svg {
 
 @media (max-width: 375px) {
   .header {
-    top: 36px;
+    top: 0;
     height: 80px;
     padding: 0 0.8rem;
   }
@@ -801,21 +621,8 @@ svg {
     height: 80px;
   }
 
-  .cta-button {
-    height: 36px;
-    padding: 0 0 0 0.5rem;
-    font-size: 0.75rem;
-  }
-
-  .cta-button span {
-    width: 50px;
-    height: 28px;
-    margin-left: 0.4em;
-    margin-right: calc(0.4em - 2px);
-  }
-
   .landing-content {
-    margin-top: 150px;
+    margin-top: 120px;
   }
 
   .landing-button {
