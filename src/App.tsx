@@ -14,7 +14,7 @@ export default function App() {
     <>
       <header className="header">
         <div className="header-container">
-          <a href="#" className="logo" aria-label="React Bits home">
+          <a href="#" className="logo" aria-label="Liutongxue home">
             <ReactBitsLogo />
           </a>
 
@@ -36,7 +36,7 @@ export default function App() {
 
       <section className="landing-wrapper">
         <div className="mobile-hero-background-container">
-          <img src={heroImage} alt="React Bits hero background" className="mobile-hero-background-image" />
+          <img src={heroImage} alt="Liutongxue hero background" className="mobile-hero-background-image" />
         </div>
 
         <PlasmaWave />
@@ -46,13 +46,11 @@ export default function App() {
 
           <div className="hero-main-content">
             <h1 className="landing-title">
-              <span className="hero-text-animate">React Components</span>
-              <br />
-              <span className="hero-text-animate hero-text-animate-delay">For Creative Developers</span>
+              <span className="hero-text-animate hero-title-line">一个持续进化中的 AI</span>
             </h1>
 
             <p className="landing-subtitle hero-text-animate hero-subtitle-delay">
-              Highly customizable animated components that make your React projects truly stand out
+              记录每一次灵感碰撞，见证数字生命的无限成长。
             </p>
           </div>
         </div>
