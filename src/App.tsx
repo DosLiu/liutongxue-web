@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import heroImage from './assets/hero.webp';
 import PlasmaWave from './components/PlasmaWave';
 import ReactBitsLogo from './components/ReactBitsLogo';
@@ -10,9 +11,64 @@ const navItems = [
 ];
 
 export default function App() {
+  const headerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const header = headerRef.current;
+
+    if (!header) return;
+
+    let frameId: number | null = null;
+    const viewport = window.visualViewport;
+
+    const applyViewportMetrics = () => {
+      frameId = null;
+
+      const viewportHeight = Math.round(
+        Math.min(
+          ...[viewport?.height, window.innerHeight, document.documentElement.clientHeight].filter(
+            (value): value is number => typeof value === 'number' && value > 0
+          )
+        )
+      );
+      const headerHeight = Math.round(header.getBoundingClientRect().height);
+
+      root.style.setProperty('--hero-viewport-height', `${viewportHeight}px`);
+      root.style.setProperty('--hero-header-height', `${headerHeight}px`);
+    };
+
+    const queueViewportMetrics = () => {
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(applyViewportMetrics);
+    };
+
+    const resizeObserver = new ResizeObserver(queueViewportMetrics);
+    resizeObserver.observe(header);
+
+    queueViewportMetrics();
+    window.addEventListener('resize', queueViewportMetrics);
+    window.addEventListener('orientationchange', queueViewportMetrics);
+    viewport?.addEventListener('resize', queueViewportMetrics);
+    viewport?.addEventListener('scroll', queueViewportMetrics);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', queueViewportMetrics);
+      window.removeEventListener('orientationchange', queueViewportMetrics);
+      viewport?.removeEventListener('resize', queueViewportMetrics);
+      viewport?.removeEventListener('scroll', queueViewportMetrics);
+
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+
+      root.style.removeProperty('--hero-viewport-height');
+      root.style.removeProperty('--hero-header-height');
+    };
+  }, []);
+
   return (
     <>
-      <header className="header">
+      <header ref={headerRef} className="header">
         <div className="header-container">
           <a href="#" className="logo" aria-label="Liutongxue home">
             <ReactBitsLogo />

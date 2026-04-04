@@ -28,7 +28,12 @@
   --radius-lg: 20px;
   --radius-xl: 24px;
   --radius-full: 50px;
-  --header-height-desktop: 148px;
+  --header-height: 148px;
+  --hero-header-height: var(--header-height);
+  --hero-viewport-height: 100vh;
+  --hero-inline-padding: clamp(1.5rem, 4vw, 4rem);
+  --hero-top-gap: clamp(1rem, 4vh, 3.5rem);
+  --hero-bottom-gap: clamp(1.75rem, 5vh, 4.5rem);
 }
 
 * {
@@ -58,7 +63,7 @@ svg {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: var(--hero-viewport-height, 100vh);
 }
 
 .header {
@@ -70,7 +75,7 @@ svg {
   align-items: center;
   justify-content: space-between;
   width: 100vw;
-  height: var(--header-height-desktop);
+  height: var(--header-height);
   margin: 0 auto;
   padding: 0 4em;
   transform: translateX(-50%);
@@ -175,8 +180,9 @@ svg {
 
 .landing-wrapper {
   position: relative;
-  min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
+  min-height: var(--hero-viewport-height, 100dvh);
   overflow-x: hidden;
 }
 
@@ -187,7 +193,7 @@ svg {
   top: 0;
   z-index: 2;
   width: 300px;
-  height: 100vh;
+  height: var(--hero-viewport-height, 100vh);
   pointer-events: none;
 }
 
@@ -208,11 +214,12 @@ svg {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
+  min-height: var(--hero-viewport-height, 100dvh);
   max-width: calc(1200px + 6em);
   margin: 0 auto;
-  padding: calc(var(--header-height-desktop) + clamp(1.75rem, 5vh, 4.5rem)) 4em clamp(2.5rem, 7vh, 6rem);
+  padding: calc(var(--hero-header-height, var(--header-height)) + var(--hero-top-gap)) var(--hero-inline-padding) var(--hero-bottom-gap);
 }
 
 .landing-title {
@@ -294,7 +301,7 @@ svg {
   z-index: -1;
   display: none;
   width: 100vw;
-  height: 100vh;
+  height: var(--hero-viewport-height, 100vh);
   overflow: hidden;
 }
 
@@ -335,27 +342,32 @@ svg {
 }
 
 @media (max-width: 1024px) {
+  :root {
+    --hero-inline-padding: 2rem;
+    --hero-top-gap: clamp(0.85rem, 3.5vh, 2.5rem);
+    --hero-bottom-gap: clamp(1.5rem, 4.5vh, 3.5rem);
+  }
+
   .landing-content {
     flex-direction: column;
     align-items: center;
     max-width: calc(1200px + 2em);
-    height: auto;
-    margin-top: 220px;
-    padding: 0 2em;
   }
 
   .hero-main-content {
     align-items: center;
     max-width: 100%;
-    margin-bottom: 2rem;
     text-align: center;
     transform: none;
   }
 }
 
 @media (max-width: 900px) {
+  :root {
+    --header-height: 120px;
+  }
+
   .header {
-    height: 120px;
     padding: 0 2em;
   }
 
@@ -379,8 +391,14 @@ svg {
 }
 
 @media (max-width: 768px) {
+  :root {
+    --header-height: 100px;
+    --hero-inline-padding: 1.5rem;
+    --hero-top-gap: clamp(0.75rem, 3vh, 1.5rem);
+    --hero-bottom-gap: clamp(1.25rem, 4vh, 2.5rem);
+  }
+
   .header {
-    height: 100px;
     padding: 0 1.5em;
   }
 
@@ -412,9 +430,6 @@ svg {
 
   .landing-content {
     align-items: center;
-    margin-top: 210px;
-    min-height: 600px;
-    padding: 0 1.5rem;
   }
 
   .mobile-hero-background-container {
@@ -424,15 +439,20 @@ svg {
 
 @media (max-width: 640px) {
   .header {
-    height: 100px;
     padding: 0 1.5em;
   }
 }
 
 @media (max-width: 480px) {
+  :root {
+    --header-height: 90px;
+    --hero-inline-padding: 1rem;
+    --hero-top-gap: clamp(0.6rem, 2.6vh, 1.25rem);
+    --hero-bottom-gap: clamp(1rem, 3.2vh, 2rem);
+  }
+
   .header {
     top: 0;
-    height: 90px;
     padding: 0 1rem;
   }
 
@@ -454,18 +474,18 @@ svg {
     font-size: clamp(0.6rem, 2.8vw, 0.72rem);
     line-height: 1.4;
   }
-
-  .landing-content {
-    min-height: 500px;
-    margin-top: 170px;
-  }
-
 }
 
 @media (max-width: 375px) {
+  :root {
+    --header-height: 80px;
+    --hero-inline-padding: 0.8rem;
+    --hero-top-gap: 0.5rem;
+    --hero-bottom-gap: 1rem;
+  }
+
   .header {
     top: 0;
-    height: 80px;
     padding: 0 0.8rem;
   }
 
@@ -477,9 +497,4 @@ svg {
     width: 120px;
     height: 80px;
   }
-
-  .landing-content {
-    margin-top: 120px;
-  }
-
 }
