@@ -25,17 +25,22 @@ export default function App() {
     const applyViewportMetrics = () => {
       frameId = null;
 
-      const viewportHeight = Math.round(
-        Math.min(
-          ...[viewport?.height, window.innerHeight, document.documentElement.clientHeight].filter(
-            (value): value is number => typeof value === 'number' && value > 0
+      const viewportHeight = Math.max(
+        1,
+        Math.round(
+          Math.min(
+            ...[viewport?.height, window.innerHeight, document.documentElement.clientHeight].filter(
+              (value): value is number => typeof value === 'number' && value > 0
+            )
           )
         )
       );
-      const headerHeight = Math.round(header.getBoundingClientRect().height);
+      const headerHeight = Math.max(0, Math.round(header.getBoundingClientRect().height));
+      const shellHeight = Math.max(0, viewportHeight - headerHeight);
 
       root.style.setProperty('--hero-viewport-height', `${viewportHeight}px`);
       root.style.setProperty('--hero-header-height', `${headerHeight}px`);
+      root.style.setProperty('--hero-shell-height', `${shellHeight}px`);
     };
 
     const queueViewportMetrics = () => {
@@ -47,6 +52,9 @@ export default function App() {
     resizeObserver.observe(header);
 
     queueViewportMetrics();
+    void document.fonts?.ready.then(queueViewportMetrics);
+    window.addEventListener('load', queueViewportMetrics);
+    window.addEventListener('pageshow', queueViewportMetrics);
     window.addEventListener('resize', queueViewportMetrics);
     window.addEventListener('orientationchange', queueViewportMetrics);
     viewport?.addEventListener('resize', queueViewportMetrics);
@@ -54,6 +62,8 @@ export default function App() {
 
     return () => {
       resizeObserver.disconnect();
+      window.removeEventListener('load', queueViewportMetrics);
+      window.removeEventListener('pageshow', queueViewportMetrics);
       window.removeEventListener('resize', queueViewportMetrics);
       window.removeEventListener('orientationchange', queueViewportMetrics);
       viewport?.removeEventListener('resize', queueViewportMetrics);
@@ -63,6 +73,7 @@ export default function App() {
 
       root.style.removeProperty('--hero-viewport-height');
       root.style.removeProperty('--hero-header-height');
+      root.style.removeProperty('--hero-shell-height');
     };
   }, []);
 

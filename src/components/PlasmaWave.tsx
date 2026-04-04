@@ -480,8 +480,8 @@ export default function PlasmaWave({
           position: 'absolute',
           inset: 0,
           overflow: 'hidden',
-          width: '100vw',
-          height: '100vh',
+          width: '100%',
+          height: '100%',
           pointerEvents: 'none',
           background:
             'radial-gradient(1200px 600px at 20% 80%, rgba(123, 31, 162, 0.3), transparent 60%), radial-gradient(1000px 500px at 80% 20%, rgba(33, 150, 243, 0.25), transparent 60%), linear-gradient(180deg, rgba(10, 2, 20, 0.6), rgba(10, 2, 20, 0.8))'
@@ -511,8 +511,8 @@ export default function PlasmaWave({
         position: 'absolute',
         inset: 0,
         overflow: 'hidden',
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100%',
         pointerEvents: 'none',
         willChange: 'opacity'
       }}

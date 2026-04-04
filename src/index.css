@@ -31,6 +31,7 @@
   --header-height: 148px;
   --hero-header-height: var(--header-height);
   --hero-viewport-height: 100vh;
+  --hero-shell-height: calc(var(--hero-viewport-height) - var(--hero-header-height));
   --hero-inline-padding: clamp(1.5rem, 4vw, 4rem);
   --hero-top-gap: clamp(1rem, 4vh, 3.5rem);
   --hero-bottom-gap: clamp(1.75rem, 5vh, 4.5rem);
@@ -180,10 +181,12 @@ svg {
 
 .landing-wrapper {
   position: relative;
-  min-height: 100svh;
-  min-height: 100dvh;
-  min-height: var(--hero-viewport-height, 100dvh);
-  overflow-x: hidden;
+  display: flex;
+  align-items: stretch;
+  min-height: var(--hero-viewport-height, 100vh);
+  height: var(--hero-viewport-height, 100vh);
+  padding-top: var(--hero-header-height, var(--header-height));
+  overflow: hidden;
 }
 
 .landing-wrapper::before,
@@ -211,15 +214,15 @@ svg {
   position: relative;
   z-index: 10;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  min-height: 100svh;
-  min-height: 100dvh;
-  min-height: var(--hero-viewport-height, 100dvh);
+  width: 100%;
+  min-height: var(--hero-shell-height, calc(var(--hero-viewport-height, 100vh) - var(--hero-header-height, var(--header-height))));
   max-width: calc(1200px + 6em);
   margin: 0 auto;
-  padding: calc(var(--hero-header-height, var(--header-height)) + var(--hero-top-gap)) var(--hero-inline-padding) var(--hero-bottom-gap);
+  padding: var(--hero-top-gap) var(--hero-inline-padding) var(--hero-bottom-gap);
 }
 
 .landing-title {
@@ -300,8 +303,8 @@ svg {
   inset: 0;
   z-index: -1;
   display: none;
-  width: 100vw;
-  height: var(--hero-viewport-height, 100vh);
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
