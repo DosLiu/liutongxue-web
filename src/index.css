@@ -33,9 +33,21 @@
   --hero-viewport-height: 100vh;
   --hero-shell-height: calc(var(--hero-viewport-height) - var(--hero-header-height));
   --hero-inline-padding: clamp(1.5rem, 4vw, 4rem);
-  --hero-top-gap: clamp(1rem, 4vh, 3.5rem);
-  --hero-bottom-gap: clamp(1.75rem, 5vh, 4.5rem);
-  --hero-copy-shift-y: -80px;
+  --hero-top-gap: clamp(0.75rem, 2.2vh, 2rem);
+  --hero-bottom-gap: clamp(1.5rem, 4.6vh, 4rem);
+  --hero-copy-center-ratio: clamp(
+    0.626,
+    calc(
+      0.626
+      + (clamp(22.5rem, 100vw, 90rem) - 22.5rem) / 6500px
+      + (clamp(35rem, var(--hero-shell-height), 55rem) - 35rem) / 5500px
+    ),
+    0.745
+  );
+  --hero-copy-shift-y: calc(
+    (var(--hero-copy-center-ratio) * var(--hero-shell-height))
+    - ((var(--hero-shell-height) + var(--hero-top-gap) - var(--hero-bottom-gap)) * 0.5)
+  );
 }
 
 * {
@@ -348,9 +360,6 @@ svg {
 @media (max-width: 1024px) {
   :root {
     --hero-inline-padding: 2rem;
-    --hero-top-gap: clamp(0.85rem, 3.5vh, 2.5rem);
-    --hero-bottom-gap: clamp(1.5rem, 4.5vh, 3.5rem);
-    --hero-copy-shift-y: -48px;
   }
 
   .landing-content {
@@ -398,9 +407,6 @@ svg {
   :root {
     --header-height: 100px;
     --hero-inline-padding: 1.5rem;
-    --hero-top-gap: 1rem;
-    --hero-bottom-gap: clamp(1.25rem, 4vh, 2.5rem);
-    --hero-copy-shift-y: -16px;
   }
 
   .header {
@@ -452,9 +458,6 @@ svg {
   :root {
     --header-height: 90px;
     --hero-inline-padding: 1rem;
-    --hero-top-gap: 1rem;
-    --hero-bottom-gap: clamp(1rem, 3.2vh, 2rem);
-    --hero-copy-shift-y: -8px;
   }
 
   .header {
@@ -486,9 +489,6 @@ svg {
   :root {
     --header-height: 80px;
     --hero-inline-padding: 0.8rem;
-    --hero-top-gap: 1.125rem;
-    --hero-bottom-gap: 1rem;
-    --hero-copy-shift-y: 0px;
   }
 
   .header {
