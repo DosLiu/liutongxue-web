@@ -93,8 +93,8 @@ export default function ToolsSection({ id, standalone = false }: ToolsSectionPro
         {!standalone ? <div className="tools-showcase-spacer tools-showcase-spacer--top" aria-hidden="true" /> : null}
 
         <div className={`tools-showcase-header ${titleVisible ? 'visible' : ''}`}>
-          <h2 className="tools-showcase-title">Tools</h2>
-          <p className="tools-showcase-subtitle">Free utilities to boost your workflow</p>
+          <h2 className="tools-showcase-title">案发现场</h2>
+          <p className="tools-showcase-subtitle">多维 Agent 矩阵的实时协作</p>
         </div>
 
         {!standalone ? <div className="tools-showcase-spacer tools-showcase-spacer--gap" aria-hidden="true" /> : null}
