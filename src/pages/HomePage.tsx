@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import heroImage from '../assets/hero.webp';
 import PlasmaWave from '../components/PlasmaWave';
 import SiteHeader from '../components/SiteHeader';
+import TestimonialsSection from '../components/TestimonialsSection';
 import ToolsSection from '../components/ToolsSection';
 
 const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
@@ -170,6 +171,7 @@ export default function HomePage() {
         </section>
 
         <ToolsSection id="tools" />
+        <TestimonialsSection />
       </main>
     </>
   );
