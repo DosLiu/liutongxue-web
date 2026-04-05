@@ -10,12 +10,57 @@ const navItems = [
   { label: 'Tools', href: 'https://reactbits.dev/tools' }
 ];
 
+const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
+const interpolateStops = (value: number, stops: Array<[number, number]>) => {
+  if (stops.length === 0) return 0;
+  if (value <= stops[0][0]) return stops[0][1];
+
+  for (let index = 1; index < stops.length; index += 1) {
+    const [maxInput, maxOutput] = stops[index];
+
+    if (value <= maxInput) {
+      const [minInput, minOutput] = stops[index - 1];
+      const progress = (value - minInput) / (maxInput - minInput);
+      return minOutput + (maxOutput - minOutput) * progress;
+    }
+  }
+
+  return stops[stops.length - 1][1];
+};
+
+const getHeroTargetCenterRatio = (viewportWidth: number, shellHeight: number) => {
+  const widthRatio = interpolateStops(viewportWidth, [
+    [320, 0.626],
+    [375, 0.638],
+    [430, 0.652],
+    [768, 0.68],
+    [1024, 0.715],
+    [1440, 0.748],
+    [1920, 0.75]
+  ]);
+  const heightDelta = interpolateStops(shellHeight, [
+    [480, -0.012],
+    [560, -0.008],
+    [640, -0.004],
+    [760, 0],
+    [900, 0.003],
+    [1100, 0.004]
+  ]);
+
+  return clampNumber(widthRatio + heightDelta, 0.61, 0.75);
+};
+
 export default function App() {
   const headerRef = useRef<HTMLElement | null>(null);
+  const landingContentRef = useRef<HTMLDivElement | null>(null);
+  const heroMainContentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const root = document.documentElement;
     const header = headerRef.current;
+    const landingContent = landingContentRef.current;
+    const heroMainContent = heroMainContentRef.current;
 
     if (!header) return;
 
@@ -35,12 +80,38 @@ export default function App() {
           )
         )
       );
+      const viewportWidth = Math.max(
+        320,
+        Math.round(
+          Math.min(
+            ...[viewport?.width, window.innerWidth, document.documentElement.clientWidth].filter(
+              (value): value is number => typeof value === 'number' && value > 0
+            )
+          )
+        )
+      );
       const headerHeight = Math.max(0, Math.round(header.getBoundingClientRect().height));
       const shellHeight = Math.max(0, viewportHeight - headerHeight);
 
       root.style.setProperty('--hero-viewport-height', `${viewportHeight}px`);
       root.style.setProperty('--hero-header-height', `${headerHeight}px`);
       root.style.setProperty('--hero-shell-height', `${shellHeight}px`);
+
+      if (!landingContent || !heroMainContent) return;
+
+      const landingContentStyles = window.getComputedStyle(landingContent);
+      const paddingTop = parseFloat(landingContentStyles.paddingTop) || 0;
+      const paddingBottom = parseFloat(landingContentStyles.paddingBottom) || 0;
+      const contentHeight = Math.max(0, shellHeight - paddingTop - paddingBottom);
+      const heroHeight = Math.max(0, heroMainContent.getBoundingClientRect().height);
+      const currentCenterY = paddingTop + contentHeight / 2;
+      const minCenterY = paddingTop + heroHeight / 2;
+      const maxCenterY = shellHeight - paddingBottom - heroHeight / 2;
+      const targetCenterRatio = getHeroTargetCenterRatio(viewportWidth, shellHeight);
+      const desiredCenterY = clampNumber(shellHeight * targetCenterRatio, minCenterY, Math.max(minCenterY, maxCenterY));
+      const shiftY = Math.round((desiredCenterY - currentCenterY) * 10) / 10;
+
+      root.style.setProperty('--hero-copy-shift-y', `${shiftY}px`);
     };
 
     const queueViewportMetrics = () => {
@@ -50,6 +121,8 @@ export default function App() {
 
     const resizeObserver = new ResizeObserver(queueViewportMetrics);
     resizeObserver.observe(header);
+    if (landingContent) resizeObserver.observe(landingContent);
+    if (heroMainContent) resizeObserver.observe(heroMainContent);
 
     queueViewportMetrics();
     void document.fonts?.ready.then(queueViewportMetrics);
@@ -74,6 +147,7 @@ export default function App() {
       root.style.removeProperty('--hero-viewport-height');
       root.style.removeProperty('--hero-header-height');
       root.style.removeProperty('--hero-shell-height');
+      root.style.removeProperty('--hero-copy-shift-y');
     };
   }, []);
 
@@ -108,10 +182,10 @@ export default function App() {
 
         <PlasmaWave />
 
-        <div className="landing-content">
+        <div ref={landingContentRef} className="landing-content">
           <div className="landing-gradient-blur" aria-hidden="true" />
 
-          <div className="hero-main-content">
+          <div ref={heroMainContentRef} className="hero-main-content">
             <h1 className="landing-title">
               <span className="hero-text-animate hero-title-line">一个持续进化中的 AI</span>
             </h1>

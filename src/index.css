@@ -32,22 +32,10 @@
   --hero-header-height: var(--header-height);
   --hero-viewport-height: 100vh;
   --hero-shell-height: calc(var(--hero-viewport-height) - var(--hero-header-height));
+  --hero-copy-shift-y: 0px;
   --hero-inline-padding: clamp(1.5rem, 4vw, 4rem);
   --hero-top-gap: clamp(0.75rem, 2.2vh, 2rem);
   --hero-bottom-gap: clamp(1.5rem, 4.6vh, 4rem);
-  --hero-copy-center-ratio: clamp(
-    0.626,
-    calc(
-      0.626
-      + (clamp(22.5rem, 100vw, 90rem) - 22.5rem) / 6500px
-      + (clamp(35rem, var(--hero-shell-height), 55rem) - 35rem) / 5500px
-    ),
-    0.745
-  );
-  --hero-copy-shift-y: calc(
-    (var(--hero-copy-center-ratio) * var(--hero-shell-height))
-    - ((var(--hero-shell-height) + var(--hero-top-gap) - var(--hero-bottom-gap)) * 0.5)
-  );
 }
 
 * {
@@ -288,12 +276,13 @@ svg {
 
 .hero-main-content {
   display: flex;
-  flex: 1;
+  flex: 0 1 auto;
   flex-direction: column;
   align-items: center;
   width: min(100%, 68rem);
   max-width: 100%;
-  transform: translateY(var(--hero-copy-shift-y));
+  transform: translateY(var(--hero-copy-shift-y, 0px));
+  will-change: transform;
 }
 
 .hero-text-animate {
@@ -372,6 +361,7 @@ svg {
     align-items: center;
     max-width: 100%;
     text-align: center;
+    transform: translateY(var(--hero-copy-shift-y, 0px));
   }
 }
 
