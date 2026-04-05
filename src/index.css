@@ -398,9 +398,9 @@ svg {
   :root {
     --header-height: 100px;
     --hero-inline-padding: 1.5rem;
-    --hero-top-gap: clamp(0.75rem, 3vh, 1.5rem);
+    --hero-top-gap: 1rem;
     --hero-bottom-gap: clamp(1.25rem, 4vh, 2.5rem);
-    --hero-copy-shift-y: -32px;
+    --hero-copy-shift-y: -16px;
   }
 
   .header {
@@ -452,8 +452,9 @@ svg {
   :root {
     --header-height: 90px;
     --hero-inline-padding: 1rem;
-    --hero-top-gap: clamp(0.6rem, 2.6vh, 1.25rem);
+    --hero-top-gap: 1rem;
     --hero-bottom-gap: clamp(1rem, 3.2vh, 2rem);
+    --hero-copy-shift-y: -8px;
   }
 
   .header {
@@ -485,8 +486,9 @@ svg {
   :root {
     --header-height: 80px;
     --hero-inline-padding: 0.8rem;
-    --hero-top-gap: 0.5rem;
+    --hero-top-gap: 1.125rem;
     --hero-bottom-gap: 1rem;
+    --hero-copy-shift-y: 0px;
   }
 
   .header {
