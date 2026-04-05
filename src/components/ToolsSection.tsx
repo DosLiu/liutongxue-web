@@ -90,16 +90,22 @@ export default function ToolsSection({ id, standalone = false }: ToolsSectionPro
       className={`tools-showcase-section ${standalone ? 'tools-showcase-section--standalone' : 'tools-showcase-section--embedded'}`}
     >
       <div className="tools-showcase-container">
+        {!standalone ? <div className="tools-showcase-spacer tools-showcase-spacer--top" aria-hidden="true" /> : null}
+
         <div className={`tools-showcase-header ${titleVisible ? 'visible' : ''}`}>
           <h2 className="tools-showcase-title">Tools</h2>
           <p className="tools-showcase-subtitle">Free utilities to boost your workflow</p>
         </div>
+
+        {!standalone ? <div className="tools-showcase-spacer tools-showcase-spacer--gap" aria-hidden="true" /> : null}
 
         <div className="tools-showcase-grid">
           {TOOL_SHOWCASE_ITEMS.map((tool, index) => (
             <ToolCard key={tool.id} tool={tool} index={index} />
           ))}
         </div>
+
+        {!standalone ? <div className="tools-showcase-spacer tools-showcase-spacer--bottom" aria-hidden="true" /> : null}
       </div>
     </Wrapper>
   );

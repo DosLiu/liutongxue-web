@@ -5,22 +5,50 @@
 .tools-showcase-section {
   position: relative;
   z-index: 22;
-  padding: 80px 2rem;
   user-select: none;
 }
 
 .tools-showcase-section--embedded {
+  --tools-section-min-height: max(var(--hero-viewport-height, 100svh), 48rem);
+  --tools-top-track: clamp(8.5rem, 17vh, 10rem);
+  --tools-bottom-track: minmax(clamp(2rem, 5vh, 4rem), 1fr);
+  --tools-breathing-gap: clamp(4.75rem, 9vh, 5.625rem);
+  min-height: var(--tools-section-min-height);
+  padding-inline: clamp(1.25rem, 4vw, 2rem);
   scroll-margin-top: calc(var(--header-height) + 24px);
 }
 
 .tools-showcase-section--standalone {
-  min-height: 100vh;
-  padding-top: calc(var(--header-height) + 80px);
+  min-height: 100svh;
+  padding: calc(var(--header-height) + 80px) 2rem 80px;
 }
 
 .tools-showcase-container {
-  max-width: 1000px;
+  max-width: 1120px;
   margin: 0 auto;
+}
+
+.tools-showcase-section--embedded .tools-showcase-container {
+  display: grid;
+  grid-template-rows: var(--tools-top-track) auto var(--tools-breathing-gap) auto var(--tools-bottom-track);
+  min-height: var(--tools-section-min-height);
+}
+
+.tools-showcase-spacer {
+  width: 100%;
+  pointer-events: none;
+}
+
+.tools-showcase-spacer--top {
+  min-height: clamp(4rem, 10vh, 7.75rem);
+}
+
+.tools-showcase-spacer--gap {
+  min-height: var(--tools-breathing-gap);
+}
+
+.tools-showcase-spacer--bottom {
+  min-height: clamp(3rem, 7vh, 6rem);
 }
 
 /* ===========================================
@@ -28,11 +56,14 @@
    =========================================== */
 
 .tools-showcase-header {
-  margin-bottom: 4rem;
   text-align: center;
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tools-showcase-section--standalone .tools-showcase-header {
+  margin-bottom: 4rem;
 }
 
 .tools-showcase-header.visible {
@@ -42,14 +73,14 @@
 
 .tools-showcase-title {
   display: inline-block;
-  margin-bottom: 0.2rem;
+  margin: 0;
   background: var(--gradient-title);
   background-clip: text;
   background-size: 200% 200%;
   color: #fff;
-  font-size: 4rem;
+  font-size: clamp(3rem, 6vw, 4.75rem);
   font-weight: 600;
-  letter-spacing: -2px;
+  letter-spacing: -0.04em;
   text-align: center;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -58,13 +89,12 @@
 
 .tools-showcase-subtitle {
   max-width: 600px;
-  margin: 0;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0.85rem auto 0;
   padding: 0 1rem;
   color: #ffffffb7;
-  font-size: 1.2rem;
+  font-size: 1.12rem;
   font-weight: 400;
+  line-height: 1.65;
   text-align: center;
 }
 
@@ -74,14 +104,12 @@
 
 .tools-showcase-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
 
-@media (max-width: 900px) {
-  .tools-showcase-grid {
-    grid-template-columns: 1fr;
-  }
+.tools-showcase-section--embedded .tools-showcase-grid {
+  align-self: stretch;
 }
 
 /* ===========================================
@@ -91,7 +119,7 @@
 .tool-showcase-card {
   position: relative;
   display: flex;
-  min-height: 180px;
+  min-height: clamp(26rem, 31vw, 27.5rem);
   flex-direction: column;
   overflow: hidden;
   border: 1px solid rgba(169, 148, 184, 0.2);
@@ -162,7 +190,7 @@
 }
 
 .tool-card-title {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.65rem;
   color: #fff;
   font-size: 1rem;
   font-weight: 600;
@@ -173,8 +201,8 @@
   flex-grow: 1;
   margin: 0 0 1rem;
   color: rgba(161, 148, 184, 0.9);
-  font-size: 0.85rem;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  line-height: 1.65;
 }
 
 .tool-card-cta {
@@ -203,59 +231,58 @@
    RESPONSIVE
    =========================================== */
 
-@media (max-width: 768px) {
-  .tools-showcase-section {
-    padding: 3rem 1.5rem;
+@media (max-width: 1024px) {
+  .tools-showcase-section--embedded {
+    --tools-section-min-height: max(var(--hero-viewport-height, 100svh), 56rem);
+    --tools-top-track: clamp(5rem, 11vh, 6.5rem);
+    --tools-bottom-track: minmax(clamp(2.5rem, 5vh, 4rem), 0.52fr);
+    --tools-breathing-gap: clamp(3.75rem, 7vh, 5rem);
   }
+}
 
-  .tools-showcase-section--standalone {
-    padding-top: calc(var(--header-height) + 3rem);
-  }
-
-  .tools-showcase-header {
-    margin-bottom: 2rem;
-  }
-
-  .tools-showcase-title {
-    font-size: 2.5rem;
-    letter-spacing: -1px;
-  }
-
-  .tools-showcase-subtitle {
-    font-size: 1rem;
+@media (max-width: 900px) {
+  .tools-showcase-grid {
+    grid-template-columns: 1fr;
   }
 
   .tool-showcase-card {
     min-height: auto;
-    padding: 1.25rem;
   }
 }
-
-@media (max-width: 480px) {
-  .tools-showcase-title {
-    font-size: 2rem;
-  }
-
-  .tools-showcase-subtitle {
-    font-size: 0.9rem;
-  }
-}
-
-/* ===========================================
-   RESPONSIVE - CARDS
-   =========================================== */
 
 @media (max-width: 768px) {
-  .tools-showcase-section {
-    padding: 4rem 1.5rem;
+  .tools-showcase-section--embedded {
+    --tools-section-min-height: max(var(--hero-viewport-height, 100svh), 44rem);
+    padding-inline: 1.5rem;
   }
 
   .tools-showcase-section--standalone {
-    padding-top: calc(var(--header-height) + 4rem);
+    padding: calc(var(--header-height) + 64px) 1.5rem 64px;
   }
 
-  .tools-showcase-header {
+  .tools-showcase-section--embedded .tools-showcase-container {
+    display: flex;
+    flex-direction: column;
+    min-height: var(--tools-section-min-height);
+    gap: clamp(2.75rem, 6vh, 4rem);
+    padding: clamp(4rem, 9vh, 5.5rem) 0 clamp(3.25rem, 7vh, 4.5rem);
+  }
+
+  .tools-showcase-section--embedded .tools-showcase-spacer {
+    display: none;
+  }
+
+  .tools-showcase-section--standalone .tools-showcase-header {
     margin-bottom: 2.5rem;
+  }
+
+  .tools-showcase-title {
+    font-size: clamp(2.5rem, 12vw, 3rem);
+    letter-spacing: -0.03em;
+  }
+
+  .tools-showcase-subtitle {
+    font-size: 1rem;
   }
 
   .tool-showcase-card {
@@ -272,5 +299,33 @@
   .tool-card-icon svg {
     width: 20px;
     height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tools-showcase-section--embedded {
+    padding-inline: 1rem;
+  }
+
+  .tools-showcase-section--standalone {
+    padding: calc(var(--header-height) + 56px) 1rem 56px;
+  }
+
+  .tools-showcase-section--embedded .tools-showcase-container {
+    gap: clamp(2.4rem, 5.5vh, 3.25rem);
+    padding: clamp(3.5rem, 8vh, 4.5rem) 0 3rem;
+  }
+
+  .tools-showcase-title {
+    font-size: clamp(2rem, 13vw, 2.4rem);
+  }
+
+  .tools-showcase-subtitle {
+    padding: 0;
+    font-size: 0.9rem;
+  }
+
+  .tool-showcase-card {
+    padding: 1.25rem;
   }
 }
