@@ -314,9 +314,4 @@
   .testimonials-title {
     animation: none;
   }
-
-  .testimonial-track {
-    animation: none;
-    transform: translate3d(0, 0, 0) !important;
-  }
 }
