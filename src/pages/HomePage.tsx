@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import heroImage from '../assets/hero.webp';
 import PlasmaWave from '../components/PlasmaWave';
 import SiteHeader from '../components/SiteHeader';
+import ToolsSection from '../components/ToolsSection';
 
 const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
@@ -125,47 +126,51 @@ export default function HomePage() {
     <>
       <SiteHeader ref={headerRef} activeKey="home" />
 
-      <section className="landing-wrapper">
-        <div className="mobile-hero-background-container">
-          <img src={heroImage} alt="Liutongxue hero background" className="mobile-hero-background-image" />
-        </div>
-
-        <PlasmaWave />
-
-        <div ref={landingContentRef} className="landing-content">
-          <div className="landing-gradient-blur" aria-hidden="true" />
-
-          <div ref={heroMainContentRef} className="hero-main-content">
-            <h1 className="landing-title">
-              <span className="hero-text-animate hero-title-line">一个持续进化中的 AI</span>
-            </h1>
-
-            <p
-              className={`landing-subtitle${isSubtitleAnimated ? ' landing-subtitle-ready' : ''}`}
-              aria-label={subtitleText}
-            >
-              <span className="landing-subtitle-leading" aria-hidden="true">
-                {subtitleLeadingChars.map((char, index) => (
-                  <span key={`subtitle-leading-${index}`} className="landing-subtitle-leading-char">
-                    {char}
-                  </span>
-                ))}
-              </span>
-              <span className="landing-subtitle-animated" aria-hidden="true">
-                {subtitleAnimatedChars.map((char, index) => (
-                  <span
-                    key={`subtitle-char-${index + 2}`}
-                    className="landing-subtitle-char"
-                    style={{ '--subtitle-char-delay': `${(index * 0.3).toFixed(1)}s` } as CSSProperties}
-                  >
-                    {char}
-                  </span>
-                ))}
-              </span>
-            </p>
+      <main>
+        <section className="landing-wrapper">
+          <div className="mobile-hero-background-container">
+            <img src={heroImage} alt="Liutongxue hero background" className="mobile-hero-background-image" />
           </div>
-        </div>
-      </section>
+
+          <PlasmaWave />
+
+          <div ref={landingContentRef} className="landing-content">
+            <div className="landing-gradient-blur" aria-hidden="true" />
+
+            <div ref={heroMainContentRef} className="hero-main-content">
+              <h1 className="landing-title">
+                <span className="hero-text-animate hero-title-line">一个持续进化中的 AI</span>
+              </h1>
+
+              <p
+                className={`landing-subtitle${isSubtitleAnimated ? ' landing-subtitle-ready' : ''}`}
+                aria-label={subtitleText}
+              >
+                <span className="landing-subtitle-leading" aria-hidden="true">
+                  {subtitleLeadingChars.map((char, index) => (
+                    <span key={`subtitle-leading-${index}`} className="landing-subtitle-leading-char">
+                      {char}
+                    </span>
+                  ))}
+                </span>
+                <span className="landing-subtitle-animated" aria-hidden="true">
+                  {subtitleAnimatedChars.map((char, index) => (
+                    <span
+                      key={`subtitle-char-${index + 2}`}
+                      className="landing-subtitle-char"
+                      style={{ '--subtitle-char-delay': `${(index * 0.3).toFixed(1)}s` } as CSSProperties}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <ToolsSection id="tools" />
+      </main>
     </>
   );
 }

@@ -1,6 +1,7 @@
 export const sitePaths = {
   home: import.meta.env.BASE_URL,
-  tools: `${import.meta.env.BASE_URL}tools/`,
+  tools: `${import.meta.env.BASE_URL}#tools`,
+  toolsPage: `${import.meta.env.BASE_URL}tools/`,
   contact: 'mailto:hello@liutongxue.com'
 };
 
