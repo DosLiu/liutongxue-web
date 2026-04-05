@@ -31,24 +31,23 @@ const interpolateStops = (value: number, stops: Array<[number, number]>) => {
 
 const getHeroTargetCenterRatio = (viewportWidth: number, shellHeight: number) => {
   const widthRatio = interpolateStops(viewportWidth, [
-    [320, 0.626],
-    [375, 0.638],
-    [430, 0.652],
-    [768, 0.68],
-    [1024, 0.715],
-    [1440, 0.748],
-    [1920, 0.75]
+    [320, 0.38],
+    [375, 0.345],
+    [430, 0.334],
+    [768, 0.3],
+    [1024, 0.278],
+    [1440, 0.258],
+    [1920, 0.24]
   ]);
   const heightDelta = interpolateStops(shellHeight, [
-    [480, -0.012],
-    [560, -0.008],
-    [640, -0.004],
-    [760, 0],
-    [900, 0.003],
-    [1100, 0.004]
+    [480, 0.006],
+    [560, 0.003],
+    [720, 0],
+    [900, -0.004],
+    [1100, -0.006]
   ]);
 
-  return clampNumber(widthRatio + heightDelta, 0.61, 0.75);
+  return clampNumber(widthRatio + heightDelta, 0.24, 0.38);
 };
 
 export default function App() {
