@@ -12,43 +12,7 @@ const navItems = [
 
 const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
-const interpolateStops = (value: number, stops: Array<[number, number]>) => {
-  if (stops.length === 0) return 0;
-  if (value <= stops[0][0]) return stops[0][1];
-
-  for (let index = 1; index < stops.length; index += 1) {
-    const [maxInput, maxOutput] = stops[index];
-
-    if (value <= maxInput) {
-      const [minInput, minOutput] = stops[index - 1];
-      const progress = (value - minInput) / (maxInput - minInput);
-      return minOutput + (maxOutput - minOutput) * progress;
-    }
-  }
-
-  return stops[stops.length - 1][1];
-};
-
-const getHeroTargetCenterRatio = (viewportWidth: number, shellHeight: number) => {
-  const widthRatio = interpolateStops(viewportWidth, [
-    [320, 0.38],
-    [375, 0.345],
-    [430, 0.334],
-    [768, 0.3],
-    [1024, 0.278],
-    [1440, 0.258],
-    [1920, 0.24]
-  ]);
-  const heightDelta = interpolateStops(shellHeight, [
-    [480, 0.006],
-    [560, 0.003],
-    [720, 0],
-    [900, -0.004],
-    [1100, -0.006]
-  ]);
-
-  return clampNumber(widthRatio + heightDelta, 0.24, 0.38);
-};
+const HERO_TARGET_CENTER_RATIO = 0.25;
 
 export default function App() {
   const headerRef = useRef<HTMLElement | null>(null);
@@ -79,16 +43,6 @@ export default function App() {
           )
         )
       );
-      const viewportWidth = Math.max(
-        320,
-        Math.round(
-          Math.min(
-            ...[viewport?.width, window.innerWidth, document.documentElement.clientWidth].filter(
-              (value): value is number => typeof value === 'number' && value > 0
-            )
-          )
-        )
-      );
       const headerHeight = Math.max(0, Math.round(header.getBoundingClientRect().height));
       const shellHeight = Math.max(0, viewportHeight - headerHeight);
 
@@ -106,8 +60,11 @@ export default function App() {
       const currentCenterY = paddingTop + contentHeight / 2;
       const minCenterY = paddingTop + heroHeight / 2;
       const maxCenterY = shellHeight - paddingBottom - heroHeight / 2;
-      const targetCenterRatio = getHeroTargetCenterRatio(viewportWidth, shellHeight);
-      const desiredCenterY = clampNumber(shellHeight * targetCenterRatio, minCenterY, Math.max(minCenterY, maxCenterY));
+      const desiredCenterY = clampNumber(
+        shellHeight * HERO_TARGET_CENTER_RATIO,
+        minCenterY,
+        Math.max(minCenterY, maxCenterY)
+      );
       const shiftY = Math.round((desiredCenterY - currentCenterY) * 10) / 10;
 
       root.style.setProperty('--hero-copy-shift-y', `${shiftY}px`);
