@@ -326,6 +326,213 @@ svg {
   animation-delay: 0.3s;
 }
 
+.tools-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top, rgba(82, 39, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 20% 24%, rgba(57, 189, 255, 0.14), transparent 24%),
+    radial-gradient(circle at 80% 18%, rgba(121, 66, 255, 0.12), transparent 20%),
+    linear-gradient(180deg, #050110 0%, #070311 48%, #04010a 100%);
+}
+
+.tools-page__ambient {
+  position: absolute;
+  z-index: 0;
+  width: min(36rem, 46vw);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  filter: blur(90px);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.tools-page__ambient--left {
+  top: 8rem;
+  left: -10rem;
+  background: radial-gradient(circle, rgba(59, 157, 255, 0.32) 0%, rgba(59, 157, 255, 0) 70%);
+}
+
+.tools-page__ambient--right {
+  top: 10rem;
+  right: -8rem;
+  background: radial-gradient(circle, rgba(101, 66, 255, 0.24) 0%, rgba(101, 66, 255, 0) 70%);
+}
+
+.tools-page__grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 92%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 92%);
+  pointer-events: none;
+}
+
+.tools-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: calc(var(--header-height) + clamp(2rem, 4vw, 3.5rem)) clamp(1.5rem, 4vw, 4rem)
+    clamp(4rem, 8vw, 6rem);
+}
+
+.tools-hero {
+  max-width: 52rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.tools-kicker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.55rem 1rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.tools-title {
+  margin: 1.6rem 0 0;
+  color: var(--text-primary);
+  font-size: clamp(3.2rem, 7vw, 6.25rem);
+  font-weight: 600;
+  line-height: 0.96;
+  letter-spacing: -0.055em;
+}
+
+.tools-subtitle {
+  max-width: 40rem;
+  margin: 1.35rem auto 0;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: clamp(1rem, 1.4vw, 1.12rem);
+  line-height: 1.75;
+}
+
+.tools-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.35rem;
+  margin-top: clamp(2.5rem, 6vw, 4.2rem);
+}
+
+.tools-card {
+  position: relative;
+  min-height: 24rem;
+  padding: 1.6rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%),
+    rgba(10, 6, 21, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.9rem;
+  box-shadow: 0 24px 100px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  overflow: hidden;
+  transition:
+    transform 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+.tools-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top left, rgba(92, 178, 255, 0.18), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(111, 76, 255, 0.16), transparent 28%);
+  pointer-events: none;
+}
+
+.tools-card:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 28px 120px rgba(0, 0, 0, 0.42);
+  transform: translateY(-6px);
+}
+
+.tools-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tools-card__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tools-card__eyebrow {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+}
+
+.tools-card__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #8fd6ff 0%, #8f67ff 100%);
+  box-shadow: 0 0 16px rgba(143, 103, 255, 0.5);
+}
+
+.tools-card__title {
+  margin: 4.75rem 0 0;
+  color: var(--text-primary);
+  font-size: clamp(1.45rem, 2vw, 1.8rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.tools-card__description {
+  margin: 0.95rem 0 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+.tools-card__points {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tools-card__points li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.tools-card__points li::before {
+  content: '';
+  flex: 0 0 0.45rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #9ad8ff 0%, #9e7eff 100%);
+  box-shadow: 0 0 14px rgba(154, 216, 255, 0.45);
+}
 
 .mobile-hero-background-container {
   position: absolute;
@@ -427,6 +634,18 @@ svg {
     text-align: center;
     transform: translateY(var(--hero-copy-shift-y, 0px));
   }
+
+  .tools-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tools-card {
+    min-height: auto;
+  }
+
+  .tools-card__title {
+    margin-top: 3.25rem;
+  }
 }
 
 @media (max-width: 900px) {
@@ -497,6 +716,27 @@ svg {
     align-items: center;
   }
 
+  .tools-shell {
+    padding-top: calc(var(--header-height) + 2rem);
+    padding-inline: 1.5rem;
+  }
+
+  .tools-kicker {
+    min-height: 2.3rem;
+    padding-inline: 0.9rem;
+    font-size: 0.66rem;
+  }
+
+  .tools-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .tools-card {
+    padding: 1.35rem;
+    border-radius: 1.5rem;
+  }
+
   .mobile-hero-background-container {
     display: block;
   }
@@ -536,6 +776,28 @@ svg {
   .landing-subtitle {
     font-size: clamp(0.6rem, 2.8vw, 0.72rem);
     line-height: 1.4;
+  }
+
+  .tools-shell {
+    padding-inline: 1rem;
+    padding-bottom: 3rem;
+  }
+
+  .tools-title {
+    font-size: clamp(2.35rem, 14vw, 3rem);
+  }
+
+  .tools-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .tools-card__title {
+    margin-top: 2.75rem;
+  }
+
+  .tools-card__description,
+  .tools-card__points li {
+    font-size: 0.9rem;
   }
 }
 
