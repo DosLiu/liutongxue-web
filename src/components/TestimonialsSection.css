@@ -107,6 +107,7 @@
    =========================================== */
 
 .testimonial-row {
+  --testimonial-marquee-gap: 20px;
   width: 100%;
   overflow: visible;
   margin-bottom: 20px;
@@ -124,19 +125,37 @@
 .testimonial-track {
   display: flex;
   width: max-content;
+  gap: var(--testimonial-marquee-gap);
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   perspective: 1000px;
   contain: layout style;
   will-change: transform;
+  animation-name: testimonials-marquee;
+  animation-duration: var(--testimonial-marquee-duration, 18s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.testimonial-track--right {
+  animation-direction: reverse;
 }
 
 .testimonial-track-group {
   display: flex;
   flex-shrink: 0;
-  gap: 20px;
-  margin-right: 20px;
+  gap: var(--testimonial-marquee-gap);
+}
+
+@keyframes testimonials-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(calc(-1 * var(--testimonial-marquee-distance, 0px)), 0, 0);
+  }
 }
 
 /* ===========================================
@@ -297,6 +316,7 @@
   }
 
   .testimonial-track {
+    animation: none;
     transform: translate3d(0, 0, 0) !important;
   }
 }

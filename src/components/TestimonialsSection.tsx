@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, type CSSProperties } from 'react';
 import './TestimonialsSection.css';
 
 type Tweet = {
@@ -84,9 +84,8 @@ const tweets: Tweet[] = [
   }
 ];
 
-const REPEAT_COUNT = 4;
-const HOVER_SLOWDOWN_FACTOR = 0.15;
-const HOVER_LERP = 0.12;
+const REPEAT_COUNT = 2;
+const MARQUEE_BASE_PX_PER_SECOND = 24;
 
 const TweetCard = memo(({ tweet }: { tweet: Tweet }) => {
   return (
@@ -110,116 +109,48 @@ TweetCard.displayName = 'TweetCard';
 
 function MarqueeRow({ tweets, direction = 'left', speed = 3 }: { tweets: Tweet[]; direction?: MarqueeDirection; speed?: number }) {
   const rowRef = useRef<HTMLDivElement | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
   const firstGroupRef = useRef<HTMLDivElement | null>(null);
-  const isHoveredRef = useRef(false);
-  const currentFactorRef = useRef(1);
-  const groupWidthRef = useRef(0);
-  const offsetRef = useRef(0);
-  const frameRef = useRef<number | null>(null);
-  const lastTimestampRef = useRef<number | null>(null);
-  const isVisibleRef = useRef(true);
+  const [distance, setDistance] = useState(0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const track = trackRef.current;
-    const firstGroup = firstGroupRef.current;
     const row = rowRef.current;
-    if (!track || !firstGroup || !row) return;
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const firstGroup = firstGroupRef.current;
+    if (!row || !firstGroup) return;
 
     const measure = () => {
-      const groupStyle = window.getComputedStyle(firstGroup);
-      const marginRight = parseFloat(groupStyle.marginRight) || 0;
-      const nextGroupWidth = firstGroup.getBoundingClientRect().width + marginRight;
-      groupWidthRef.current = nextGroupWidth;
-      offsetRef.current = direction === 'right' ? -nextGroupWidth : 0;
-      track.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+      const rowStyles = window.getComputedStyle(row);
+      const gap = parseFloat(rowStyles.getPropertyValue('--testimonial-marquee-gap')) || 20;
+      const nextDistance = firstGroup.getBoundingClientRect().width + gap;
+      setDistance((prevDistance) => (Math.abs(prevDistance - nextDistance) < 0.5 ? prevDistance : nextDistance));
     };
 
     const resizeObserver = new ResizeObserver(measure);
-    resizeObserver.observe(firstGroup);
     resizeObserver.observe(row);
-
-    const visibilityObserver = new IntersectionObserver(
-      ([entry]) => {
-        isVisibleRef.current = entry.isIntersecting;
-      },
-      { threshold: 0, rootMargin: '50px' }
-    );
-    visibilityObserver.observe(row);
-
-    const animate = (timestamp: number) => {
-      frameRef.current = window.requestAnimationFrame(animate);
-
-      if (prefersReducedMotion.matches || !isVisibleRef.current || groupWidthRef.current <= 0) {
-        lastTimestampRef.current = timestamp;
-        return;
-      }
-
-      if (lastTimestampRef.current === null) {
-        lastTimestampRef.current = timestamp;
-        return;
-      }
-
-      const delta = timestamp - lastTimestampRef.current;
-      lastTimestampRef.current = timestamp;
-
-      const targetFactor = isHoveredRef.current ? HOVER_SLOWDOWN_FACTOR : 1;
-      currentFactorRef.current += (targetFactor - currentFactorRef.current) * HOVER_LERP;
-
-      const directionFactor = direction === 'left' ? -1 : 1;
-      const pxPerSecond = (speed / 100) * groupWidthRef.current;
-      offsetRef.current += directionFactor * pxPerSecond * (delta / 1000) * currentFactorRef.current;
-
-      while (offsetRef.current <= -groupWidthRef.current) {
-        offsetRef.current += groupWidthRef.current;
-      }
-
-      while (offsetRef.current > 0) {
-        offsetRef.current -= groupWidthRef.current;
-      }
-
-      track.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
-    };
-
-    const handleMotionChange = () => {
-      if (prefersReducedMotion.matches) {
-        track.style.transform = 'translate3d(0, 0, 0)';
-      } else {
-        measure();
-      }
-    };
+    resizeObserver.observe(firstGroup);
 
     measure();
-    frameRef.current = window.requestAnimationFrame(animate);
-    prefersReducedMotion.addEventListener('change', handleMotionChange);
 
     return () => {
       resizeObserver.disconnect();
-      visibilityObserver.disconnect();
-      prefersReducedMotion.removeEventListener('change', handleMotionChange);
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current);
-      }
     };
-  }, [direction, speed]);
+  }, []);
+
+  const duration = distance > 0 ? distance / (speed * MARQUEE_BASE_PX_PER_SECOND) : 0;
 
   return (
-    <div
-      ref={rowRef}
-      className="testimonial-row"
-      onPointerEnter={() => {
-        isHoveredRef.current = true;
-      }}
-      onPointerLeave={() => {
-        isHoveredRef.current = false;
-      }}
-    >
+    <div ref={rowRef} className="testimonial-row">
       <div className="testimonial-track-viewport">
-        <div ref={trackRef} className="testimonial-track">
+        <div
+          className={`testimonial-track testimonial-track--${direction}`}
+          style={
+            {
+              '--testimonial-marquee-distance': `${distance}px`,
+              '--testimonial-marquee-duration': `${duration}s`
+            } as CSSProperties
+          }
+        >
           {Array.from({ length: REPEAT_COUNT }, (_, index) => (
             <div
               key={`testimonial-group-${direction}-${speed}-${index}`}
@@ -271,8 +202,8 @@ export default function TestimonialsSection() {
         </div>
 
         <div className="testimonials-marquee-container">
-          <MarqueeRow tweets={tweets.slice(0, 4)} direction="left" speed={3} />
-          <MarqueeRow tweets={tweets.slice(4, 7)} direction="right" speed={2.5} />
+          <MarqueeRow tweets={tweets.slice(0, 4)} direction="left" speed={2.5} />
+          <MarqueeRow tweets={tweets.slice(4, 7)} direction="right" speed={3} />
           <MarqueeRow tweets={tweets.slice(7, 10)} direction="left" speed={3.5} />
         </div>
       </div>
