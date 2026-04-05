@@ -98,7 +98,6 @@ const TweetCard = memo(({ tweet }: { tweet: Tweet }) => {
     >
       <p className="testimonial-text">{tweet.text}</p>
       <div className="testimonial-author">
-        <img src={tweet.avatar} alt="" className="testimonial-avatar" loading="lazy" decoding="async" />
         <span className="testimonial-handle">{tweet.handle}</span>
       </div>
     </a>
@@ -196,9 +195,8 @@ export default function TestimonialsSection() {
       <div className="testimonials-container">
         <div ref={headerRef} className={`testimonials-header ${titleVisible ? 'visible' : ''}`}>
           <h2 id="testimonials-title" className="testimonials-title">
-            Loved by devs worldwide
+            数智灵言
           </h2>
-          <p className="testimonials-subtitle">See what developers are saying about React Bits</p>
         </div>
 
         <div className="testimonials-marquee-container">
