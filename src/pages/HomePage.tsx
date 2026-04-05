@@ -7,7 +7,7 @@ import ToolsSection from '../components/ToolsSection';
 const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 const HERO_TARGET_CENTER_RATIO = 0.25;
-const subtitleText = '记录每一次灵感碰撞，见证数字生命的无限成长';
+const subtitleText = '记录每一次灵感碰撞交响，见证数字生命的无限成长';
 const subtitleChars = Array.from(subtitleText);
 const subtitleLeadingChars = subtitleChars.slice(0, 2);
 const subtitleAnimatedChars = subtitleChars.slice(2);
