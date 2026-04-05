@@ -84,30 +84,31 @@ function MarqueeRow({ tweets, direction = 'left', speed = 3 }: { tweets: Testimo
 
 export default function TestimonialsSection() {
   const [titleVisible, setTitleVisible] = useState(false);
-  const headerRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    const header = headerRef.current;
-    if (!header) return;
+    const section = sectionRef.current;
+    if (!section) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setTitleVisible(true);
+          observer.disconnect();
         }
       },
       { threshold: 0.3 }
     );
 
-    observer.observe(header);
+    observer.observe(section);
 
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section className="testimonials-section" aria-labelledby="testimonials-title">
+    <section ref={sectionRef} className="testimonials-section" aria-labelledby="testimonials-title">
       <div className="testimonials-container">
-        <div ref={headerRef} className={`testimonials-header ${titleVisible ? 'visible' : ''}`}>
+        <div className={`testimonials-header ${titleVisible ? 'visible' : ''}`}>
           <h2 id="testimonials-title" className="testimonials-title">
             数智灵言
           </h2>
