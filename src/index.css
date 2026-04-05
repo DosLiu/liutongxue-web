@@ -274,10 +274,20 @@ svg {
 }
 
 .landing-subtitle-char {
+  --subtitle-char-delay: 0s;
   opacity: 0;
   transform: translateY(0.5em) scale(0.92);
-  animation: heroSubtitleCharPop 0.58s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  animation-name: heroSubtitleCharPop;
+  animation-duration: 0.52s;
+  animation-timing-function: cubic-bezier(0.2, 0.9, 0.2, 1);
+  animation-fill-mode: both;
+  animation-delay: var(--subtitle-char-delay);
+  animation-play-state: paused;
   will-change: transform, opacity;
+}
+
+.landing-subtitle-ready .landing-subtitle-char {
+  animation-play-state: running;
 }
 
 .landing-gradient-blur {
@@ -363,11 +373,23 @@ svg {
   }
 }
 
+@keyframes heroSubtitleCharFade {
+  0% {
+    opacity: 0;
+    transform: translateY(0.18em);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-subtitle-char {
-    opacity: 1;
-    transform: none;
-    animation: none;
+    transform: translateY(0.18em);
+    animation-name: heroSubtitleCharFade;
+    animation-duration: 0.28s;
   }
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import heroImage from './assets/hero.webp';
 import PlasmaWave from './components/PlasmaWave';
 import ReactBitsLogo from './components/ReactBitsLogo';
@@ -22,6 +22,23 @@ export default function App() {
   const headerRef = useRef<HTMLElement | null>(null);
   const landingContentRef = useRef<HTMLDivElement | null>(null);
   const heroMainContentRef = useRef<HTMLDivElement | null>(null);
+  const [isSubtitleAnimated, setIsSubtitleAnimated] = useState(false);
+
+  useEffect(() => {
+    let firstFrameId: number | null = null;
+    let secondFrameId: number | null = null;
+
+    firstFrameId = window.requestAnimationFrame(() => {
+      secondFrameId = window.requestAnimationFrame(() => {
+        setIsSubtitleAnimated(true);
+      });
+    });
+
+    return () => {
+      if (firstFrameId !== null) window.cancelAnimationFrame(firstFrameId);
+      if (secondFrameId !== null) window.cancelAnimationFrame(secondFrameId);
+    };
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -150,7 +167,10 @@ export default function App() {
               <span className="hero-text-animate hero-title-line">一个持续进化中的 AI</span>
             </h1>
 
-            <p className="landing-subtitle" aria-label={subtitleText}>
+            <p
+              className={`landing-subtitle${isSubtitleAnimated ? ' landing-subtitle-ready' : ''}`}
+              aria-label={subtitleText}
+            >
               <span className="landing-subtitle-leading" aria-hidden="true">
                 {subtitleLeadingChars.map((char, index) => (
                   <span key={`subtitle-leading-${index}`} className="landing-subtitle-leading-char">
@@ -163,7 +183,7 @@ export default function App() {
                   <span
                     key={`subtitle-char-${index + 2}`}
                     className="landing-subtitle-char"
-                    style={{ animationDelay: `${index * 0.5}s` }}
+                    style={{ '--subtitle-char-delay': `${(index * 0.3).toFixed(1)}s` } as CSSProperties}
                   >
                     {char}
                   </span>
