@@ -89,18 +89,12 @@ const MARQUEE_BASE_PX_PER_SECOND = 24;
 
 const TweetCard = memo(({ tweet }: { tweet: Tweet }) => {
   return (
-    <a
-      className="testimonial-card"
-      href={tweet.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`Open testimonial from ${tweet.handle}`}
-    >
+    <div className="testimonial-card" aria-label={`Testimonial from ${tweet.handle}`}>
       <p className="testimonial-text">{tweet.text}</p>
       <div className="testimonial-author">
         <span className="testimonial-handle">{tweet.handle}</span>
       </div>
-    </a>
+    </div>
   );
 });
 
