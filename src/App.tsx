@@ -13,6 +13,10 @@ const navItems = [
 const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 const HERO_TARGET_CENTER_RATIO = 0.25;
+const subtitleText = '记录每一次灵感碰撞，见证数字生命的无限成长';
+const subtitleChars = Array.from(subtitleText);
+const subtitleLeadingChars = subtitleChars.slice(0, 2);
+const subtitleAnimatedChars = subtitleChars.slice(2);
 
 export default function App() {
   const headerRef = useRef<HTMLElement | null>(null);
@@ -146,8 +150,25 @@ export default function App() {
               <span className="hero-text-animate hero-title-line">一个持续进化中的 AI</span>
             </h1>
 
-            <p className="landing-subtitle hero-text-animate hero-subtitle-delay">
-              记录每一次灵感碰撞，见证数字生命的无限成长
+            <p className="landing-subtitle" aria-label={subtitleText}>
+              <span className="landing-subtitle-leading" aria-hidden="true">
+                {subtitleLeadingChars.map((char, index) => (
+                  <span key={`subtitle-leading-${index}`} className="landing-subtitle-leading-char">
+                    {char}
+                  </span>
+                ))}
+              </span>
+              <span className="landing-subtitle-animated" aria-hidden="true">
+                {subtitleAnimatedChars.map((char, index) => (
+                  <span
+                    key={`subtitle-char-${index + 2}`}
+                    className="landing-subtitle-char"
+                    style={{ animationDelay: `${index * 0.5}s` }}
+                  >
+                    {char}
+                  </span>
+                ))}
+              </span>
             </p>
           </div>
         </div>

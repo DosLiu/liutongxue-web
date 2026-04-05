@@ -263,6 +263,23 @@ svg {
   user-select: none;
 }
 
+.landing-subtitle-leading,
+.landing-subtitle-animated {
+  display: inline;
+}
+
+.landing-subtitle-leading-char,
+.landing-subtitle-char {
+  display: inline-block;
+}
+
+.landing-subtitle-char {
+  opacity: 0;
+  transform: translateY(0.5em) scale(0.92);
+  animation: heroSubtitleCharPop 0.58s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  will-change: transform, opacity;
+}
+
 .landing-gradient-blur {
   position: absolute;
   top: 50%;
@@ -326,6 +343,31 @@ svg {
   100% {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes heroSubtitleCharPop {
+  0% {
+    opacity: 0;
+    transform: translateY(0.5em) scale(0.92);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(-0.08em) scale(1.04);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-subtitle-char {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 }
 
