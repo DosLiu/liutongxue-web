@@ -1,4 +1,3 @@
-import { ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { TOOL_SHOWCASE_ITEMS, type ToolShowcaseItem } from '../constants/toolsShowcase';
 import './ToolsSection.css';
@@ -34,8 +33,6 @@ function ToolCard({ tool, index }: ToolCardProps) {
     return () => observer.disconnect();
   }, [index]);
 
-  const IconComponent = tool.icon;
-
   return (
     <a
       href={tool.href}
@@ -45,17 +42,8 @@ function ToolCard({ tool, index }: ToolCardProps) {
       rel="noreferrer"
     >
       <div className="tool-card-content">
-        <div className="tool-card-icon">
-          <IconComponent size={20} color="#8400ff" />
-        </div>
-
         <h3 className="tool-card-title">{tool.label}</h3>
         <p className="tool-card-description">{tool.description}</p>
-
-        <div className="tool-card-cta">
-          <span>Try it out</span>
-          <ArrowRight size={14} />
-        </div>
       </div>
     </a>
   );
