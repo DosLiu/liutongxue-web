@@ -6,7 +6,7 @@ export default function FeatureCardsSection() {
       <div className="features-container">
         <div className="features-header">
           <h2 id="features-title" className="features-title">
-            灵智履痕
+            数智履痕
           </h2>
         </div>
 
