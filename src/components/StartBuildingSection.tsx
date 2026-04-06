@@ -8,6 +8,9 @@ export default function StartBuildingSection() {
           <h2 id="start-building-title" className="start-building-title">
             与我链接
           </h2>
+          <button type="button" className="start-building-button">
+            Start
+          </button>
         </div>
       </div>
     </section>
