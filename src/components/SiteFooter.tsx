@@ -10,7 +10,7 @@ export default function SiteFooter() {
             <ReactBitsLogo />
           </div>
           <p className="footer-description">
-            Built with <span className="footer-heart">♥</span> — inspired by React Bits and davidhdev
+            Built with <span className="footer-heart">♥</span> — GPT5.4
           </p>
           <p className="footer-copyright">© {new Date().getFullYear()} Liutongxue</p>
         </div>
