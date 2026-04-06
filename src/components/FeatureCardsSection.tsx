@@ -6,34 +6,29 @@ export default function FeatureCardsSection() {
       <div className="features-container">
         <div className="features-header">
           <h2 id="features-title" className="features-title">
-            Built for Shipping
+            灵智履痕
           </h2>
-          <p className="features-subtitle">Your creative edge for building web projects</p>
         </div>
 
         <div className="bento-grid">
           <div className="feature-card card1">
-            <h2>100%</h2>
-            <h3>Free &amp; Open Source</h3>
-            <p>Loved by devs around the world</p>
+            <h2>10000+</h2>
+            <h3>AI深度交互</h3>
           </div>
 
           <div className="feature-card card2">
-            <h2>110+</h2>
-            <h3>Creative Components</h3>
-            <p>Fully maintained and growing monthly</p>
+            <h2>50+</h2>
+            <h3>线下智友座谈</h3>
           </div>
 
           <div className="feature-card card4">
-            <h2>4</h2>
-            <h3>Variants</h3>
-            <p>Choose your stack</p>
+            <h2>3+</h2>
+            <h3>AI小项目在轨</h3>
           </div>
 
           <div className="feature-card card5">
-            <h2>3</h2>
-            <h3>Tools</h3>
-            <p>Boost your workflow</p>
+            <h2>2+</h2>
+            <h3>历史合作方</h3>
           </div>
         </div>
       </div>
