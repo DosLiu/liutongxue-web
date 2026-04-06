@@ -4,8 +4,8 @@ import './SiteFooter.css';
 export default function SiteFooter() {
   return (
     <footer className="landing-footer">
-      <div className="footer-content footer-content--centered">
-        <div className="footer-left footer-left--centered">
+      <div className="footer-content">
+        <div className="footer-left">
           <div className="footer-logo-wrap" aria-label="Liutongxue logo">
             <ReactBitsLogo />
           </div>
