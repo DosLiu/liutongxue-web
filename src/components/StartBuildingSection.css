@@ -69,11 +69,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 7.2rem;
+  min-width: 8.8rem;
   background: white;
   border: 1px solid white;
   color: #7c3aed;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 1.1rem;
   font-size: 1rem;
   font-weight: 500;
   letter-spacing: -0.2px;
@@ -114,8 +114,8 @@
   }
 
   .start-building-button {
-    min-width: 6.6rem;
-    padding: 0.875rem 1.5rem;
+    min-width: 8rem;
+    padding: 0.875rem 1.6rem;
     font-size: 1rem;
   }
 }
@@ -140,8 +140,8 @@
   }
 
   .start-building-button {
-    min-width: 6rem;
-    padding: 0.75rem 1.25rem;
+    min-width: 7rem;
+    padding: 0.75rem 1.35rem;
     font-size: 0.95rem;
   }
 }
