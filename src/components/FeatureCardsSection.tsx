@@ -27,9 +27,8 @@ export default function FeatureCardsSection() {
           </div>
 
           <div className="feature-card card5">
-            <h2>3</h2>
-            <h3>Tools</h3>
-            <p>Boost your workflow</p>
+            <h2>2+</h2>
+            <h3>历史合作方</h3>
           </div>
         </div>
       </div>
