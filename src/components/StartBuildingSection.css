@@ -29,8 +29,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  transform: translateY(-15%);
+  justify-content: center;
+  gap: 0;
+  transform: translateY(-30%);
 }
 
 .start-building-card::before {
@@ -57,42 +58,11 @@
 
 .start-building-title {
   color: white;
-  font-size: 3rem;
-  font-weight: 500;
+  font-size: 4rem;
+  font-weight: 600;
   line-height: 1;
+  letter-spacing: -2px;
   margin: 0;
-}
-
-.start-building-subtitle {
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 500;
-  opacity: 0.6;
-  max-width: 600px;
-  line-height: 1;
-  margin: 0;
-}
-
-.start-building-button {
-  background: white;
-  border: 1px solid white;
-  color: #7c3aed;
-  padding: 0.6rem 1.8rem;
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: -0.2px;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.start-building-button:hover {
-  background: white;
-  color: #7c3aed;
 }
 
 @media (max-width: 1280px) {
@@ -117,20 +87,11 @@
 
   .start-building-card {
     padding: 3rem 2rem;
-    gap: 1.25rem;
   }
 
   .start-building-title {
-    font-size: 2rem;
-  }
-
-  .start-building-subtitle {
-    font-size: 1.1rem;
-  }
-
-  .start-building-button {
-    padding: 0.875rem 1.75rem;
-    font-size: 1rem;
+    font-size: 2.5rem;
+    letter-spacing: -1px;
   }
 }
 
@@ -145,21 +106,10 @@
 
   .start-building-card {
     padding: 2.5rem 1.5rem;
-    gap: 1rem;
   }
 
   .start-building-title {
-    font-size: 1.5rem;
-  }
-
-  .start-building-subtitle {
-    font-size: 1rem;
-    margin: 0;
-    padding: 0 0.6rem;
-  }
-
-  .start-building-button {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
+    font-size: 2rem;
+    letter-spacing: -1px;
   }
 }
