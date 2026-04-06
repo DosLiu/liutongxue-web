@@ -106,7 +106,7 @@ export default function TestimonialsSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="testimonials-section" aria-labelledby="testimonials-title">
+    <section id="testimonials" ref={sectionRef} className="testimonials-section" aria-labelledby="testimonials-title">
       <div className="testimonials-container">
         <div className={`testimonials-header ${titleVisible ? 'visible' : ''}`}>
           <h2 id="testimonials-title" className="testimonials-title">

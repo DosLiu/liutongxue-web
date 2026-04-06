@@ -2,7 +2,9 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import heroImage from '../assets/hero.webp';
 import FeatureCardsSection from '../components/FeatureCardsSection';
 import PlasmaWave from '../components/PlasmaWave';
+import SiteFooter from '../components/SiteFooter';
 import SiteHeader from '../components/SiteHeader';
+import StartBuildingSection from '../components/StartBuildingSection';
 import TestimonialsSection from '../components/TestimonialsSection';
 import ToolsSection from '../components/ToolsSection';
 
@@ -174,6 +176,8 @@ export default function HomePage() {
         <ToolsSection id="tools" />
         <TestimonialsSection />
         <FeatureCardsSection />
+        <StartBuildingSection />
+        <SiteFooter />
       </main>
     </>
   );
