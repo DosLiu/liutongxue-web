@@ -90,7 +90,7 @@
   align-items: start;
   gap: 3rem;
   width: 100%;
-  margin-top: 1.75rem;
+  margin-top: 1.2rem;
   padding: 0 0.5rem;
 }
 
@@ -135,7 +135,7 @@
 
   .contact-qr-grid {
     gap: 2rem;
-    margin-top: 1.5rem;
+    margin-top: 1.05rem;
     padding: 0;
   }
 
@@ -177,7 +177,7 @@
   .contact-qr-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
-    margin-top: 1.25rem;
+    margin-top: 0.9rem;
   }
 
   .contact-qr-card {
@@ -218,7 +218,7 @@
 
   .contact-qr-grid {
     gap: 1rem;
-    margin-top: 1rem;
+    margin-top: 0.7rem;
   }
 
   .contact-qr-card {
