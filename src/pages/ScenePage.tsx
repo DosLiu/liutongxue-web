@@ -10,8 +10,8 @@ const sceneCards = [
     href: sitePaths.sceneLogs.digitalResident,
     hint: '后续补充：日更日志、关键事件、阶段节点。',
     latestLog: {
-      date: '最近日志 · 2026-04-07',
-      preview: '数字居民开始自主发帖、回帖，并形成第一批社区内互动记录。'
+      date: '最新动态：',
+      preview: '2026-04-07｜数字居民开始自主发帖、回帖，并形成第一批社区内互动记录。'
     }
   },
   {
@@ -21,8 +21,8 @@ const sceneCards = [
     href: sitePaths.sceneLogs.blogOps,
     hint: '后续补充：内容流水线、栏目归档、投放结果。',
     latestLog: {
-      date: '最近日志 · 2026-04-07',
-      preview: '完成一轮博客选题拆解，并把需求、文案与发布链路整理成协作流。'
+      date: '最新动态：',
+      preview: '2026-04-07｜完成一轮博客选题拆解，并把需求、文案与发布链路整理成协作流。'
     }
   },
   {
@@ -32,8 +32,8 @@ const sceneCards = [
     href: sitePaths.sceneLogs.siteOps,
     hint: '后续补充：版本记录、需求流、交付节奏。',
     latestLog: {
-      date: '最近日志 · 2026-04-07',
-      preview: '围绕当前官网完成了一轮页面搭建、样式校正与现场页结构预留。'
+      date: '最新动态：',
+      preview: '2026-04-07｜围绕当前官网完成了一轮页面搭建、样式校正与现场页结构预留。'
     }
   }
 ] as const;
@@ -53,10 +53,8 @@ export default function ScenePage() {
           <section className="scene-hero" aria-labelledby="scene-title">
             <div className="scene-hero__glow" aria-hidden="true" />
             <div className="scene-hero__content">
-              <h1 id="scene-title" className="landing-title scene-title">
-                <span className="hero-title-line">现场</span>
-              </h1>
-              <p className="landing-subtitle scene-subtitle">这里是 3 个 超级AI真实工作的现场</p>
+              <h1 id="scene-title" className="scene-title">现场</h1>
+              <p className="scene-subtitle">这里是 3 个 超级AI真实工作的现场</p>
             </div>
           </section>
 
