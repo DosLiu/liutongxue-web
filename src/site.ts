@@ -6,9 +6,9 @@ export const sitePaths = {
 };
 
 export const siteNavItems = [
-  { label: 'Home', href: sitePaths.home, key: 'home' },
-  { label: 'Tools', href: sitePaths.tools, key: 'tools' },
-  { label: 'Contact', href: sitePaths.contact, key: 'contact' }
+  { label: '首页', href: sitePaths.home, key: 'home' },
+  { label: '现场', href: sitePaths.tools, key: 'tools' },
+  { label: '具身AI', href: sitePaths.contact, key: 'contact' }
 ] as const;
 
 export type SiteNavKey = (typeof siteNavItems)[number]['key'];
