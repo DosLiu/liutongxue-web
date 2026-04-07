@@ -237,21 +237,22 @@
 }
 
 .scene-card__title {
-  max-width: 12ch;
+  max-width: 16ch;
   margin: 0;
   color: #fff;
-  font-size: clamp(1.28rem, 1.16rem + 0.35vw, 1.56rem);
+  font-size: clamp(1.14rem, 1.02rem + 0.35vw, 1.34rem);
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.28;
+  line-height: 1.3;
   text-wrap: balance;
 }
 
 .scene-card__description {
   margin: 0.9rem 0 0;
-  color: rgba(225, 218, 236, 0.82);
-  font-size: clamp(0.92rem, 0.88rem + 0.08vw, 0.98rem);
-  line-height: 1.72;
+  color: rgba(225, 218, 236, 0.78);
+  font-size: clamp(0.94rem, 0.9rem + 0.1vw, 1rem);
+  font-weight: 400;
+  line-height: 1.78;
   letter-spacing: 0.01em;
   text-wrap: pretty;
 }
@@ -267,8 +268,9 @@
 
 .scene-card__hint {
   margin: 0.8rem 0 0;
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 0.78rem;
+  font-weight: 500;
   line-height: 1.62;
 }
 
@@ -297,9 +299,9 @@
 
 .scene-card__log-text {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.9rem;
+  font-size: 0.94rem;
   font-weight: 500;
-  line-height: 1.6;
+  line-height: 1.64;
 }
 
 .scene-archive-panel {
@@ -475,7 +477,7 @@
   }
 
   .scene-card__title {
-    margin-top: 3rem;
+    max-width: none;
   }
 }
 
@@ -510,6 +512,20 @@
   .scene-log-panel__description {
     font-size: 0.95rem;
     line-height: 1.72;
+  }
+
+  .scene-card__title {
+    font-size: 1.12rem;
+    line-height: 1.32;
+  }
+
+  .scene-card__hint {
+    font-size: 0.76rem;
+  }
+
+  .scene-card__log-text {
+    font-size: 0.9rem;
+    line-height: 1.62;
   }
 
   .scene-card,
@@ -561,13 +577,25 @@
   }
 
   .scene-card__description,
-  .scene-card__hint,
-  .scene-card__link,
   .scene-archive-panel__description,
   .scene-archive-panel__item-value,
   .scene-log-panel__description,
   .scene-log-panel__list li,
   .scene-log-panel__footnote {
     font-size: 0.9rem;
+  }
+
+  .scene-card__title {
+    font-size: 1.05rem;
+  }
+
+  .scene-card__hint,
+  .scene-card__log-date {
+    font-size: 0.74rem;
+  }
+
+  .scene-card__log-text {
+    font-size: 0.88rem;
+    line-height: 1.58;
   }
 }
