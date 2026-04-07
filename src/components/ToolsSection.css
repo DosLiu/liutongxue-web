@@ -106,7 +106,7 @@
 .tools-showcase-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  gap: clamp(1rem, 1.4vw, 1.4rem);
 }
 
 .tools-showcase-section--embedded .tools-showcase-grid {
@@ -120,13 +120,13 @@
 .tool-showcase-card {
   position: relative;
   display: flex;
-  min-height: clamp(26rem, 31vw, 27.5rem);
+  min-height: clamp(27rem, 33vw, 30rem);
   flex-direction: column;
   overflow: hidden;
   border: 1px solid rgba(169, 148, 184, 0.2);
   border-radius: 16px;
   background: var(--bg-body);
-  padding: 1.5rem;
+  padding: clamp(1.45rem, 1.8vw, 1.75rem);
   cursor: pointer;
   opacity: 0;
   text-decoration: none;
@@ -171,22 +171,28 @@
   height: 100%;
   flex-direction: column;
   justify-content: flex-start;
+  gap: 0.9rem;
   padding-top: 0.125rem;
 }
 
 .tool-card-title {
-  margin: 0 0 0.75rem;
+  max-width: 16ch;
+  margin: 0;
   color: #fff;
-  font-size: 1rem;
+  font-size: clamp(1.14rem, 1.02rem + 0.35vw, 1.34rem);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  text-wrap: balance;
 }
 
 .tool-card-description {
   margin: 0;
-  color: rgba(161, 148, 184, 0.9);
-  font-size: 0.9rem;
-  line-height: 1.65;
+  color: rgba(225, 218, 236, 0.84);
+  font-size: clamp(0.96rem, 0.92rem + 0.12vw, 1.03rem);
+  line-height: 1.82;
+  letter-spacing: 0.01em;
+  text-wrap: pretty;
 }
 
 /* ===========================================
@@ -250,7 +256,23 @@
   }
 
   .tool-showcase-card {
-    padding: 1.5rem;
+    min-height: auto;
+    padding: 1.45rem;
+  }
+
+  .tool-card-content {
+    gap: 0.8rem;
+  }
+
+  .tool-card-title {
+    max-width: none;
+    font-size: 1.12rem;
+    line-height: 1.32;
+  }
+
+  .tool-card-description {
+    font-size: 0.95rem;
+    line-height: 1.78;
   }
 
 }
@@ -281,6 +303,15 @@
   }
 
   .tool-showcase-card {
-    padding: 1.25rem;
+    padding: 1.2rem;
+  }
+
+  .tool-card-title {
+    font-size: 1.05rem;
+  }
+
+  .tool-card-description {
+    font-size: 0.92rem;
+    line-height: 1.72;
   }
 }
