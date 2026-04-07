@@ -1,4 +1,3 @@
-import SiteFooter from '../components/SiteFooter';
 import SiteHeader from '../components/SiteHeader';
 import { sitePaths } from '../site';
 import './ScenePage.css';
@@ -45,10 +44,10 @@ export default function ScenePage() {
           <section className="scene-hero" aria-labelledby="scene-title">
             <div className="scene-hero__glow" aria-hidden="true" />
             <div className="scene-hero__content">
-              <h1 id="scene-title" className="scene-title">
-                <span className="scene-title__text">现场</span>
+              <h1 id="scene-title" className="landing-title scene-title">
+                <span className="hero-title-line">现场</span>
               </h1>
-              <p className="scene-subtitle">这里是 3 个 超级AI真实工作的现场</p>
+              <p className="landing-subtitle scene-subtitle">这里是 3 个 超级AI真实工作的现场</p>
             </div>
           </section>
 
@@ -72,8 +71,6 @@ export default function ScenePage() {
             ))}
           </section>
         </div>
-
-        <SiteFooter />
       </main>
     </>
   );
