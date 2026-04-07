@@ -10,9 +10,9 @@
 
 .tools-showcase-section--embedded {
   --tools-section-min-height: max(var(--hero-viewport-height, 100svh), 48rem);
-  --tools-top-track: clamp(8.5rem, 17vh, 10rem);
-  --tools-bottom-track: minmax(clamp(2rem, 5vh, 4rem), 1fr);
-  --tools-breathing-gap: clamp(4.75rem, 9vh, 5.625rem);
+  --tools-top-track: clamp(6.25rem, 12vh, 7.5rem);
+  --tools-bottom-track: minmax(clamp(3rem, 6vh, 4.5rem), 1fr);
+  --tools-breathing-gap: clamp(2.75rem, 4.5vw, 3.5rem);
   min-height: var(--tools-section-min-height);
   padding-inline: clamp(1.25rem, 4vw, 2rem);
   scroll-margin-top: calc(var(--header-height) + 24px);
@@ -20,7 +20,7 @@
 
 .tools-showcase-section--standalone {
   min-height: 100svh;
-  padding: calc(var(--header-height) + 80px) 2rem 80px;
+  padding: calc(var(--header-height) + 96px) 2rem 96px;
 }
 
 .tools-showcase-container {
@@ -63,7 +63,7 @@
 }
 
 .tools-showcase-section--standalone .tools-showcase-header {
-  margin-bottom: 4rem;
+  margin-bottom: clamp(2.75rem, 4vw, 3.5rem);
 }
 
 .tools-showcase-header.visible {
@@ -86,10 +86,10 @@
   max-width: 560px;
   margin: 0.75rem auto 0;
   padding: 0 1rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: clamp(1rem, 0.95rem + 0.2vw, 1.14rem);
-  font-weight: 400;
-  line-height: 1.62;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: clamp(0.92rem, 0.88rem + 0.18vw, 1rem);
+  font-weight: 500;
+  line-height: 1.58;
   text-align: center;
 }
 
@@ -182,9 +182,10 @@
 
 .tool-card-description {
   margin: 0;
-  color: rgba(225, 218, 236, 0.84);
-  font-size: clamp(0.96rem, 0.92rem + 0.12vw, 1.03rem);
-  line-height: 1.82;
+  color: rgba(225, 218, 236, 0.78);
+  font-size: clamp(0.94rem, 0.9rem + 0.1vw, 1rem);
+  font-weight: 400;
+  line-height: 1.78;
   letter-spacing: 0.01em;
   text-wrap: pretty;
 }
@@ -196,9 +197,9 @@
 @media (max-width: 1024px) {
   .tools-showcase-section--embedded {
     --tools-section-min-height: max(var(--hero-viewport-height, 100svh), 56rem);
-    --tools-top-track: clamp(5rem, 11vh, 6.5rem);
-    --tools-bottom-track: minmax(clamp(2.5rem, 5vh, 4rem), 0.52fr);
-    --tools-breathing-gap: clamp(3.75rem, 7vh, 5rem);
+    --tools-top-track: clamp(4.75rem, 9vh, 6rem);
+    --tools-bottom-track: minmax(clamp(3rem, 5vh, 4rem), 0.52fr);
+    --tools-breathing-gap: clamp(2.75rem, 5vw, 3.5rem);
   }
 }
 
@@ -219,7 +220,7 @@
   }
 
   .tools-showcase-section--standalone {
-    padding: calc(var(--header-height) + 64px) 1.5rem 64px;
+    padding: calc(var(--header-height) + 80px) 1.5rem 80px;
   }
 
   .tools-showcase-section--embedded .tools-showcase-container {
@@ -277,7 +278,7 @@
   }
 
   .tools-showcase-section--standalone {
-    padding: calc(var(--header-height) + 56px) 1rem 56px;
+    padding: calc(var(--header-height) + 72px) 1rem 72px;
   }
 
   .tools-showcase-section--embedded .tools-showcase-container {
