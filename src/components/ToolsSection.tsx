@@ -13,7 +13,7 @@ type ToolCardProps = {
 };
 
 function ToolCard({ tool, index }: ToolCardProps) {
-  const cardRef = useRef<HTMLAnchorElement | null>(null);
+  const cardRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -33,18 +33,31 @@ function ToolCard({ tool, index }: ToolCardProps) {
     return () => observer.disconnect();
   }, [index]);
 
+  const cardClassName = `tool-showcase-card ${isVisible ? 'visible' : ''}`;
+  const cardContent = (
+    <div className="tool-card-content">
+      <h3 className="tool-card-title">{tool.label}</h3>
+      <p className="tool-card-description">{tool.description}</p>
+    </div>
+  );
+
+  if (!tool.href) {
+    return (
+      <div ref={cardRef as React.RefObject<HTMLDivElement>} className={cardClassName}>
+        {cardContent}
+      </div>
+    );
+  }
+
   return (
     <a
       href={tool.href}
-      ref={cardRef}
-      className={`tool-showcase-card ${isVisible ? 'visible' : ''}`}
+      ref={cardRef as React.RefObject<HTMLAnchorElement>}
+      className={cardClassName}
       target="_blank"
       rel="noreferrer"
     >
-      <div className="tool-card-content">
-        <h3 className="tool-card-title">{tool.label}</h3>
-        <p className="tool-card-description">{tool.description}</p>
-      </div>
+      {cardContent}
     </a>
   );
 }
