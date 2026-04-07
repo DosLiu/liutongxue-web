@@ -231,11 +231,11 @@ svg {
   position: relative;
   z-index: 6;
   max-width: none;
-  margin-bottom: 1.35rem;
+  margin-bottom: 1rem;
   color: var(--text-primary);
-  font-size: clamp(4rem, 6.6vw, 6rem);
+  font-size: clamp(3.9rem, 6.2vw, 5.8rem);
   font-weight: 700;
-  line-height: 0.98;
+  line-height: 1;
   letter-spacing: -0.055em;
   text-align: center;
   white-space: nowrap;
@@ -246,27 +246,29 @@ svg {
   display: inline-block;
   max-width: 100%;
   white-space: nowrap;
-  background: linear-gradient(180deg, #ffffff 0%, #f5f8fc 42%, #dfe6ef 100%);
+  color: #f5f8fc;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 22%, #edf3f9 54%, #d5dde7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 24px rgba(255, 255, 255, 0.08);
-  filter: drop-shadow(0 12px 28px rgba(8, 12, 20, 0.28));
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.07);
+  filter: drop-shadow(0 10px 24px rgba(8, 12, 20, 0.24));
 }
 
 .landing-subtitle {
   position: relative;
   z-index: 6;
-  max-width: none;
-  margin-bottom: 0;
+  max-width: min(100%, 42rem);
+  margin: 0 auto;
   overflow: visible !important;
-  color: rgba(220, 220, 225, 0.76);
-  font-size: clamp(1.04rem, 1.35vw, 1.2rem);
+  color: rgba(230, 234, 240, 0.84);
+  font-size: clamp(1.16rem, 1.55vw, 1.38rem);
   font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0.01em;
+  line-height: 1.52;
+  letter-spacing: 0.008em;
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
+  text-wrap: balance;
   user-select: none;
 }
 
@@ -654,11 +656,11 @@ svg {
 
 @media (max-width: 1440px) {
   .landing-title {
-    font-size: clamp(3.5rem, 5.4vw, 5.2rem);
+    font-size: clamp(3.4rem, 5.3vw, 5.1rem);
   }
 
   .landing-subtitle {
-    font-size: clamp(0.98rem, 1.18vw, 1.12rem);
+    font-size: clamp(1.08rem, 1.26vw, 1.22rem);
   }
 }
 
@@ -745,15 +747,16 @@ svg {
   }
 
   .landing-title {
-    font-size: clamp(2.5rem, 6.4vw, 3.7rem);
-    line-height: 1.04;
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    line-height: 1.05;
     letter-spacing: -0.045em;
     text-align: center;
   }
 
   .landing-subtitle {
-    font-size: clamp(0.88rem, 2vw, 1rem);
-    line-height: 1.48;
+    max-width: min(100%, 32rem);
+    font-size: clamp(0.96rem, 1.9vw, 1.08rem);
+    line-height: 1.5;
     text-align: center;
   }
 
@@ -821,14 +824,15 @@ svg {
   }
 
   .landing-title {
-    font-size: clamp(2rem, 8vw, 2.55rem);
+    font-size: clamp(2.05rem, 7.8vw, 2.5rem);
     line-height: 1.06;
     letter-spacing: -0.04em;
   }
 
   .landing-subtitle {
-    font-size: clamp(0.76rem, 3.2vw, 0.88rem);
-    line-height: 1.42;
+    max-width: min(100%, 22rem);
+    font-size: clamp(0.84rem, 3.2vw, 0.94rem);
+    line-height: 1.46;
   }
 
   .tools-shell {
