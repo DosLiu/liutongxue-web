@@ -19,9 +19,9 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
             const isActive = item.key === activeKey;
 
             return (
-              <span key={item.label} className={`nav-link${isActive ? ' active-link' : ''}`}>
+              <a key={item.label} href={item.href} className={`nav-link${isActive ? ' active-link' : ''}`}>
                 {item.label}
-              </span>
+              </a>
             );
           })}
         </nav>

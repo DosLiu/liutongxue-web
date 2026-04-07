@@ -1,11 +1,5 @@
-import SiteHeader from '../components/SiteHeader';
-import ToolsSection from '../components/ToolsSection';
+import ScenePage from './ScenePage';
 
 export default function ToolsPage() {
-  return (
-    <>
-      <SiteHeader activeKey="tools" />
-      <ToolsSection standalone />
-    </>
-  );
+  return <ScenePage />;
 }

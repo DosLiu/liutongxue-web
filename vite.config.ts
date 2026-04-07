@@ -10,7 +10,11 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        tools: resolve(__dirname, 'tools/index.html')
+        tools: resolve(__dirname, 'tools/index.html'),
+        scene: resolve(__dirname, 'scene/index.html'),
+        sceneDigitalResident: resolve(__dirname, 'scene/digital-resident/index.html'),
+        sceneBlogOps: resolve(__dirname, 'scene/blog-ops/index.html'),
+        sceneSiteOps: resolve(__dirname, 'scene/site-ops/index.html')
       }
     }
   }
