@@ -6,8 +6,6 @@ type SiteHeaderProps = {
   activeKey: SiteNavKey;
 };
 
-const isExternalHref = (href: string) => href.startsWith('http') || href.startsWith('mailto:');
-
 const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader({ activeKey }, ref) {
   return (
     <header ref={ref} className="header">
@@ -18,19 +16,12 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
 
         <nav className="landing-nav-items" aria-label="Primary">
           {siteNavItems.map((item) => {
-            const isExternal = isExternalHref(item.href);
             const isActive = item.key === activeKey;
 
             return (
-              <a
-                key={item.label}
-                className={`nav-link${isActive ? ' active-link' : ''}`}
-                href={item.href}
-                target={isExternal && !item.href.startsWith('mailto:') ? '_blank' : undefined}
-                rel={isExternal && !item.href.startsWith('mailto:') ? 'noreferrer' : undefined}
-              >
+              <span key={item.label} className={`nav-link${isActive ? ' active-link' : ''}`}>
                 {item.label}
-              </a>
+              </span>
             );
           })}
         </nav>
