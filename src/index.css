@@ -246,12 +246,12 @@ svg {
   display: inline-block;
   max-width: 100%;
   white-space: nowrap;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.96) 38%, rgba(197, 180, 255, 0.96) 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f5f8fc 42%, #dfe6ef 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 30px rgba(141, 111, 255, 0.14);
-  filter: drop-shadow(0 12px 30px rgba(12, 5, 31, 0.34));
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.08);
+  filter: drop-shadow(0 12px 28px rgba(8, 12, 20, 0.28));
 }
 
 .landing-subtitle {
