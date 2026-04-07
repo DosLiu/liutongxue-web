@@ -36,27 +36,13 @@
 
 .testimonials-title {
   display: inline-block;
-  margin: 0 0 0.2rem;
-  color: #fff;
-  font-size: 4rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: clamp(2.75rem, 2.2rem + 1.45vw, 3.45rem);
   font-weight: 600;
-  letter-spacing: -2px;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
   text-align: center;
-  background: var(--gradient-title);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradientShift 4s ease-in-out infinite;
-}
-
-.testimonials-title * {
-  background: inherit;
-  background-size: inherit;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: inherit;
 }
 
 /* ===========================================
@@ -229,7 +215,8 @@
   }
 
   .testimonials-title {
-    font-size: 2.5rem;
+    font-size: 2.35rem;
+    line-height: 1.12;
   }
 }
 
@@ -243,7 +230,8 @@
   }
 
   .testimonials-title {
-    font-size: 2.5rem;
+    font-size: 2.35rem;
+    line-height: 1.12;
   }
 
   .testimonials-marquee-container::before,
@@ -288,6 +276,7 @@
 
   .testimonials-title {
     font-size: 2rem;
+    line-height: 1.14;
   }
 
   .testimonial-text {
@@ -301,7 +290,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .testimonials-title {
-    animation: none;
+  .testimonial-track {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
   }
 }
