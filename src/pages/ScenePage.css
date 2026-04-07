@@ -216,24 +216,9 @@
   z-index: 1;
 }
 
-.scene-card__topline {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 1rem;
-}
-
-.scene-card__status {
-  color: rgba(255, 255, 255, 0.46);
-  font-size: 0.74rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
 .scene-card__title {
   max-width: 12ch;
-  margin: 1.9rem 0 0;
+  margin: 0;
   color: #fff;
   font-size: clamp(1.28rem, 1.16rem + 0.35vw, 1.56rem);
   font-weight: 600;
@@ -267,23 +252,34 @@
   line-height: 1.62;
 }
 
-.scene-card__link,
+.scene-card__log-preview,
 .scene-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
   color: rgba(255, 255, 255, 0.92);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
   text-decoration: none;
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.scene-card__link:hover,
+.scene-card__log-preview:hover,
 .scene-back-link:hover {
   color: #d7cbff;
   transform: translateX(2px);
+}
+
+.scene-card__log-date {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.scene-card__log-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
 .scene-archive-panel {
