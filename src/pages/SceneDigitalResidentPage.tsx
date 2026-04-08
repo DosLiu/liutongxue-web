@@ -1,6 +1,5 @@
 import SiteHeader from '../components/SiteHeader';
 import { getSceneLogs, sceneLogCollections } from '../constants/sceneLogs';
-import { sitePaths } from '../site';
 import './ScenePage.css';
 
 const pageData = sceneLogCollections.digitalResident;
@@ -11,16 +10,8 @@ export default function SceneDigitalResidentPage() {
     <>
       <SiteHeader activeKey="scene" />
 
-      <main className="scene-log-page">
-        <div className="scene-log-page__ambient scene-log-page__ambient--left" aria-hidden="true" />
-        <div className="scene-log-page__ambient scene-log-page__ambient--right" aria-hidden="true" />
-        <div className="scene-log-page__grid" aria-hidden="true" />
-
+      <main className="scene-log-page scene-log-page--plain">
         <div className="scene-log-shell">
-          <a href={sitePaths.scene} className="scene-back-link">
-            ← 返回案发现场
-          </a>
-
           <section className="scene-log-hero" aria-labelledby="scene-log-title">
             <h1 id="scene-log-title" className="scene-log-title scene-log-title--single">
               {pageData.title}

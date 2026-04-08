@@ -428,6 +428,10 @@
     linear-gradient(180deg, #05010d 0%, #070311 44%, #04010a 100%);
 }
 
+.scene-log-page--plain {
+  background: var(--bg-body);
+}
+
 .scene-back-link {
   margin-bottom: 1.1rem;
 }
