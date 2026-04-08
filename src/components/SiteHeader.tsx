@@ -22,9 +22,11 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
             if (item.key === 'contact') {
               return (
                 <span key={item.label} className="nav-link nav-link--disabled" aria-disabled="true">
-                  <span>{item.label}</span>
-                  <span className="nav-link__meta">（开发中）</span>
-                  <Lock className="nav-link__icon" aria-hidden="true" size={12} strokeWidth={2.1} />
+                  <Lock className="nav-link__icon" aria-hidden="true" size={15} strokeWidth={2.2} />
+                  <span className="nav-link__label-group">
+                    <span>{item.label}</span>
+                    <span className="nav-link__meta">（开发中）</span>
+                  </span>
                 </span>
               );
             }
