@@ -1,4 +1,3 @@
-import SiteFooter from '../components/SiteFooter';
 import SiteHeader from '../components/SiteHeader';
 import { getLatestSceneLog, getSceneLogs, sceneLogCollections } from '../constants/sceneLogs';
 import { sitePaths } from '../site';
@@ -24,13 +23,9 @@ export default function SceneDigitalResidentPage() {
           </a>
 
           <section className="scene-log-hero" aria-labelledby="scene-log-title">
-            <div>
-              <span className="scene-log-kicker">Digital Resident Logs</span>
-              <h1 id="scene-log-title" className="scene-log-title">
-                {pageData.title}
-              </h1>
-              <p className="scene-log-subtitle">{pageData.subtitle}</p>
-            </div>
+            <h1 id="scene-log-title" className="scene-log-title scene-log-title--single">
+              {pageData.title}
+            </h1>
           </section>
 
           {latestLog ? (
@@ -91,7 +86,6 @@ export default function SceneDigitalResidentPage() {
           </section>
         </div>
 
-        <SiteFooter />
       </main>
     </>
   );
