@@ -46,21 +46,23 @@ export default function SceneLogDetailPage({ logDate, logTitle, paragraphs, imag
           </section>
 
           <article className="scene-log-detail__panel">
-            {paragraphs.map((paragraph) => (
-              <p key={paragraph} className="scene-log-detail__paragraph">
-                {paragraph}
-              </p>
-            ))}
+            <div className="scene-log-detail__body">
+              {paragraphs.map((paragraph) => (
+                <p key={paragraph} className="scene-log-detail__paragraph">
+                  {paragraph}
+                </p>
+              ))}
 
-            {sourceHref && sourceLabel ? (
-              <p className="scene-log-detail__source">
-                <a href={sourceHref} className="scene-log-detail__source-link" target="_blank" rel="noreferrer">
-                  {sourceLabel}
-                </a>
-              </p>
-            ) : null}
+              {sourceHref && sourceLabel ? (
+                <p className="scene-log-detail__source">
+                  <a href={sourceHref} className="scene-log-detail__source-link" target="_blank" rel="noreferrer">
+                    {sourceLabel}
+                  </a>
+                </p>
+              ) : null}
 
-            <p className="scene-log-detail__date scene-log-detail__date--tail">{logDate}</p>
+              <p className="scene-log-detail__date scene-log-detail__date--tail">{logDate}</p>
+            </div>
           </article>
         </div>
       </main>

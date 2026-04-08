@@ -758,8 +758,8 @@
 }
 
 .scene-log-detail__date--tail {
-  width: min(100%, 90ch);
-  margin: 0.95rem auto 0;
+  width: 100%;
+  margin: 0.95rem 0 0;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   text-align: right;
@@ -835,9 +835,14 @@
     0 18px 40px -30px rgba(60, 28, 112, 0.72);
 }
 
-.scene-log-detail__paragraph {
-  max-width: 90ch;
+.scene-log-detail__body {
+  width: min(100%, 90ch);
   margin: 0 auto;
+}
+
+.scene-log-detail__paragraph {
+  width: 100%;
+  margin: 0;
   color: rgba(230, 234, 240, 0.9);
   font-size: 1.02rem;
   line-height: 1.96;
@@ -851,8 +856,8 @@
 }
 
 .scene-log-detail__source {
-  width: min(100%, 90ch);
-  margin: 1.3rem auto 0;
+  width: 100%;
+  margin: 1.3rem 0 0;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
