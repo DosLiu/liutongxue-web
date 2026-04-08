@@ -627,6 +627,47 @@
   line-height: 1.74;
 }
 
+.scene-log-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1.35rem;
+}
+
+.scene-log-pagination__button {
+  min-width: 5.8rem;
+  padding: 0.68rem 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(192, 171, 223, 0.18);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.scene-log-pagination__button:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(219, 187, 255, 0.42);
+  transform: translateY(-1px);
+}
+
+.scene-log-pagination__button:disabled {
+  opacity: 0.36;
+  cursor: not-allowed;
+}
+
+.scene-log-pagination__status {
+  min-width: 3rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
 @media (max-width: 1024px) {
   .scene-card-grid,
   .scene-archive-panel__grid,

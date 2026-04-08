@@ -1,11 +1,17 @@
+import { useState } from 'react';
 import SiteHeader from '../components/SiteHeader';
 import { getSceneLogs, sceneLogCollections } from '../data/scene';
 import './ScenePage.css';
 
 const pageData = sceneLogCollections.digitalResident;
 const logs = getSceneLogs('digitalResident');
+const LOGS_PER_PAGE = 5;
 
 export default function SceneDigitalResidentPage() {
+  const totalPages = Math.max(1, Math.ceil(logs.length / LOGS_PER_PAGE));
+  const [currentPage, setCurrentPage] = useState(1);
+  const currentLogs = logs.slice((currentPage - 1) * LOGS_PER_PAGE, currentPage * LOGS_PER_PAGE);
+
   return (
     <>
       <SiteHeader activeKey="scene" />
@@ -28,7 +34,7 @@ export default function SceneDigitalResidentPage() {
             </div>
 
             <ol className="scene-log-timeline__list">
-              {logs.map((log) => (
+              {currentLogs.map((log) => (
                 <li key={log.id} className="scene-log-timeline__item scene-log-timeline__item--plain">
                   <article className="scene-log-timeline__card">
                     <p className="scene-log-timeline__date">{log.publishedAt}</p>
@@ -38,6 +44,30 @@ export default function SceneDigitalResidentPage() {
                 </li>
               ))}
             </ol>
+
+            <div className="scene-log-pagination" aria-label="日志翻页">
+              <button
+                type="button"
+                className="scene-log-pagination__button"
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+              >
+                上一页
+              </button>
+
+              <span className="scene-log-pagination__status">
+                {currentPage}/{totalPages}
+              </span>
+
+              <button
+                type="button"
+                className="scene-log-pagination__button"
+                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                disabled={currentPage === totalPages}
+              >
+                下一页
+              </button>
+            </div>
           </section>
         </div>
 
