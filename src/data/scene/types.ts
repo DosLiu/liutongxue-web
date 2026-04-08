@@ -6,6 +6,8 @@ export type SceneLogEntry = {
   title: string;
   preview: string;
   summary: string;
+  detailHref?: string;
+  detailContent?: string[];
 };
 
 export type SceneLogCollection = {

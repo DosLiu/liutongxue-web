@@ -1,0 +1,22 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import SceneLogDetailPage from './pages/SceneLogDetailPage';
+import { digitalResidentSceneLogCollection } from './data/scene/digital-resident';
+import './index.css';
+
+const firstLog = digitalResidentSceneLogCollection.logs.find((log) => log.id === 'resident-2026-03-21-platform-activation');
+
+if (!firstLog || !firstLog.detailContent) {
+  throw new Error('Digital resident first log detail is missing.');
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <SceneLogDetailPage
+      teamTitle={digitalResidentSceneLogCollection.title}
+      logDate={firstLog.publishedAt}
+      logTitle={firstLog.title}
+      paragraphs={firstLog.detailContent}
+    />
+  </React.StrictMode>
+);

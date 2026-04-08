@@ -9,6 +9,9 @@ export const sitePaths = {
     blogOps: `${baseUrl}scene/blog-ops/`,
     siteOps: `${baseUrl}scene/site-ops/`
   },
+  sceneLogDetails: {
+    digitalResidentFirst: `${baseUrl}scene/digital-resident/2026-03-21/`
+  },
   contact: 'mailto:hello@liutongxue.com'
 } as const;
 

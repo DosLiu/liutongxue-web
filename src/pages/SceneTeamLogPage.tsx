@@ -40,11 +40,19 @@ export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
             <ol className="scene-log-timeline__list">
               {currentLogs.map((log) => (
                 <li key={log.id} className="scene-log-timeline__item scene-log-timeline__item--plain">
-                  <article className="scene-log-timeline__card">
-                    <p className="scene-log-timeline__date">{log.publishedAt}</p>
-                    <h3 className="scene-log-timeline__title">{log.title}</h3>
-                    <p className="scene-log-timeline__text">{log.summary}</p>
-                  </article>
+                  {log.detailHref ? (
+                    <a href={log.detailHref} className="scene-log-timeline__card scene-log-timeline__card--link">
+                      <p className="scene-log-timeline__date">{log.publishedAt}</p>
+                      <h3 className="scene-log-timeline__title">{log.title}</h3>
+                      <p className="scene-log-timeline__text">{log.preview}</p>
+                    </a>
+                  ) : (
+                    <article className="scene-log-timeline__card">
+                      <p className="scene-log-timeline__date">{log.publishedAt}</p>
+                      <h3 className="scene-log-timeline__title">{log.title}</h3>
+                      <p className="scene-log-timeline__text">{log.preview}</p>
+                    </article>
+                  )}
                 </li>
               ))}
             </ol>
