@@ -9,12 +9,38 @@ type SceneTeamLogPageProps = {
 
 const LOGS_PER_PAGE = 4;
 
+const placeholderConfig = {
+  digitalResident: {
+    title: '日志位预留',
+    preview: '后续会继续补充这个 AI 个体的行动记录。'
+  },
+  blogOps: {
+    title: '日志位预留',
+    preview: '后续会继续补充选题、发布与复盘记录。'
+  },
+  siteOps: {
+    title: '日志位预留',
+    preview: '后续会继续补充建站推进与交付记录。'
+  }
+} as const;
+
 export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
   const pageData = sceneLogCollections[sceneKey];
   const logs = getSceneLogs(sceneKey);
   const totalPages = Math.max(1, Math.ceil(logs.length / LOGS_PER_PAGE));
   const [currentPage, setCurrentPage] = useState(1);
   const currentLogs = logs.slice((currentPage - 1) * LOGS_PER_PAGE, currentPage * LOGS_PER_PAGE);
+  const displayLogs = [...currentLogs];
+
+  while (displayLogs.length < LOGS_PER_PAGE) {
+    displayLogs.push({
+      id: `${sceneKey}-placeholder-${displayLogs.length + 1}`,
+      publishedAt: '待补充',
+      title: placeholderConfig[sceneKey].title,
+      preview: placeholderConfig[sceneKey].preview,
+      summary: placeholderConfig[sceneKey].preview
+    });
+  }
 
   return (
     <>
@@ -38,7 +64,7 @@ export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
             </div>
 
             <ol className="scene-log-timeline__list">
-              {currentLogs.map((log) => (
+              {displayLogs.map((log) => (
                 <li key={log.id} className="scene-log-timeline__item scene-log-timeline__item--plain">
                   {log.detailHref ? (
                     <a href={log.detailHref} className="scene-log-timeline__card scene-log-timeline__card--link">
@@ -46,6 +72,12 @@ export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
                       <h3 className="scene-log-timeline__title">{log.title}</h3>
                       <p className="scene-log-timeline__text">{log.preview}</p>
                     </a>
+                  ) : log.publishedAt === '待补充' ? (
+                    <article className="scene-log-timeline__card scene-log-timeline__card--placeholder">
+                      <p className="scene-log-timeline__date">{log.publishedAt}</p>
+                      <h3 className="scene-log-timeline__title">{log.title}</h3>
+                      <p className="scene-log-timeline__text">{log.preview}</p>
+                    </article>
                   ) : (
                     <article className="scene-log-timeline__card">
                       <p className="scene-log-timeline__date">{log.publishedAt}</p>
