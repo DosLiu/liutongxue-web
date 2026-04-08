@@ -566,31 +566,8 @@
   align-items: stretch;
 }
 
-.scene-log-timeline__rail {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 1rem;
-}
-
-.scene-log-timeline__dot {
-  width: 0.72rem;
-  height: 0.72rem;
-  margin-top: 1.05rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #9ad8ff 0%, #9e7eff 100%);
-  box-shadow: 0 0 18px rgba(154, 216, 255, 0.45);
-}
-
-.scene-log-timeline__line {
-  flex: 1;
-  width: 1px;
-  margin-top: 0.5rem;
-  background: linear-gradient(180deg, rgba(154, 216, 255, 0.34), rgba(154, 216, 255, 0.04));
-}
-
-.scene-log-timeline__item:last-child .scene-log-timeline__line {
-  opacity: 0;
+.scene-log-timeline__item--plain {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .scene-log-timeline__card {
@@ -802,6 +779,10 @@
 
   .scene-log-timeline__item {
     gap: 0.8rem;
+  }
+
+  .scene-log-timeline__item--plain {
+    gap: 0;
   }
 
   .scene-log-timeline__card {

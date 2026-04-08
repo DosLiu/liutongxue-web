@@ -30,12 +30,7 @@ export default function SceneDigitalResidentPage() {
 
             <ol className="scene-log-timeline__list">
               {logs.map((log) => (
-                <li key={log.id} className="scene-log-timeline__item">
-                  <div className="scene-log-timeline__rail" aria-hidden="true">
-                    <span className="scene-log-timeline__dot" />
-                    <span className="scene-log-timeline__line" />
-                  </div>
-
+                <li key={log.id} className="scene-log-timeline__item scene-log-timeline__item--plain">
                   <article className="scene-log-timeline__card">
                     <p className="scene-log-timeline__date">{log.publishedAt}</p>
                     <h3 className="scene-log-timeline__title">{log.title}</h3>
