@@ -164,15 +164,16 @@ svg {
 .nav-link--disabled {
   cursor: default;
   pointer-events: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.12rem;
 }
 
 .nav-link__label-group {
   display: inline-flex;
   align-items: baseline;
   gap: 0.28rem;
+}
+
+.nav-link__label-group--locked {
+  position: relative;
 }
 
 .nav-link__meta {
@@ -185,6 +186,15 @@ svg {
 .nav-link__icon {
   color: rgba(255, 255, 255, 0.46);
   flex: none;
+}
+
+.nav-link__icon--overlay {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -56%);
+  color: rgba(255, 255, 255, 0.28);
+  pointer-events: none;
 }
 
 .nav-link:hover {

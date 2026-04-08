@@ -22,8 +22,8 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
             if (item.key === 'contact') {
               return (
                 <span key={item.label} className="nav-link nav-link--disabled" aria-disabled="true">
-                  <Lock className="nav-link__icon" aria-hidden="true" size={15} strokeWidth={2.2} />
-                  <span className="nav-link__label-group">
+                  <span className="nav-link__label-group nav-link__label-group--locked">
+                    <Lock className="nav-link__icon nav-link__icon--overlay" aria-hidden="true" size={15} strokeWidth={2.2} />
                     <span>{item.label}</span>
                     <span className="nav-link__meta">（开发中）</span>
                   </span>
