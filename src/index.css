@@ -176,6 +176,13 @@ svg {
   position: relative;
 }
 
+.nav-link__label-main {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .nav-link__meta {
   color: rgba(255, 255, 255, 0.46);
   font-size: 0.68rem;
@@ -192,8 +199,8 @@ svg {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -56%);
-  color: rgba(255, 255, 255, 0.28);
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.48);
   pointer-events: none;
 }
 
