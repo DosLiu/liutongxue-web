@@ -4,6 +4,7 @@ export type SceneLogEntry = {
   id: string;
   publishedAt: string;
   title: string;
+  preview: string;
   summary: string;
 };
 

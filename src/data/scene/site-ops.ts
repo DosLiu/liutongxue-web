@@ -9,6 +9,7 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
       id: 'site-ops-2026-04-07-site-pass',
       publishedAt: '2026-04-07',
       title: '完成官网首轮页面校正',
+      preview: '围绕当前官网完成了一轮页面搭建、样式校正与案发现场结构预留。',
       summary: '围绕当前官网完成了一轮页面搭建、样式校正与案发现场结构预留。'
     }
   ]

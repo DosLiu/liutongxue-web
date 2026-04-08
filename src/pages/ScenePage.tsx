@@ -59,7 +59,7 @@ export default function ScenePage() {
                       <span className="scene-card__log-date">最新动态</span>
                     </span>
                     <span className="scene-card__log-text">
-                      {card.latestLog ? `${card.latestLog.publishedAt}｜${card.latestLog.summary}` : '日志更新后会在这里自动显示。'}
+                      {card.latestLog ? `${card.latestLog.publishedAt}｜${card.latestLog.preview}` : '日志更新后会在这里自动显示。'}
                     </span>
                   </div>
                 </div>

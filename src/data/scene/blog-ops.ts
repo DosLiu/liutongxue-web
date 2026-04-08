@@ -9,6 +9,7 @@ export const blogOpsSceneLogCollection: SceneLogCollection = {
       id: 'blog-ops-2026-04-07-planning-pass',
       publishedAt: '2026-04-07',
       title: '完成一轮博客选题拆解',
+      preview: '把需求、文案与发布链路整理成一条可执行的内容协作流。',
       summary: '把需求、文案与发布链路整理成一条可执行的内容协作流。'
     }
   ]
