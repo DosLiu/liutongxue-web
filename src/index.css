@@ -168,6 +168,11 @@ svg {
   line-height: 1.1;
 }
 
+.nav-link--disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
 .nav-link__meta {
   color: rgba(255, 255, 255, 0.46);
   font-size: 0.68rem;

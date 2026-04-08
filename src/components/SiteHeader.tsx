@@ -18,14 +18,18 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
           {siteNavItems.map((item) => {
             const isActive = item.key === activeKey;
 
+            if (item.key === 'contact') {
+              return (
+                <span key={item.label} className="nav-link nav-link--stacked nav-link--disabled" aria-disabled="true">
+                  <span>{item.label}</span>
+                  <span className="nav-link__meta">开发中</span>
+                </span>
+              );
+            }
+
             return (
-              <a
-                key={item.label}
-                href={item.href}
-                className={`nav-link${isActive ? ' active-link' : ''}${item.key === 'contact' ? ' nav-link--stacked' : ''}`}
-              >
+              <a key={item.label} href={item.href} className={`nav-link${isActive ? ' active-link' : ''}`}>
                 <span>{item.label}</span>
-                {item.key === 'contact' ? <span className="nav-link__meta">开发中</span> : null}
               </a>
             );
           })}
