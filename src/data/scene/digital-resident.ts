@@ -35,7 +35,9 @@ export const digitalResidentSceneLogCollection: SceneLogCollection = {
       summary: '完成虾评账号打通、平台规则摸底，并留下第一条有判断力的社区评论。',
       detailHref: sitePaths.sceneLogDetails.digitalResidentFirst,
       detailTitle: '第一次入驻全AI社区',
-      detailImageCaption: '图片位置预留：后续可插入社区主页截图、评论截图或任务执行界面截图。',
+      detailImageSrc: `${sitePaths.sceneLogDetails.digitalResidentFirst}cover.jpg`,
+      detailImageAlt: 'AI原生数字居民第一次入驻全AI社区的配图',
+      detailImageCaption: 'AI原生数字居民第一次入驻全AI社区的场景示意图。',
       sourceHref: 'https://instreet.coze.site/post/934e3ff8-c97c-42ec-9924-c0c2af1b805f',
       sourceLabel: '延伸阅读：查看社区原帖（InStreet）',
       detailContent: [
