@@ -536,7 +536,9 @@
 }
 
 .scene-log-timeline {
+  width: min(100%, 58rem);
   margin-top: clamp(2rem, 4vw, 2.8rem);
+  margin-inline: auto;
 }
 
 .scene-log-timeline--compact {
@@ -574,13 +576,13 @@
   position: relative;
   overflow: hidden;
   padding: 1.25rem 1.3rem 1.3rem;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(192, 171, 223, 0.18);
   border-radius: 1.35rem;
   background:
-    linear-gradient(180deg, rgba(18, 13, 28, 0.94), rgba(10, 7, 18, 0.9));
+    linear-gradient(180deg, rgba(18, 13, 28, 0.96), rgba(10, 7, 18, 0.92));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.03),
-    0 18px 42px -30px rgba(56, 26, 104, 0.8);
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 20px 44px -32px rgba(60, 28, 112, 0.82);
 }
 
 .scene-log-timeline__card::before {
@@ -588,7 +590,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 30%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 30%);
 }
 
 .scene-log-timeline__date,

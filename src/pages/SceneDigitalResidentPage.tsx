@@ -22,7 +22,7 @@ export default function SceneDigitalResidentPage() {
             <div className="scene-log-timeline__header">
               <div>
                 <h2 id="scene-log-timeline-title" className="scene-log-panel__title">
-                  全部日志
+                  工作日志
                 </h2>
               </div>
             </div>
