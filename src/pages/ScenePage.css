@@ -330,9 +330,12 @@
 }
 
 .scene-card__log-divider {
+  display: block;
+  flex: none;
   width: 2.9rem;
   height: 1px;
-  background: linear-gradient(90deg, rgba(226, 206, 255, 0.68), rgba(226, 206, 255, 0.08));
+  border-radius: 999px;
+  background: rgba(226, 206, 255, 0.42);
 }
 
 .scene-card__log-text {
