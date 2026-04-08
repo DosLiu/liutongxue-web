@@ -37,6 +37,8 @@
   --hero-inline-padding: clamp(1.5rem, 4vw, 4rem);
   --hero-top-gap: clamp(0.75rem, 2.2vh, 2rem);
   --hero-bottom-gap: clamp(1.5rem, 4.6vh, 4rem);
+  --page-content-max: 1120px;
+  --page-gutter: clamp(1.5rem, 4vw, 4rem);
 }
 
 * {
