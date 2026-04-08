@@ -14,7 +14,7 @@ export const sitePaths = {
 
 export const siteNavItems = [
   { label: '首页', key: 'home', href: sitePaths.home },
-  { label: '现场', key: 'scene', href: sitePaths.scene },
+  { label: '案发现场', key: 'scene', href: sitePaths.scene },
   { label: '具身AI', key: 'contact', href: sitePaths.contact }
 ] as const;
 

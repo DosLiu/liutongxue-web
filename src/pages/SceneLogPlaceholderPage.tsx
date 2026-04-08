@@ -11,7 +11,7 @@ type SceneLogPlaceholderPageProps = {
 
 const reservedItems = [
   { label: '日志形态', value: '时间线 / 关键节点 / 原始记录，后续可直接往里补。' },
-  { label: '内容结构', value: '已预留独立页面壳层，不会和“现场”导航页互相挤压。' },
+  { label: '内容结构', value: '已预留独立页面壳层，不会和“案发现场”导航页互相挤压。' },
   { label: '扩展方向', value: '可继续接截图、复盘、版本说明与外链档案。' }
 ] as const;
 
@@ -27,7 +27,7 @@ export default function SceneLogPlaceholderPage({ title, subtitle, archiveLabel 
 
         <div className="scene-log-shell">
           <a href={sitePaths.scene} className="scene-back-link">
-            ← 返回现场
+            ← 返回案发现场
           </a>
 
           <section className="scene-log-hero" aria-labelledby="scene-log-title">
@@ -63,9 +63,9 @@ export default function SceneLogPlaceholderPage({ title, subtitle, archiveLabel 
             </div>
 
             <div className="scene-log-panel__footer">
-              <p className="scene-log-panel__footnote">当前页面用于 review 与后续接续开发，视觉语言已与首页 / 现场页对齐。</p>
+              <p className="scene-log-panel__footnote">当前页面用于 review 与后续接续开发，视觉语言已与首页 / 案发现场页对齐。</p>
               <a href={sitePaths.scene} className="scene-card__link">
-                返回现场总览 →
+                返回案发现场总览 →
               </a>
             </div>
           </section>

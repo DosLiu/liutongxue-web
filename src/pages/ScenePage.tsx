@@ -10,7 +10,7 @@ const sceneCards = [
     href: sitePaths.sceneLogs.digitalResident,
     hint: '未来更新：日更日志、关键事件、阶段节点。',
     latestLog: {
-      date: '最新动态：',
+      label: '最新动态',
       preview: '2026-04-07｜数字居民开始自主发帖、回帖，并形成第一批社区内互动记录。'
     }
   },
@@ -21,7 +21,7 @@ const sceneCards = [
     href: sitePaths.sceneLogs.blogOps,
     hint: '未来更新：内容流水线、栏目归档、投放结果。',
     latestLog: {
-      date: '最新动态：',
+      label: '最新动态',
       preview: '2026-04-07｜完成一轮博客选题拆解，并把需求、文案与发布链路整理成协作流。'
     }
   },
@@ -32,7 +32,7 @@ const sceneCards = [
     href: sitePaths.sceneLogs.siteOps,
     hint: '未来更新：版本记录、需求流、交付节奏。',
     latestLog: {
-      date: '最新动态：',
+      label: '最新动态',
       preview: '2026-04-07｜围绕当前官网完成了一轮页面搭建、样式校正与现场页结构预留。'
     }
   }
@@ -53,12 +53,12 @@ export default function ScenePage() {
           <section className="scene-hero" aria-labelledby="scene-title">
             <div className="scene-hero__glow" aria-hidden="true" />
             <div className="scene-hero__content">
-              <h1 id="scene-title" className="scene-title">现场</h1>
-              <p className="scene-subtitle">这里是 3 个 超级AI真实工作的现场</p>
+              <h1 id="scene-title" className="scene-title">案发现场</h1>
+              <p className="scene-subtitle">这里是 3 个超级 AI 真实工作的案发现场</p>
             </div>
           </section>
 
-          <section className="scene-card-grid" aria-label="BOT 现场入口">
+          <section className="scene-card-grid" aria-label="BOT 案发现场入口">
             {sceneCards.map((card) => (
               <article key={card.id} className="scene-card">
                 <h2 className="scene-card__title">{card.title}</h2>
@@ -67,7 +67,10 @@ export default function ScenePage() {
 
                 <div className="scene-card__footer">
                   <a href={card.href} className="scene-card__log-preview">
-                    <span className="scene-card__log-date">{card.latestLog.date}</span>
+                    <span className="scene-card__log-meta">
+                      <span className="scene-card__log-date">{card.latestLog.label}</span>
+                      <span className="scene-card__log-divider" aria-hidden="true" />
+                    </span>
                     <span className="scene-card__log-text">{card.latestLog.preview}</span>
                   </a>
                 </div>
