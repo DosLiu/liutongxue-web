@@ -1,5 +1,5 @@
 import SiteHeader from '../components/SiteHeader';
-import { getLatestSceneLog } from '../constants/sceneLogs';
+import { getLatestSceneLog } from '../data/scene';
 import { sitePaths } from '../site';
 import './ScenePage.css';
 

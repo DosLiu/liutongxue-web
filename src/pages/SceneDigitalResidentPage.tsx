@@ -1,5 +1,5 @@
 import SiteHeader from '../components/SiteHeader';
-import { getSceneLogs, sceneLogCollections } from '../constants/sceneLogs';
+import { getSceneLogs, sceneLogCollections } from '../data/scene';
 import './ScenePage.css';
 
 const pageData = sceneLogCollections.digitalResident;
