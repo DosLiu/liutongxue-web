@@ -21,7 +21,6 @@ export default function SceneDigitalResidentPage() {
           <section className="scene-log-timeline scene-log-timeline--compact" aria-labelledby="scene-log-timeline-title">
             <div className="scene-log-timeline__header">
               <div>
-                <p className="scene-log-panel__eyebrow">Log Timeline</p>
                 <h2 id="scene-log-timeline-title" className="scene-log-panel__title">
                   全部日志
                 </h2>
