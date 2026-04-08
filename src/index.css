@@ -161,11 +161,18 @@ svg {
   transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
 }
 
+.nav-link--stacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.08rem;
+  line-height: 1.1;
+}
+
 .nav-link__meta {
-  color: rgba(255, 255, 255, 0.42);
-  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 0.68rem;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
 }
 
 .nav-link:hover {
