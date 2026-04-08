@@ -832,6 +832,25 @@
   margin-top: 1rem;
 }
 
+.scene-log-detail__source {
+  margin: 1.2rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.scene-log-detail__source-link {
+  color: rgba(230, 234, 240, 0.88);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.7;
+  text-decoration: none;
+}
+
+.scene-log-detail__source-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
 @media (max-width: 1024px) {
   .scene-card-grid,
   .scene-archive-panel__grid,

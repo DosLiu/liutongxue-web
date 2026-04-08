@@ -12,6 +12,8 @@ export type SceneLogEntry = {
   detailImageSrc?: string;
   detailImageAlt?: string;
   detailImageCaption?: string;
+  sourceHref?: string;
+  sourceLabel?: string;
 };
 
 export type SceneLogCollection = {

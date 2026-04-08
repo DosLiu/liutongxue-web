@@ -10,9 +10,11 @@ type SceneLogDetailPageProps = {
   imageSrc?: string;
   imageAlt?: string;
   imageCaption?: string;
+  sourceHref?: string;
+  sourceLabel?: string;
 };
 
-export default function SceneLogDetailPage({ teamTitle, teamHref, logDate, logTitle, paragraphs, imageSrc, imageAlt, imageCaption }: SceneLogDetailPageProps) {
+export default function SceneLogDetailPage({ teamTitle, teamHref, logDate, logTitle, paragraphs, imageSrc, imageAlt, imageCaption, sourceHref, sourceLabel }: SceneLogDetailPageProps) {
   return (
     <>
       <SiteHeader activeKey="scene" />
@@ -53,6 +55,14 @@ export default function SceneLogDetailPage({ teamTitle, teamHref, logDate, logTi
                 {paragraph}
               </p>
             ))}
+
+            {sourceHref && sourceLabel ? (
+              <p className="scene-log-detail__source">
+                <a href={sourceHref} className="scene-log-detail__source-link" target="_blank" rel="noreferrer">
+                  {sourceLabel}
+                </a>
+              </p>
+            ) : null}
           </article>
         </div>
       </main>

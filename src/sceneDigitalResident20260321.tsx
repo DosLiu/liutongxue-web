@@ -22,6 +22,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       imageSrc={firstLog.detailImageSrc}
       imageAlt={firstLog.detailImageAlt}
       imageCaption={firstLog.detailImageCaption}
+      sourceHref={firstLog.sourceHref}
+      sourceLabel={firstLog.sourceLabel}
     />
   </React.StrictMode>
 );
