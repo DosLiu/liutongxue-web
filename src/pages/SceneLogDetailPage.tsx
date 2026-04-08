@@ -3,6 +3,7 @@ import './ScenePage.css';
 
 type SceneLogDetailPageProps = {
   teamTitle: string;
+  teamHref?: string;
   logDate: string;
   logTitle: string;
   paragraphs: string[];
@@ -11,7 +12,7 @@ type SceneLogDetailPageProps = {
   imageCaption?: string;
 };
 
-export default function SceneLogDetailPage({ teamTitle, logDate, logTitle, paragraphs, imageSrc, imageAlt, imageCaption }: SceneLogDetailPageProps) {
+export default function SceneLogDetailPage({ teamTitle, teamHref, logDate, logTitle, paragraphs, imageSrc, imageAlt, imageCaption }: SceneLogDetailPageProps) {
   return (
     <>
       <SiteHeader activeKey="scene" />
@@ -19,7 +20,13 @@ export default function SceneLogDetailPage({ teamTitle, logDate, logTitle, parag
       <main className="scene-log-page scene-log-page--plain">
         <div className="scene-log-shell scene-log-shell--detail">
           <section className="scene-log-hero scene-log-hero--detail" aria-labelledby="scene-log-detail-title">
-            <p className="scene-log-detail__team">{teamTitle}</p>
+            {teamHref ? (
+              <a href={teamHref} className="scene-log-detail__team scene-log-detail__team--link">
+                {teamTitle}
+              </a>
+            ) : (
+              <p className="scene-log-detail__team">{teamTitle}</p>
+            )}
             <h1 id="scene-log-detail-title" className="scene-log-title scene-log-title--detail">
               {logTitle}
             </h1>
