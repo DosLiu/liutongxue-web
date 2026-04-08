@@ -54,8 +54,6 @@ function ToolCard({ tool, index }: ToolCardProps) {
       href={tool.href}
       ref={cardRef as React.RefObject<HTMLAnchorElement>}
       className={cardClassName}
-      target="_blank"
-      rel="noreferrer"
     >
       {cardContent}
     </a>
