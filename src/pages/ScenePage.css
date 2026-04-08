@@ -753,6 +753,52 @@
   text-transform: uppercase;
 }
 
+.scene-log-detail__media {
+  margin-top: 1.2rem;
+}
+
+.scene-log-detail__image,
+.scene-log-detail__image-placeholder {
+  width: 100%;
+  border-radius: 1.4rem;
+}
+
+.scene-log-detail__image {
+  display: block;
+  border: 1px solid rgba(192, 171, 223, 0.14);
+  background: rgba(12, 9, 20, 0.88);
+}
+
+.scene-log-detail__image-placeholder {
+  padding: 1.4rem 1.5rem;
+  border: 1px dashed rgba(192, 171, 223, 0.24);
+  background: linear-gradient(180deg, rgba(18, 13, 28, 0.72), rgba(10, 7, 18, 0.64));
+}
+
+.scene-log-detail__image-placeholder-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.35rem 0.75rem;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.scene-log-detail__image-placeholder-text,
+.scene-log-detail__image-caption {
+  margin: 0.9rem 0 0;
+  color: rgba(230, 234, 240, 0.72);
+  font-size: 0.92rem;
+  line-height: 1.72;
+}
+
 .scene-log-detail__panel {
   margin-top: 1.35rem;
   padding: 1.55rem 1.6rem;

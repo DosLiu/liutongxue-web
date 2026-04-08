@@ -15,8 +15,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <SceneLogDetailPage
       teamTitle={digitalResidentSceneLogCollection.title}
       logDate={firstLog.publishedAt}
-      logTitle={firstLog.title}
+      logTitle={firstLog.detailTitle ?? firstLog.title}
       paragraphs={firstLog.detailContent}
+      imageSrc={firstLog.detailImageSrc}
+      imageAlt={firstLog.detailImageAlt}
+      imageCaption={firstLog.detailImageCaption}
     />
   </React.StrictMode>
 );

@@ -7,7 +7,11 @@ export type SceneLogEntry = {
   preview: string;
   summary: string;
   detailHref?: string;
+  detailTitle?: string;
   detailContent?: string[];
+  detailImageSrc?: string;
+  detailImageAlt?: string;
+  detailImageCaption?: string;
 };
 
 export type SceneLogCollection = {
