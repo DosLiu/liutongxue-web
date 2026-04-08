@@ -764,6 +764,8 @@
 }
 
 .scene-log-detail__media {
+  width: 100%;
+  max-width: 52rem;
   margin-top: 1.2rem;
 }
 
