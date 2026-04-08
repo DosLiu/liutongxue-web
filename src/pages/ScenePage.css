@@ -765,8 +765,9 @@
 
 .scene-log-detail__media {
   width: 100%;
-  max-width: 52rem;
+  max-width: 28rem;
   margin-top: 1.2rem;
+  margin-inline: auto;
 }
 
 .scene-log-detail__image,
@@ -949,6 +950,10 @@
   }
 
   .scene-log-timeline__summary {
+    max-width: none;
+  }
+
+  .scene-log-detail__media {
     max-width: none;
   }
 }
