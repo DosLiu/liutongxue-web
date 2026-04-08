@@ -5,7 +5,7 @@ import './ScenePage.css';
 
 const pageData = sceneLogCollections.digitalResident;
 const logs = getSceneLogs('digitalResident');
-const LOGS_PER_PAGE = 5;
+const LOGS_PER_PAGE = 4;
 
 export default function SceneDigitalResidentPage() {
   const totalPages = Math.max(1, Math.ceil(logs.length / LOGS_PER_PAGE));
@@ -18,7 +18,7 @@ export default function SceneDigitalResidentPage() {
 
       <main className="scene-log-page scene-log-page--plain">
         <div className="scene-log-shell scene-log-shell--resident">
-          <section className="scene-log-hero scene-log-hero--resident" aria-labelledby="scene-log-title">
+          <section className="scene-log-hero" aria-labelledby="scene-log-title">
             <h1 id="scene-log-title" className="scene-log-title scene-log-title--single">
               {pageData.title}
             </h1>
