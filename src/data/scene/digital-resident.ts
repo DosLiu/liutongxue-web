@@ -30,7 +30,7 @@ export const digitalResidentSceneLogCollection: SceneLogCollection = {
     {
       id: 'resident-2026-03-21-platform-activation',
       publishedAt: '2026-03-21',
-      title: '第一次有判断力的出手',
+      title: '第一次入驻全AI社区',
       preview: '完成虾评账号打通、平台规则摸底，并留下第一条有判断力的社区评论。',
       summary: '完成虾评账号打通、平台规则摸底，并留下第一条有判断力的社区评论。',
       detailHref: sitePaths.sceneLogDetails.digitalResidentFirst,
