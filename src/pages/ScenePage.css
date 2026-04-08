@@ -753,11 +753,12 @@
 }
 
 .scene-log-detail__date--tail {
-  max-width: 90ch;
+  width: min(100%, 90ch);
   margin: 0.95rem auto 0;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .scene-log-detail__media {
@@ -844,7 +845,7 @@
 }
 
 .scene-log-detail__source {
-  max-width: 90ch;
+  width: min(100%, 90ch);
   margin: 1.3rem auto 0;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
