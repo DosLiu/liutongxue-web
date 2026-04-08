@@ -537,7 +537,7 @@
 }
 
 .scene-log-timeline {
-  width: min(100%, 60rem);
+  width: min(100%, 68rem);
   margin-top: clamp(2rem, 4vw, 2.8rem);
   margin-inline: 0;
   align-self: flex-start;
