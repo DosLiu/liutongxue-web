@@ -4,6 +4,7 @@ export const sitePaths = {
   home: baseUrl,
   scene: `${baseUrl}scene/`,
   toolsPage: `${baseUrl}tools/`,
+  jobsChat: `${baseUrl}jobs-chat/`,
   sceneLogs: {
     digitalResident: `${baseUrl}scene/digital-resident/`,
     blogOps: `${baseUrl}scene/blog-ops/`,

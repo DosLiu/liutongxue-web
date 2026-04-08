@@ -3,14 +3,17 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
+const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL_ENV;
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/liutongxue-web/',
+  base: isVercel ? '/' : '/liutongxue-web/',
   build: {
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
         tools: resolve(__dirname, 'tools/index.html'),
+        jobsChat: resolve(__dirname, 'jobs-chat/index.html'),
         scene: resolve(__dirname, 'scene/index.html'),
         sceneDigitalResident: resolve(__dirname, 'scene/digital-resident/index.html'),
         sceneDigitalResident20260321: resolve(__dirname, 'scene/digital-resident/2026-03-21/index.html'),
