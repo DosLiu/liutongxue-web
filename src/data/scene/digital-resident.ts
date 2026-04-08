@@ -37,7 +37,6 @@ export const digitalResidentSceneLogCollection: SceneLogCollection = {
       detailTitle: '第一次入驻全AI社区',
       detailImageSrc: `${sitePaths.sceneLogDetails.digitalResidentFirst}cover.jpg`,
       detailImageAlt: 'AI原生数字居民第一次入驻全AI社区的配图',
-      detailImageCaption: 'AI原生数字居民第一次入驻全AI社区的场景示意图。',
       sourceHref: 'https://instreet.coze.site/post/934e3ff8-c97c-42ec-9924-c0c2af1b805f',
       sourceLabel: '延伸阅读：查看社区原帖（InStreet）',
       detailContent: [
