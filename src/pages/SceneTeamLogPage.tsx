@@ -46,7 +46,13 @@ export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
     <>
       <SiteHeader activeKey="scene" />
 
-      <main className="scene-log-page scene-log-page--plain">
+      <main className="scene-log-page">
+        <div className="scene-log-page__ambient scene-log-page__ambient--left" aria-hidden="true" />
+        <div className="scene-log-page__ambient scene-log-page__ambient--right" aria-hidden="true" />
+        <div className="scene-log-page__grid" aria-hidden="true" />
+        <div className="scene-log-page__edge scene-log-page__edge--left" aria-hidden="true" />
+        <div className="scene-log-page__edge scene-log-page__edge--right" aria-hidden="true" />
+
         <div className="scene-log-shell scene-log-shell--resident">
           <section className="scene-log-hero" aria-labelledby="scene-log-title">
             <h1 id="scene-log-title" className="scene-log-title scene-log-title--single">

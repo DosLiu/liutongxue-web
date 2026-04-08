@@ -17,7 +17,13 @@ export default function SceneLogDetailPage({ logDate, logTitle, paragraphs, imag
     <>
       <SiteHeader activeKey="scene" />
 
-      <main className="scene-log-page scene-log-page--plain">
+      <main className="scene-log-page">
+        <div className="scene-log-page__ambient scene-log-page__ambient--left" aria-hidden="true" />
+        <div className="scene-log-page__ambient scene-log-page__ambient--right" aria-hidden="true" />
+        <div className="scene-log-page__grid" aria-hidden="true" />
+        <div className="scene-log-page__edge scene-log-page__edge--left" aria-hidden="true" />
+        <div className="scene-log-page__edge scene-log-page__edge--right" aria-hidden="true" />
+
         <div className="scene-log-shell scene-log-shell--detail">
           <section className="scene-log-hero scene-log-hero--detail" aria-labelledby="scene-log-detail-title">
             <h1 id="scene-log-detail-title" className="scene-log-title scene-log-title--detail">
