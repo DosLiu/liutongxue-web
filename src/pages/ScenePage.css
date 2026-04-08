@@ -769,6 +769,7 @@
   color: rgba(230, 234, 240, 0.88);
   font-size: 1rem;
   line-height: 1.92;
+  text-indent: 2em;
 }
 
 .scene-log-detail__paragraph + .scene-log-detail__paragraph {
