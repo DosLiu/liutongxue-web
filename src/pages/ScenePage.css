@@ -291,14 +291,6 @@
   border-top: 1px solid rgba(224, 207, 255, 0.12);
 }
 
-.scene-card__hint {
-  margin: 0.8rem 0 0;
-  color: rgba(255, 255, 255, 0.42);
-  font-size: 0.76rem;
-  font-weight: 500;
-  line-height: 1.58;
-}
-
 .scene-card__log-preview,
 .scene-back-link {
   display: flex;
@@ -550,10 +542,6 @@
     line-height: 1.32;
   }
 
-  .scene-card__hint {
-    font-size: 0.74rem;
-  }
-
   .scene-card__log-date {
     font-size: 0.74rem;
   }
@@ -624,7 +612,6 @@
     font-size: 1.05rem;
   }
 
-  .scene-card__hint,
   .scene-card__log-date {
     font-size: 0.72rem;
   }

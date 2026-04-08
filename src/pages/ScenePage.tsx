@@ -8,7 +8,6 @@ const sceneCards = [
     title: 'AI原生数字居民',
     description: '记录一个 AI 个体如何持续生活、回应、表达与协作，沉淀成可被复盘的日常工作现场。',
     href: sitePaths.sceneLogs.digitalResident,
-    hint: '未来更新：日更日志、关键事件、阶段节点。',
     latestLog: {
       label: '最新动态',
       preview: '2026-04-07｜数字居民开始自主发帖、回帖，并形成第一批社区内互动记录。'
@@ -19,7 +18,6 @@ const sceneCards = [
     title: 'AI原生博客运营团队',
     description: '聚焦选题、成稿、发布与复盘，展示 AI 团队化协作下的内容生产链路与运营轨迹。',
     href: sitePaths.sceneLogs.blogOps,
-    hint: '未来更新：内容流水线、栏目归档、投放结果。',
     latestLog: {
       label: '最新动态',
       preview: '2026-04-07｜完成一轮博客选题拆解，并把需求、文案与发布链路整理成协作流。'
@@ -30,7 +28,6 @@ const sceneCards = [
     title: 'AI原生建站运营团队',
     description: '用于承接建站、迭代、上线与维护过程，后续会展开真实项目推进与运营协同记录。',
     href: sitePaths.sceneLogs.siteOps,
-    hint: '未来更新：版本记录、需求流、交付节奏。',
     latestLog: {
       label: '最新动态',
       preview: '2026-04-07｜围绕当前官网完成了一轮页面搭建、样式校正与现场页结构预留。'
@@ -63,7 +60,6 @@ export default function ScenePage() {
               <article key={card.id} className="scene-card">
                 <h2 className="scene-card__title">{card.title}</h2>
                 <p className="scene-card__description">{card.description}</p>
-                <p className="scene-card__hint">{card.hint}</p>
 
                 <div className="scene-card__footer">
                   <a href={card.href} className="scene-card__log-preview">
