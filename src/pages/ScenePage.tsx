@@ -69,7 +69,6 @@ export default function ScenePage() {
                   <a href={card.href} className="scene-card__log-preview">
                     <span className="scene-card__log-meta">
                       <span className="scene-card__log-date">{card.latestLog.label}</span>
-                      <span className="scene-card__log-divider" aria-hidden="true" />
                     </span>
                     <span className="scene-card__log-text">{card.latestLog.preview}</span>
                   </a>
