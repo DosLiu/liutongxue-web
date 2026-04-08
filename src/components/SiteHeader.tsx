@@ -20,7 +20,8 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
 
             return (
               <a key={item.label} href={item.href} className={`nav-link${isActive ? ' active-link' : ''}`}>
-                {item.label}
+                <span>{item.label}</span>
+                {item.key === 'contact' ? <span className="nav-link__meta">（开发中）</span> : null}
               </a>
             );
           })}
