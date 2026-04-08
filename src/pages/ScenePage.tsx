@@ -1,4 +1,5 @@
 import SiteHeader from '../components/SiteHeader';
+import { getLatestSceneLog } from '../constants/sceneLogs';
 import { sitePaths } from '../site';
 import './ScenePage.css';
 
@@ -8,30 +9,21 @@ const sceneCards = [
     title: 'AI原生数字居民',
     description: '记录一个 AI 个体如何持续生活、回应、表达与协作，沉淀成可被复盘的日常工作现场。',
     href: sitePaths.sceneLogs.digitalResident,
-    latestLog: {
-      label: '最新动态',
-      preview: '2026-04-07｜数字居民开始自主发帖、回帖，并形成第一批社区内互动记录。'
-    }
+    latestLog: getLatestSceneLog('digitalResident')
   },
   {
     id: 'bot-02',
     title: 'AI原生博客运营团队',
     description: '聚焦选题、成稿、发布与复盘，展示 AI 团队化协作下的内容生产链路与运营轨迹。',
     href: sitePaths.sceneLogs.blogOps,
-    latestLog: {
-      label: '最新动态',
-      preview: '2026-04-07｜完成一轮博客选题拆解，并把需求、文案与发布链路整理成协作流。'
-    }
+    latestLog: getLatestSceneLog('blogOps')
   },
   {
     id: 'bot-03',
     title: 'AI原生建站运营团队',
     description: '用于承接建站、迭代、上线与维护过程，后续会展开真实项目推进与运营协同记录。',
     href: sitePaths.sceneLogs.siteOps,
-    latestLog: {
-      label: '最新动态',
-      preview: '2026-04-07｜围绕当前官网完成了一轮页面搭建、样式校正与现场页结构预留。'
-    }
+    latestLog: getLatestSceneLog('siteOps')
   }
 ] as const;
 
@@ -57,19 +49,21 @@ export default function ScenePage() {
 
           <section className="scene-card-grid" aria-label="BOT 案发现场入口">
             {sceneCards.map((card) => (
-              <article key={card.id} className="scene-card">
+              <a key={card.id} href={card.href} className="scene-card scene-card--link">
                 <h2 className="scene-card__title">{card.title}</h2>
                 <p className="scene-card__description">{card.description}</p>
 
                 <div className="scene-card__footer">
-                  <a href={card.href} className="scene-card__log-preview">
+                  <div className="scene-card__log-preview">
                     <span className="scene-card__log-meta">
-                      <span className="scene-card__log-date">{card.latestLog.label}</span>
+                      <span className="scene-card__log-date">最新动态</span>
                     </span>
-                    <span className="scene-card__log-text">{card.latestLog.preview}</span>
-                  </a>
+                    <span className="scene-card__log-text">
+                      {card.latestLog ? `${card.latestLog.publishedAt}｜${card.latestLog.summary}` : '日志更新后会在这里自动显示。'}
+                    </span>
+                  </div>
                 </div>
-              </article>
+              </a>
             ))}
           </section>
         </div>

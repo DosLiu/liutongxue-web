@@ -215,6 +215,17 @@
     background 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.scene-card--link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.scene-card--link:focus-visible {
+  outline: 2px solid rgba(191, 228, 255, 0.85);
+  outline-offset: 4px;
+}
+
 .scene-card::before,
 .scene-card::after {
   content: '';
@@ -301,7 +312,8 @@
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.scene-card__log-preview:hover,
+.scene-card--link:hover .scene-card__log-preview,
+.scene-card--link:focus-visible .scene-card__log-preview,
 .scene-back-link:hover {
   color: #e5d8ff;
   transform: translateX(2px);
@@ -488,10 +500,142 @@
   line-height: 1.7;
 }
 
+.scene-log-highlight__topline,
+.scene-log-timeline__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.scene-log-highlight__headline {
+  margin: 1.15rem 0 0;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: clamp(1.45rem, 2.2vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.24;
+}
+
+.scene-log-highlight__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+.scene-log-timeline {
+  margin-top: clamp(2rem, 4vw, 2.8rem);
+}
+
+.scene-log-timeline__summary {
+  max-width: 28rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.94rem;
+  line-height: 1.7;
+}
+
+.scene-log-timeline__list {
+  display: grid;
+  gap: 1rem;
+  margin: 1.45rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scene-log-timeline__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.scene-log-timeline__rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 1rem;
+}
+
+.scene-log-timeline__dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  margin-top: 1.05rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #9ad8ff 0%, #9e7eff 100%);
+  box-shadow: 0 0 18px rgba(154, 216, 255, 0.45);
+}
+
+.scene-log-timeline__line {
+  flex: 1;
+  width: 1px;
+  margin-top: 0.5rem;
+  background: linear-gradient(180deg, rgba(154, 216, 255, 0.34), rgba(154, 216, 255, 0.04));
+}
+
+.scene-log-timeline__item:last-child .scene-log-timeline__line {
+  opacity: 0;
+}
+
+.scene-log-timeline__card {
+  position: relative;
+  overflow: hidden;
+  padding: 1.25rem 1.3rem 1.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 1.35rem;
+  background:
+    linear-gradient(180deg, rgba(18, 13, 28, 0.94), rgba(10, 7, 18, 0.9));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 18px 42px -30px rgba(56, 26, 104, 0.8);
+}
+
+.scene-log-timeline__card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 30%);
+}
+
+.scene-log-timeline__date,
+.scene-log-timeline__title,
+.scene-log-timeline__text {
+  position: relative;
+  z-index: 1;
+}
+
+.scene-log-timeline__date {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.scene-log-timeline__title {
+  margin: 0.75rem 0 0;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: clamp(1.08rem, 1rem + 0.25vw, 1.22rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+.scene-log-timeline__text {
+  margin: 0.8rem 0 0;
+  color: rgba(225, 218, 236, 0.78);
+  font-size: 0.95rem;
+  line-height: 1.74;
+}
+
 @media (max-width: 1024px) {
   .scene-card-grid,
   .scene-archive-panel__grid,
-  .scene-log-panel__grid {
+  .scene-log-panel__grid,
+  .scene-log-highlight__meta {
     grid-template-columns: 1fr;
   }
 
@@ -568,9 +712,15 @@
 
   .scene-card__footer,
   .scene-log-panel__footer,
-  .scene-archive-panel__topline {
+  .scene-archive-panel__topline,
+  .scene-log-highlight__topline,
+  .scene-log-timeline__header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .scene-log-timeline__summary {
+    max-width: none;
   }
 }
 
@@ -604,20 +754,37 @@
   .scene-archive-panel__item-value,
   .scene-log-panel__description,
   .scene-log-panel__list li,
-  .scene-log-panel__footnote {
+  .scene-log-panel__footnote,
+  .scene-log-timeline__text,
+  .scene-log-timeline__summary {
     font-size: 0.9rem;
   }
 
-  .scene-card__title {
+  .scene-card__title,
+  .scene-log-timeline__title {
     font-size: 1.05rem;
   }
 
-  .scene-card__log-date {
+  .scene-card__log-date,
+  .scene-log-timeline__date {
     font-size: 0.72rem;
   }
 
   .scene-card__log-text {
     font-size: 0.86rem;
     line-height: 1.56;
+  }
+
+  .scene-log-highlight__headline {
+    font-size: 1.12rem;
+    line-height: 1.45;
+  }
+
+  .scene-log-timeline__item {
+    gap: 0.8rem;
+  }
+
+  .scene-log-timeline__card {
+    padding: 1.05rem 1rem 1.1rem;
   }
 }
