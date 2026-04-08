@@ -770,16 +770,23 @@
 .scene-log-detail__image,
 .scene-log-detail__image-placeholder {
   width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
   border-radius: 1.4rem;
 }
 
 .scene-log-detail__image {
   display: block;
+  height: 100%;
+  object-fit: cover;
   border: 1px solid rgba(192, 171, 223, 0.14);
   background: rgba(12, 9, 20, 0.88);
 }
 
 .scene-log-detail__image-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: 1.4rem 1.5rem;
   border: 1px dashed rgba(192, 171, 223, 0.24);
   background: linear-gradient(180deg, rgba(18, 13, 28, 0.72), rgba(10, 7, 18, 0.64));
