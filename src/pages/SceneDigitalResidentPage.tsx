@@ -17,14 +17,14 @@ export default function SceneDigitalResidentPage() {
       <SiteHeader activeKey="scene" />
 
       <main className="scene-log-page scene-log-page--plain">
-        <div className="scene-log-shell">
-          <section className="scene-log-hero" aria-labelledby="scene-log-title">
+        <div className="scene-log-shell scene-log-shell--resident">
+          <section className="scene-log-hero scene-log-hero--resident" aria-labelledby="scene-log-title">
             <h1 id="scene-log-title" className="scene-log-title scene-log-title--single">
               {pageData.title}
             </h1>
           </section>
 
-          <section className="scene-log-timeline scene-log-timeline--compact" aria-labelledby="scene-log-timeline-title">
+          <section className="scene-log-timeline scene-log-timeline--compact scene-log-timeline--resident" aria-labelledby="scene-log-timeline-title">
             <div className="scene-log-timeline__header">
               <div>
                 <h2 id="scene-log-timeline-title" className="scene-log-panel__title">
@@ -45,7 +45,7 @@ export default function SceneDigitalResidentPage() {
               ))}
             </ol>
 
-            <div className="scene-log-pagination" aria-label="日志翻页">
+            <div className="scene-log-pagination scene-log-pagination--right" aria-label="日志翻页">
               <button
                 type="button"
                 className="scene-log-pagination__button"
