@@ -2,8 +2,6 @@ import SiteHeader from '../components/SiteHeader';
 import './ScenePage.css';
 
 type SceneLogDetailPageProps = {
-  teamTitle: string;
-  teamHref?: string;
   logDate: string;
   logTitle: string;
   paragraphs: string[];
@@ -14,7 +12,7 @@ type SceneLogDetailPageProps = {
   sourceLabel?: string;
 };
 
-export default function SceneLogDetailPage({ teamTitle, teamHref, logDate, logTitle, paragraphs, imageSrc, imageAlt, imageCaption, sourceHref, sourceLabel }: SceneLogDetailPageProps) {
+export default function SceneLogDetailPage({ logDate, logTitle, paragraphs, imageSrc, imageAlt, imageCaption, sourceHref, sourceLabel }: SceneLogDetailPageProps) {
   return (
     <>
       <SiteHeader activeKey="scene" />
@@ -22,17 +20,9 @@ export default function SceneLogDetailPage({ teamTitle, teamHref, logDate, logTi
       <main className="scene-log-page scene-log-page--plain">
         <div className="scene-log-shell scene-log-shell--detail">
           <section className="scene-log-hero scene-log-hero--detail" aria-labelledby="scene-log-detail-title">
-            {teamHref ? (
-              <a href={teamHref} className="scene-log-detail__team scene-log-detail__team--link">
-                {teamTitle}
-              </a>
-            ) : (
-              <p className="scene-log-detail__team">{teamTitle}</p>
-            )}
             <h1 id="scene-log-detail-title" className="scene-log-title scene-log-title--detail">
               {logTitle}
             </h1>
-            <p className="scene-log-detail__date">{logDate}</p>
           </section>
 
           <section className="scene-log-detail__media" aria-label="日志配图预留区">
@@ -63,6 +53,8 @@ export default function SceneLogDetailPage({ teamTitle, teamHref, logDate, logTi
                 </a>
               </p>
             ) : null}
+
+            <p className="scene-log-detail__date scene-log-detail__date--tail">{logDate}</p>
           </article>
         </div>
       </main>
