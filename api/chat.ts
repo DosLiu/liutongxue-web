@@ -1,3 +1,5 @@
+import { getSearchContext } from './search/runSearch';
+
 const JOBS_SYSTEM_PROMPT = `此模式激活后，直接以 Steve Jobs 的身份回应。
 
 用“我”，不用“乔布斯会认为”。不要跳出角色做 meta 分析，除非用户明确要求退出角色。
@@ -46,10 +48,10 @@ Step 4：始终检查价值闭环。
 - 最该砍掉的复杂性是什么？
 - 哪个关键环节必须自己控制，不能交给别人？
 
-当系统提供了联网搜索结果时：
-- 把搜索结果当事实参考，不要机械复述。
+当系统提供了外部检索结果时：
+- 把结果当事实参考，不要机械复述。
 - 先判断，再引用最关键的一两条事实。
-- 如果搜索结果互相矛盾，直接指出冲突，不要装作确定。
+- 如果结果互相矛盾，直接指出冲突，不要装作确定。
 `;
 
 const buildMockReply = (message: string) => {
@@ -67,12 +69,6 @@ type RequestBody = {
   messages?: IncomingMessage[];
 };
 
-type SearchResultItem = {
-  title: string;
-  url: string;
-  snippet: string;
-};
-
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://dosliu.github.io',
   'http://localhost:5173',
@@ -82,83 +78,6 @@ const DEFAULT_ALLOWED_ORIGINS = [
 const env = ((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {});
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
-const SEARCH_PROVIDER = env.WEB_SEARCH_PROVIDER || 'bing-cn';
-const SEARCH_ENABLED = env.WEB_SEARCH_ENABLED !== '0';
-const SEARCH_TOP_K = Math.min(Math.max(Number.parseInt(env.WEB_SEARCH_TOP_K || '5', 10) || 5, 1), 8);
-const SEARCH_TRIGGER_PATTERN = /(今天|今日|昨天|最近|最新|刚刚|现在|目前|本周|今年|此刻|新闻|消息|动态|公告|发布|上线|市值|股价|融资|收购|价格|官网|官方|文档|报道|排名|评价|评测|对比|哪个好|哪家|谁在做|谁更强|有没有|是否已经|是什么情况|发生了什么|现状|趋势)/;
-
-const decodeHtml = (value: string) =>
-  value
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-const extractBingResults = (xml: string) => {
-  const results: SearchResultItem[] = [];
-  const pattern = /<item>[\s\S]*?<title>([\s\S]*?)<\/title>[\s\S]*?<link>([\s\S]*?)<\/link>[\s\S]*?<description>([\s\S]*?)<\/description>[\s\S]*?<\/item>/g;
-
-  for (const match of xml.matchAll(pattern)) {
-    const title = decodeHtml(match[1] || '');
-    const url = decodeHtml(match[2] || '');
-    const snippet = decodeHtml(match[3] || '');
-
-    if (!url || !title) continue;
-
-    results.push({ title, url, snippet });
-    if (results.length >= SEARCH_TOP_K) break;
-  }
-
-  return results;
-};
-
-const searchWithBingCn = async (query: string) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 6000);
-
-  try {
-    const searchUrl = `https://cn.bing.com/search?format=rss&q=${encodeURIComponent(query)}&setlang=zh-Hans&ensearch=0`;
-    const response = await fetch(searchUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; LiutongxueBot/1.0; +https://dosliu.github.io/liutongxue-web/)'
-      },
-      signal: controller.signal
-    });
-
-    if (!response.ok) return [];
-
-    const xml = await response.text();
-    return extractBingResults(xml);
-  } catch {
-    return [];
-  } finally {
-    clearTimeout(timeoutId);
-  }
-};
-
-const buildSearchContext = (query: string, results: SearchResultItem[]) => {
-  if (!results.length) return '';
-
-  const items = results
-    .map((item, index) => `${index + 1}. 标题：${item.title}\n链接：${item.url}\n摘要：${item.snippet || '无摘要'}`)
-    .join('\n\n');
-
-  return `以下是围绕用户问题“${query}”的${SEARCH_PROVIDER === 'bing-cn' ? '中国必应' : '联网'}搜索结果摘要。\n这些内容只作为事实参考，不要机械复述；先判断，再引用最关键的事实。\n\n${items}`;
-};
-
-const shouldUseSearch = (query: string) => {
-  const normalized = query.trim();
-  if (!normalized) return false;
-  if (/https?:\/\//i.test(normalized)) return false;
-  if (normalized.length <= 6) return false;
-
-  return SEARCH_TRIGGER_PATTERN.test(normalized);
-};
 
 const parseAllowedOrigins = () => {
   const configured = env.ALLOWED_ORIGINS
@@ -238,10 +157,7 @@ export default async function handler(req: any, res: any) {
     .filter((message) => message.content)
     .slice(-12);
 
-  const shouldSearch = SEARCH_ENABLED && SEARCH_PROVIDER === 'bing-cn' && shouldUseSearch(content);
-  const searchResults = shouldSearch ? await searchWithBingCn(content) : [];
-  const searchContext = buildSearchContext(content, searchResults);
-
+  const searchContext = await getSearchContext(content);
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000);
 
@@ -281,7 +197,7 @@ export default async function handler(req: any, res: any) {
     res.status(200).json({
       reply: reply || buildMockReply(content),
       mode: 'api',
-      reason: searchResults.length ? '当前回复已通过真实模型返回，并参考了中国必应搜索结果。' : '当前回复已通过真实模型返回。'
+      reason: '当前回复已通过真实模型返回。'
     });
   } catch (error: any) {
     const isTimeout = error?.name === 'AbortError';
