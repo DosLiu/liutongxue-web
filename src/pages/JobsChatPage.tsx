@@ -78,7 +78,7 @@ const getInitialRemaining = () => {
 const initialAssistantMessage: ChatMessage = {
   id: 'assistant-intro',
   role: 'assistant',
-  content: '先说结论。你现在最痛的业务问题是什么？一句话，不要背景。'
+  content: '我先说明一次：我会以乔布斯视角和你聊，基于公开言论推断，不是本人。现在，说重点。你最痛的业务问题是什么？一句话，不要背景。'
 };
 
 export default function JobsChatPage() {
