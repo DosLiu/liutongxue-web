@@ -288,7 +288,7 @@ const env = ((globalThis as { process?: { env?: Record<string, string | undefine
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 const normalizeHost = (value: string) => value.toLowerCase().replace(/^www\./, '');
 
-const SEARCH_ENABLED = env.WEB_SEARCH_ENABLED !== '0';
+const SEARCH_ENABLED = env.WEB_SEARCH_ENABLED === '1';
 const SEARCH_DEBUG_ENABLED = env.WEB_SEARCH_DEBUG !== '0';
 const SEARCH_ROUTE_PROMPT = `你是搜索路由器。你的任务不是回答用户，而是判断当前问题是否需要联网检索。
 
