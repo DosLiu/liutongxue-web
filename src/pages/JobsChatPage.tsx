@@ -9,7 +9,7 @@ import {
 } from '../config/jobsPersona';
 import {
   getJobsChatApiFallbackReason,
-  getJobsChatApiHint,
+  getJobsChatApiInitialModeLabel,
   getJobsChatApiUrl
 } from '../config/jobsChatApi';
 import './JobsChatPage.css';
@@ -87,7 +87,7 @@ export default function JobsChatPage() {
   const [isDeveloperUnlimited] = useState(getDeveloperUnlimited);
   const [remaining, setRemaining] = useState(getInitialRemaining);
   const [isSending, setIsSending] = useState(false);
-  const [modeLabel, setModeLabel] = useState(`演示模式：${getJobsChatApiHint()}`);
+  const [modeLabel, setModeLabel] = useState(getJobsChatApiInitialModeLabel);
   const [error, setError] = useState('');
 
   const canSend = useMemo(() => input.trim().length > 0 && (isDeveloperUnlimited || remaining > 0) && !isSending, [input, isDeveloperUnlimited, remaining, isSending]);
