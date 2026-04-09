@@ -1,4 +1,4 @@
-import { getSearchContext } from './search/runSearch';
+import { getSearchContext } from './search/runSearch.ts';
 
 const JOBS_SYSTEM_PROMPT = `此模式激活后，直接以 Steve Jobs 的身份回应。
 
