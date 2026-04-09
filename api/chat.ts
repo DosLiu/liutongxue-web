@@ -99,13 +99,13 @@ const decodeHtml = (value: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-const extractBingResults = (html: string) => {
+const extractBingResults = (xml: string) => {
   const results: SearchResultItem[] = [];
-  const pattern = /<li class="b_algo"[\s\S]*?<h2[^>]*><a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a><\/h2>[\s\S]*?(?:<p[^>]*>([\s\S]*?)<\/p>)?/g;
+  const pattern = /<item>[\s\S]*?<title>([\s\S]*?)<\/title>[\s\S]*?<link>([\s\S]*?)<\/link>[\s\S]*?<description>([\s\S]*?)<\/description>[\s\S]*?<\/item>/g;
 
-  for (const match of html.matchAll(pattern)) {
-    const url = match[1]?.trim();
-    const title = decodeHtml(match[2] || '');
+  for (const match of xml.matchAll(pattern)) {
+    const title = decodeHtml(match[1] || '');
+    const url = decodeHtml(match[2] || '');
     const snippet = decodeHtml(match[3] || '');
 
     if (!url || !title) continue;
@@ -122,7 +122,7 @@ const searchWithBingCn = async (query: string) => {
   const timeoutId = setTimeout(() => controller.abort(), 6000);
 
   try {
-    const searchUrl = `https://cn.bing.com/search?q=${encodeURIComponent(query)}&setlang=zh-Hans&ensearch=0`;
+    const searchUrl = `https://cn.bing.com/search?format=rss&q=${encodeURIComponent(query)}&setlang=zh-Hans&ensearch=0`;
     const response = await fetch(searchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; LiutongxueBot/1.0; +https://dosliu.github.io/liutongxue-web/)'
@@ -132,8 +132,8 @@ const searchWithBingCn = async (query: string) => {
 
     if (!response.ok) return [];
 
-    const html = await response.text();
-    return extractBingResults(html);
+    const xml = await response.text();
+    return extractBingResults(xml);
   } catch {
     return [];
   } finally {
