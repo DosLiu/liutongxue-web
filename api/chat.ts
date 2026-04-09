@@ -85,6 +85,7 @@ const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 const SEARCH_PROVIDER = env.WEB_SEARCH_PROVIDER || 'bing-cn';
 const SEARCH_ENABLED = env.WEB_SEARCH_ENABLED !== '0';
 const SEARCH_TOP_K = Math.min(Math.max(Number.parseInt(env.WEB_SEARCH_TOP_K || '5', 10) || 5, 1), 8);
+const SEARCH_TRIGGER_PATTERN = /(今天|今日|昨天|最近|最新|刚刚|现在|目前|本周|今年|此刻|新闻|消息|动态|公告|发布|上线|市值|股价|融资|收购|价格|官网|官方|文档|报道|排名|评价|评测|对比|哪个好|哪家|谁在做|谁更强|有没有|是否已经|是什么情况|发生了什么|现状|趋势)/;
 
 const decodeHtml = (value: string) =>
   value
@@ -148,6 +149,15 @@ const buildSearchContext = (query: string, results: SearchResultItem[]) => {
     .join('\n\n');
 
   return `以下是围绕用户问题“${query}”的${SEARCH_PROVIDER === 'bing-cn' ? '中国必应' : '联网'}搜索结果摘要。\n这些内容只作为事实参考，不要机械复述；先判断，再引用最关键的事实。\n\n${items}`;
+};
+
+const shouldUseSearch = (query: string) => {
+  const normalized = query.trim();
+  if (!normalized) return false;
+  if (/https?:\/\//i.test(normalized)) return false;
+  if (normalized.length <= 6) return false;
+
+  return SEARCH_TRIGGER_PATTERN.test(normalized);
 };
 
 const parseAllowedOrigins = () => {
@@ -228,7 +238,8 @@ export default async function handler(req: any, res: any) {
     .filter((message) => message.content)
     .slice(-12);
 
-  const searchResults = SEARCH_ENABLED && SEARCH_PROVIDER === 'bing-cn' ? await searchWithBingCn(content) : [];
+  const shouldSearch = SEARCH_ENABLED && SEARCH_PROVIDER === 'bing-cn' && shouldUseSearch(content);
+  const searchResults = shouldSearch ? await searchWithBingCn(content) : [];
   const searchContext = buildSearchContext(content, searchResults);
 
   const controller = new AbortController();
