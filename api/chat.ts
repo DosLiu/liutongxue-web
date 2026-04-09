@@ -48,6 +48,7 @@ Step 4：始终检查价值闭环。
 
 当系统提供了外部检索结果时：
 - 把结果当事实参考，不要机械复述。
+- 优先采用官网、官方文档、官方 pricing、官方公告里的事实。
 - 先判断，再引用最关键的一两条事实。
 - 如果结果互相矛盾，直接指出冲突，不要装作确定。
 `;
@@ -129,7 +130,16 @@ const SEARCH_POLICY = {
     'nextjs.org',
     'developer.chrome.com',
     'openai.com',
-    'platform.openai.com'
+    'platform.openai.com',
+    'anthropic.com',
+    'docs.anthropic.com',
+    'console.anthropic.com',
+    'cloud.google.com',
+    'ai.google.dev',
+    'learn.microsoft.com',
+    'azure.microsoft.com',
+    'aws.amazon.com',
+    'docs.aws.amazon.com'
   ],
   referenceHosts: [
     'zhihu.com',
@@ -138,19 +148,72 @@ const SEARCH_POLICY = {
     '36kr.com',
     'sspai.com',
     'theverge.com',
-    'techcrunch.com'
+    'techcrunch.com',
+    'huggingface.co'
   ],
   triggerPatterns: {
-    current: /(今天|今日|昨天|最近|最新|刚刚|现在|目前|本周|今年|此刻|新闻|消息|动态|公告|发布|上线|市值|股价|融资|收购|价格|现状|趋势|发生了什么)/,
-    official: /(官网|官方|文档|api|sdk|参数|安装|接入|教程|仓库|github|说明|版本|更新日志|release|changelog|pricing|price|pricing page)/i,
-    comparison: /(对比|哪个好|哪家|谁在做|谁更强|有没有|是否已经|排名|评价|评测|推荐|方案|选型|值得买吗)/,
+    current: /(今天|今日|昨天|最近|最新|刚刚|现在|目前|本周|今年|此刻|新闻|消息|动态|公告|发布|上线|市值|股价|融资|收购|价格|定价|费用|成本|现状|趋势|发生了什么)/,
+    official: /(官网|官方|文档|api|sdk|参数|安装|接入|教程|仓库|github|说明|版本|更新日志|release|changelog|pricing|price|pricing page|docs|documentation)/i,
+    comparison: /(对比|哪个好|哪家|谁在做|谁更强|有没有|是否已经|排名|评价|评测|推荐|方案|选型|值得买吗|适合|怎么选|区别|差异|vs|versus|相比)/i,
+    decision: /(企业|客服|客服系统|客服机器人|部署|稳定性|延迟|响应速度|预算|token|模型|能力|上下文|合规|安全|集成|工作流|automation|agent)/i,
     disabled: /(https?:\/\/|www\.)/i
   },
   poorQualityPatterns: {
-    title: /(广告|推广|合集|大全|免费下载|破解版|镜像下载|高速下载)/i,
+    title: /(广告|推广|合集|大全|免费下载|破解版|镜像下载|高速下载|备用网址)/i,
     snippet: /(备用网址|网盘|镜像下载|绿色版|破解版|安装包|高速下载)/i
   }
 } as const;
+
+const QUERY_STOP_WORDS = new Set([
+  '现在',
+  '目前',
+  '最近',
+  '最新',
+  '一下',
+  '请问',
+  '帮我',
+  '看看',
+  '这个',
+  '那个',
+  '什么',
+  '如何',
+  '怎么',
+  '哪个',
+  '谁',
+  '更',
+  '做',
+  '企业',
+  '客服',
+  'api'
+]);
+
+const ENTITY_HINTS = [
+  {
+    match: /(openai|gpt|chatgpt)/i,
+    keywords: ['openai', 'gpt', 'chatgpt'],
+    preferredHosts: ['openai.com', 'platform.openai.com']
+  },
+  {
+    match: /(claude|anthropic)/i,
+    keywords: ['claude', 'anthropic'],
+    preferredHosts: ['anthropic.com', 'docs.anthropic.com', 'console.anthropic.com']
+  },
+  {
+    match: /(gemini|google ai|google api)/i,
+    keywords: ['gemini', 'google'],
+    preferredHosts: ['ai.google.dev', 'cloud.google.com']
+  },
+  {
+    match: /(tailwind)/i,
+    keywords: ['tailwind'],
+    preferredHosts: ['tailwindcss.com']
+  },
+  {
+    match: /(vercel|next\.js|nextjs)/i,
+    keywords: ['vercel', 'nextjs', 'next.js'],
+    preferredHosts: ['vercel.com', 'nextjs.org']
+  }
+] as const;
 
 const env = ((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {});
 
@@ -225,7 +288,27 @@ const detectSearchIntent = (query: string): SearchIntent | null => {
   if (SEARCH_POLICY.triggerPatterns.official.test(normalized)) return 'official';
   if (SEARCH_POLICY.triggerPatterns.current.test(normalized)) return 'current';
   if (SEARCH_POLICY.triggerPatterns.comparison.test(normalized)) return 'comparison';
+  if (SEARCH_POLICY.triggerPatterns.decision.test(normalized)) return 'general';
   return null;
+};
+
+const extractEntityHints = (query: string) => {
+  const normalized = normalizeQuery(query);
+  return ENTITY_HINTS.filter((item) => item.match.test(normalized));
+};
+
+const getPreferredHostsForQuery = (query: string) =>
+  [...new Set(extractEntityHints(query).flatMap((item) => item.preferredHosts))];
+
+const getEntityKeywordsForQuery = (query: string) =>
+  [...new Set(extractEntityHints(query).flatMap((item) => item.keywords))];
+
+const tokenizeQuery = (query: string) => {
+  const normalized = normalizeQuery(query).toLowerCase();
+  const englishTokens = normalized.match(/[a-z0-9.+-]{2,}/g) || [];
+  const chineseTokens = normalized.match(/[\u4e00-\u9fa5]{2,}/g) || [];
+
+  return [...new Set([...englishTokens, ...chineseTokens])].filter((token) => !QUERY_STOP_WORDS.has(token));
 };
 
 const buildFallbackQueries = (query: string, intent: SearchIntent) => {
@@ -235,6 +318,8 @@ const buildFallbackQueries = (query: string, intent: SearchIntent) => {
     .replace(/\s+/g, ' ')
     .trim();
 
+  const entityKeywords = getEntityKeywordsForQuery(normalized);
+  const entityText = entityKeywords.join(' ');
   const variants = [normalized];
 
   if (compact && compact !== normalized) {
@@ -242,15 +327,23 @@ const buildFallbackQueries = (query: string, intent: SearchIntent) => {
   }
 
   if (intent === 'official') {
-    variants.push(`${compact || normalized} 官方文档`);
+    variants.push(`${compact || normalized} 官方文档 官网 ${entityText}`.trim());
   }
 
   if (intent === 'current') {
-    variants.push(`${compact || normalized} 最新公告`);
+    variants.push(`${compact || normalized} 官方 最新 公告 价格 ${entityText}`.trim());
   }
 
   if (intent === 'comparison') {
-    variants.push(`${compact || normalized} 对比`);
+    variants.push(`${compact || normalized} API 定价 文档 价格 功能 ${entityText}`.trim());
+  }
+
+  if (intent === 'general') {
+    variants.push(`${compact || normalized} 官方 文档 价格 能力 企业 ${entityText}`.trim());
+  }
+
+  if (/客服|企业|预算|成本|价格|定价/.test(normalized)) {
+    variants.push(`${compact || normalized} pricing cost documentation enterprise`.trim());
   }
 
   return [...new Set(variants.filter(Boolean))];
@@ -267,12 +360,27 @@ const classifyTrustLevel = ({ hostname, title, snippet }: { hostname: string; ti
   return 'unknown';
 };
 
-const isBlockedResult = ({ hostname, title, snippet }: { hostname: string; title: string; snippet: string }) => {
+const isBlockedResult = ({
+  hostname,
+  title,
+  snippet,
+  query
+}: {
+  hostname: string;
+  title: string;
+  snippet: string;
+  query: string;
+}) => {
   const normalized = normalizeHost(hostname);
+  const loweredQuery = normalizeQuery(query).toLowerCase();
+  const combined = `${title} ${snippet}`.toLowerCase();
+
   if (!normalized) return true;
   if (endsWithHost(normalized, SEARCH_POLICY.blockedHosts)) return true;
   if (SEARCH_POLICY.poorQualityPatterns.title.test(title)) return true;
   if (SEARCH_POLICY.poorQualityPatterns.snippet.test(snippet)) return true;
+  if (!/code|github|仓库|repo/i.test(loweredQuery) && /claude code|cursor|opencode/i.test(combined)) return true;
+  if (!/github|仓库|repo/i.test(loweredQuery) && normalized === 'github.com' && !/sdk|api|docs|documentation/i.test(combined)) return true;
   return false;
 };
 
@@ -299,6 +407,31 @@ const scoreProvider = (provider: SearchProvider, providerPreference: SearchAttem
     return provider === 'bing-cn' ? 40 : 20;
   }
   return provider === 'baidu' ? 40 : 20;
+};
+
+const getKeywordOverlapScore = (query: string, candidateText: string) => {
+  const tokens = tokenizeQuery(query);
+  if (!tokens.length) return 0;
+
+  const haystack = candidateText.toLowerCase();
+  const overlap = tokens.filter((token) => haystack.includes(token.toLowerCase())).length;
+  return Math.min(overlap, 6) * 18;
+};
+
+const getPreferredHostScore = (query: string, hostname: string) => {
+  const preferredHosts = getPreferredHostsForQuery(query);
+  if (!preferredHosts.length) return 0;
+  return endsWithHost(hostname, preferredHosts) ? 90 : 0;
+};
+
+const getEntityCoverageScore = (query: string, candidateText: string) => {
+  const entityKeywords = getEntityKeywordsForQuery(query);
+  if (!entityKeywords.length) return 0;
+
+  const haystack = candidateText.toLowerCase();
+  const matches = entityKeywords.filter((keyword) => haystack.includes(keyword.toLowerCase())).length;
+  if (!matches) return -80;
+  return Math.min(matches, 3) * 28;
 };
 
 const fetchText = async (url: string, timeoutMs: number) => {
@@ -370,10 +503,17 @@ const extractBaiduResults = (html: string) => {
 };
 
 const searchWithBaidu = async (query: string) => {
-  const html = await fetchText(
+  let html = await fetchText(
     `https://www.baidu.com/s?wd=${encodeURIComponent(query)}&rn=10&ie=utf-8`,
     SEARCH_POLICY.providerTimeoutMs
   );
+
+  if (/location\.replace\(location\.href\.replace\("https:\/\/","http:\/\/"\)\)/.test(html)) {
+    html = await fetchText(
+      `http://www.baidu.com/s?wd=${encodeURIComponent(query)}&rn=10&ie=utf-8`,
+      SEARCH_POLICY.providerTimeoutMs
+    );
+  }
 
   if (!html) return [];
   return extractBaiduResults(html);
@@ -382,17 +522,34 @@ const searchWithBaidu = async (query: string) => {
 const mergeAndRankResults = (items: RawSearchResultItem[], intent: SearchIntent, attempt: SearchAttempt): SearchResultItem[] => {
   const deduped = new Map<string, SearchResultItem>();
 
+  const scoreResult = (item: SearchResultItem) => {
+    const candidateText = `${item.title} ${item.snippet} ${item.hostname}`;
+    return (
+      scoreTrustLevel(item.trustLevel) +
+      scoreProvider(item.provider, attempt.providerPreference) +
+      getPreferredHostScore(attempt.query, item.hostname) +
+      getKeywordOverlapScore(attempt.query, candidateText) +
+      getEntityCoverageScore(attempt.query, candidateText) -
+      item.position
+    );
+  };
+
   for (const item of items) {
     const hostname = getHostname(item.url);
     const title = item.title.trim();
     const snippet = item.snippet.trim();
 
     if (!title || !hostname) continue;
-    if (isBlockedResult({ hostname, title, snippet })) continue;
+    if (isBlockedResult({ hostname, title, snippet, query: attempt.query })) continue;
 
     const trustLevel = classifyTrustLevel({ hostname, title, snippet });
     const allowUnknown = shouldAllowUnknownHosts(intent, attempt.relaxed);
     if (trustLevel === 'unknown' && !allowUnknown) continue;
+
+    const candidateText = `${title} ${snippet} ${hostname}`;
+    if (getKeywordOverlapScore(attempt.query, candidateText) <= 0 && getPreferredHostScore(attempt.query, hostname) <= 0) {
+      continue;
+    }
 
     const normalizedResultUrl = normalizeUrl(item.url);
     const existing = deduped.get(normalizedResultUrl);
@@ -411,20 +568,13 @@ const mergeAndRankResults = (items: RawSearchResultItem[], intent: SearchIntent,
       continue;
     }
 
-    const currentScore = scoreTrustLevel(existing.trustLevel) + scoreProvider(existing.provider, attempt.providerPreference) - existing.position;
-    const nextScore = scoreTrustLevel(candidate.trustLevel) + scoreProvider(candidate.provider, attempt.providerPreference) - candidate.position;
-
-    if (nextScore > currentScore) {
+    if (scoreResult(candidate) > scoreResult(existing)) {
       deduped.set(normalizedResultUrl, candidate);
     }
   }
 
   return [...deduped.values()]
-    .sort((left, right) => {
-      const scoreLeft = scoreTrustLevel(left.trustLevel) + scoreProvider(left.provider, attempt.providerPreference) - left.position;
-      const scoreRight = scoreTrustLevel(right.trustLevel) + scoreProvider(right.provider, attempt.providerPreference) - right.position;
-      return scoreRight - scoreLeft;
-    })
+    .sort((left, right) => scoreResult(right) - scoreResult(left))
     .slice(0, SEARCH_TOP_K);
 };
 
