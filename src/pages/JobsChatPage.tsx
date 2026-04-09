@@ -28,6 +28,18 @@ type ChatApiResponse = {
   reason?: string;
 };
 
+const normalizeAssistantReply = (content: string) =>
+  content
+    .replace(/```[\s\S]*?```/g, (block) => block.replace(/```[a-zA-Z]*\n?/g, '').replace(/```/g, '').trim())
+    .replace(/^\s{0,3}#{1,6}\s*/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/__(.*?)__/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^\s*>\s?/gm, '')
+    .replace(/^\s*[-*•]\s+/gm, '• ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
 const getInitialRemaining = () => {
   if (typeof window === 'undefined') return JOBS_CHAT_FREE_LIMIT;
   const cached = window.localStorage.getItem(JOBS_CHAT_STORAGE_KEY);
@@ -42,7 +54,7 @@ const getInitialRemaining = () => {
 const initialAssistantMessage: ChatMessage = {
   id: 'assistant-intro',
   role: 'assistant',
-  content: '说吧。你现在最该解决的业务问题是什么？不要讲一堆背景，先用一句话把真正的问题说清楚。'
+  content: '先别讲故事。用一句话告诉我：你现在最痛的业务问题是什么？'
 };
 
 export default function JobsChatPage() {
@@ -78,7 +90,7 @@ export default function JobsChatPage() {
     setIsSending(true);
 
     try {
-      let replyText = buildMockReply(content);
+      let replyText = normalizeAssistantReply(buildMockReply(content));
       let mode = 'mock';
       let reason = getJobsChatApiFallbackReason();
       const apiUrl = getJobsChatApiUrl();
@@ -97,7 +109,7 @@ export default function JobsChatPage() {
 
           if (response.ok) {
             const payload = (await response.json()) as ChatApiResponse;
-            replyText = payload.reply || replyText;
+            replyText = normalizeAssistantReply(payload.reply || replyText);
             mode = payload.mode ?? mode;
             reason = payload.reason ?? reason;
           } else {
@@ -170,7 +182,9 @@ export default function JobsChatPage() {
                   <span className="jobs-chat-message__role">
                     {message.role === 'assistant' ? '虚拟乔布斯' : '你'}
                   </span>
-                  <p className="jobs-chat-message__text">{message.content}</p>
+                  <p className="jobs-chat-message__text">
+                    {message.role === 'assistant' ? normalizeAssistantReply(message.content) : message.content}
+                  </p>
                 </article>
               ))}
             </div>
