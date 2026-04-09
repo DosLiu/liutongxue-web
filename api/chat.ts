@@ -102,6 +102,8 @@ type SearchDebugInfo = {
   triggered: boolean;
   intent: SearchIntent | 'none';
   hit: boolean;
+  officialCoverageEntities?: string[];
+  guardReason?: string;
   attempts: Array<{
     query: string;
     relaxed: boolean;
@@ -111,6 +113,7 @@ type SearchDebugInfo = {
     baiduCount: number;
     rankedCount: number;
     topHosts: string[];
+    officialCoverageEntities: string[];
   }>;
 };
 
@@ -207,30 +210,35 @@ const QUERY_STOP_WORDS = new Set([
 
 const ENTITY_HINTS = [
   {
+    id: 'openai',
     match: /(openai|gpt|chatgpt)/i,
     keywords: ['openai', 'gpt', 'chatgpt'],
     preferredHosts: ['openai.com', 'platform.openai.com'],
     officialSeedUrls: ['https://openai.com/api/pricing/', 'https://platform.openai.com/docs/overview']
   },
   {
+    id: 'anthropic',
     match: /(claude|anthropic)/i,
     keywords: ['claude', 'anthropic'],
     preferredHosts: ['anthropic.com', 'docs.anthropic.com', 'console.anthropic.com'],
     officialSeedUrls: ['https://www.anthropic.com/pricing', 'https://docs.anthropic.com/en/docs/overview']
   },
   {
+    id: 'google',
     match: /(gemini|google ai|google api)/i,
     keywords: ['gemini', 'google'],
     preferredHosts: ['ai.google.dev', 'cloud.google.com'],
     officialSeedUrls: ['https://ai.google.dev/gemini-api/docs', 'https://cloud.google.com/vertex-ai/generative-ai/docs']
   },
   {
+    id: 'tailwind',
     match: /(tailwind)/i,
     keywords: ['tailwind'],
     preferredHosts: ['tailwindcss.com'],
     officialSeedUrls: ['https://tailwindcss.com/docs/installation', 'https://tailwindcss.com/docs']
   },
   {
+    id: 'vercel-next',
     match: /(vercel|next\.js|nextjs)/i,
     keywords: ['vercel', 'nextjs', 'next.js'],
     preferredHosts: ['vercel.com', 'nextjs.org'],
@@ -321,18 +329,31 @@ const extractEntityHints = (query: string) => {
   return ENTITY_HINTS.filter((item) => item.match.test(normalized));
 };
 
+const getMatchedEntityHints = (query: string) => extractEntityHints(query);
+
+const getMatchedEntityIds = (query: string) => [...new Set(getMatchedEntityHints(query).map((item) => item.id))];
+
 const getPreferredHostsForQuery = (query: string) =>
-  [...new Set(extractEntityHints(query).flatMap((item) => item.preferredHosts))];
+  [...new Set(getMatchedEntityHints(query).flatMap((item) => item.preferredHosts))];
 
 const getOfficialSeedUrlsForQuery = (query: string) =>
-  [...new Set(extractEntityHints(query).flatMap((item) => item.officialSeedUrls))];
+  [...new Set(getMatchedEntityHints(query).flatMap((item) => item.officialSeedUrls))];
 
 const getEntityKeywordsForQuery = (query: string) =>
-  [...new Set(extractEntityHints(query).flatMap((item) => item.keywords))];
+  [...new Set(getMatchedEntityHints(query).flatMap((item) => item.keywords))];
+
+const getOfficialCoverageEntities = (query: string, results: SearchResultItem[]) =>
+  getMatchedEntityHints(query)
+    .filter((entity) => results.some((item) => endsWithHost(item.hostname, entity.preferredHosts)))
+    .map((entity) => entity.id);
 
 const requiresOfficialEvidence = (query: string, intent: SearchIntent) =>
   getPreferredHostsForQuery(query).length > 0 &&
   (intent === 'official' || intent === 'current' || intent === 'comparison' || /价格|定价|成本|企业|客服|预算|合规/.test(query));
+
+const requiresBalancedOfficialEvidence = (query: string, intent: SearchIntent) =>
+  getMatchedEntityIds(query).length >= 2 &&
+  (intent === 'comparison' || /适合|区别|差异|谁更|哪个好|怎么选|vs|versus|相比|企业|客服/.test(query));
 
 const tokenizeQuery = (query: string) => {
   const normalized = normalizeQuery(query).toLowerCase();
@@ -640,9 +661,35 @@ const mergeAndRankResults = (items: RawSearchResultItem[], intent: SearchIntent,
     }
   }
 
-  return [...deduped.values()]
-    .sort((left, right) => scoreResult(right) - scoreResult(left))
-    .slice(0, SEARCH_TOP_K);
+  const sortedResults = [...deduped.values()].sort((left, right) => scoreResult(right) - scoreResult(left));
+  const matchedEntities = getMatchedEntityHints(attempt.query);
+
+  if (matchedEntities.length >= 2) {
+    const selected: SearchResultItem[] = [];
+    const usedUrls = new Set<string>();
+
+    for (const entity of matchedEntities) {
+      const entityOfficial = sortedResults.find(
+        (item) => !usedUrls.has(item.url) && endsWithHost(item.hostname, entity.preferredHosts)
+      );
+
+      if (entityOfficial) {
+        selected.push(entityOfficial);
+        usedUrls.add(entityOfficial.url);
+      }
+    }
+
+    for (const item of sortedResults) {
+      if (selected.length >= SEARCH_TOP_K) break;
+      if (usedUrls.has(item.url)) continue;
+      selected.push(item);
+      usedUrls.add(item.url);
+    }
+
+    return selected.slice(0, SEARCH_TOP_K);
+  }
+
+  return sortedResults.slice(0, SEARCH_TOP_K);
 };
 
 const buildAttempts = (query: string, intent: SearchIntent): SearchAttempt[] => {
@@ -703,12 +750,12 @@ const getSearchContext = async (query: string, requestId: string) => {
   };
 
   if (!SEARCH_ENABLED) {
-    return { searchContext: '', debug: baseDebug };
+    return { searchContext: '', guardContext: '', debug: baseDebug };
   }
 
   const intent = detectSearchIntent(query);
   if (!intent) {
-    return { searchContext: '', debug: baseDebug };
+    return { searchContext: '', guardContext: '', debug: baseDebug };
   }
 
   const attempts = buildAttempts(query, intent);
@@ -725,9 +772,9 @@ const getSearchContext = async (query: string, requestId: string) => {
       searchWithBaidu(attempt.query)
     ]);
     const rankedResults = mergeAndRankResults([...seedResults, ...bingResults, ...baiduResults], intent, attempt);
-    const hasOfficialEvidence = rankedResults.some(
-      (item) => item.trustLevel === 'official' || endsWithHost(item.hostname, getPreferredHostsForQuery(query))
-    );
+    const officialCoverageEntities = getOfficialCoverageEntities(query, rankedResults);
+    const hasOfficialEvidence = !requiresOfficialEvidence(query, intent) || officialCoverageEntities.length >= 1;
+    const hasBalancedOfficialEvidence = !requiresBalancedOfficialEvidence(query, intent) || officialCoverageEntities.length >= 2;
 
     debug.attempts.push({
       query: attempt.query,
@@ -737,19 +784,42 @@ const getSearchContext = async (query: string, requestId: string) => {
       bingCount: bingResults.length,
       baiduCount: baiduResults.length,
       rankedCount: rankedResults.length,
-      topHosts: rankedResults.slice(0, 3).map((item) => item.hostname)
+      topHosts: rankedResults.slice(0, 3).map((item) => item.hostname),
+      officialCoverageEntities
     });
 
-    if (rankedResults.length >= 2 && (!requiresOfficialEvidence(query, intent) || hasOfficialEvidence)) {
+    if (rankedResults.length >= 2 && hasOfficialEvidence && hasBalancedOfficialEvidence) {
       debug.hit = true;
+      debug.officialCoverageEntities = officialCoverageEntities;
       return {
         searchContext: buildSearchContext(query, rankedResults),
+        guardContext: '',
         debug
       };
     }
   }
 
-  return { searchContext: '', debug };
+  if (requiresBalancedOfficialEvidence(query, intent)) {
+    debug.guardReason = 'missing-balanced-official-evidence';
+    return {
+      searchContext: '',
+      guardContext:
+        '系统提示：当前外部检索没有形成双边官方证据覆盖。对于这种多方对比题，不允许下死结论；必须明确说明证据单边或证据不足，并要求用户给出更具体的评估维度。',
+      debug
+    };
+  }
+
+  if (requiresOfficialEvidence(query, intent)) {
+    debug.guardReason = 'missing-official-evidence';
+    return {
+      searchContext: '',
+      guardContext:
+        '系统提示：当前外部检索没有拿到足够的官方证据。不要假装确定；直接说明公开官方信息不足，并要求用户提供更具体的对象、版本、链接或评估维度。',
+      debug
+    };
+  }
+
+  return { searchContext: '', guardContext: '', debug };
 };
 
 const parseAllowedOrigins = () => {
@@ -831,7 +901,7 @@ export default async function handler(req: any, res: any) {
     .slice(-12);
 
   const requestId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  const { searchContext, debug: searchDebug } = await getSearchContext(content, requestId);
+  const { searchContext, guardContext, debug: searchDebug } = await getSearchContext(content, requestId);
   logSearchDebug(searchDebug, content);
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000);
@@ -848,6 +918,7 @@ export default async function handler(req: any, res: any) {
         temperature: 0.35,
         messages: [
           { role: 'system', content: JOBS_SYSTEM_PROMPT },
+          ...(guardContext ? [{ role: 'system', content: guardContext }] : []),
           ...(searchContext ? [{ role: 'system', content: searchContext }] : []),
           ...requestMessages
         ]
