@@ -7,6 +7,11 @@ import {
   JOBS_CHAT_STORAGE_KEY,
   JOBS_CHAT_TITLE
 } from '../config/jobsPersona';
+import {
+  getJobsChatApiFallbackReason,
+  getJobsChatApiHint,
+  getJobsChatApiUrl
+} from '../config/jobsChatApi';
 import './JobsChatPage.css';
 
 type ChatRole = 'assistant' | 'user';
@@ -45,7 +50,7 @@ export default function JobsChatPage() {
   const [input, setInput] = useState('');
   const [remaining, setRemaining] = useState(getInitialRemaining);
   const [isSending, setIsSending] = useState(false);
-  const [modeLabel, setModeLabel] = useState('演示模式：当前环境未连上模型，系统将返回占位回复');
+  const [modeLabel, setModeLabel] = useState(`演示模式：${getJobsChatApiHint()}`);
   const [error, setError] = useState('');
 
   const canSend = useMemo(() => input.trim().length > 0 && remaining > 0 && !isSending, [input, remaining, isSending]);
@@ -75,32 +80,37 @@ export default function JobsChatPage() {
     try {
       let replyText = buildMockReply(content);
       let mode = 'mock';
-      let reason = '当前环境未连上 API，前端本地兜底。';
+      let reason = getJobsChatApiFallbackReason();
+      const apiUrl = getJobsChatApiUrl();
 
-      try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            messages: [...messages, userMessage].map(({ role, content: text }) => ({ role, content: text }))
-          })
-        });
+      if (apiUrl) {
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              messages: [...messages, userMessage].map(({ role, content: text }) => ({ role, content: text }))
+            })
+          });
 
-        if (response.ok) {
-          const payload = (await response.json()) as ChatApiResponse;
-          replyText = payload.reply || replyText;
-          mode = payload.mode ?? mode;
-          reason = payload.reason ?? reason;
+          if (response.ok) {
+            const payload = (await response.json()) as ChatApiResponse;
+            replyText = payload.reply || replyText;
+            mode = payload.mode ?? mode;
+            reason = payload.reason ?? reason;
+          } else {
+            reason = '模型接口暂时不可用，已自动回退到演示回复。';
+          }
+        } catch {
+          reason = '模型接口暂时不可达，已自动回退到演示回复。';
         }
-      } catch {
-        // Ignore network errors and keep local fallback reply.
       }
 
       setModeLabel(
         mode === 'api'
-          ? '在线模式：当前回复已通过 Vercel API 返回'
+          ? `在线模式：${reason || '当前回复已通过真实模型返回。'}`
           : `演示模式：${reason}`
       );
 
