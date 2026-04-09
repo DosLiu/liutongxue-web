@@ -1,4 +1,4 @@
-import { JOBS_SYSTEM_PROMPT, buildMockReply } from '../src/config/jobsPersona';
+import { JOBS_SYSTEM_PROMPT, buildMockReply } from '../src/config/jobsPersona.ts';
 
 type IncomingMessage = {
   role: 'assistant' | 'user';
