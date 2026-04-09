@@ -101,7 +101,7 @@ const decodeHtml = (value: string) =>
 
 const extractBingResults = (html: string) => {
   const results: SearchResultItem[] = [];
-  const pattern = /<li class="b_algo"[\s\S]*?<h2><a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a><\/h2>[\s\S]*?(?:<p>([\s\S]*?)<\/p>)?/g;
+  const pattern = /<li class="b_algo"[\s\S]*?<h2[^>]*><a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a><\/h2>[\s\S]*?(?:<p[^>]*>([\s\S]*?)<\/p>)?/g;
 
   for (const match of html.matchAll(pattern)) {
     const url = match[1]?.trim();
