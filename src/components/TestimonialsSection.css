@@ -289,9 +289,3 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .testimonial-track {
-    animation-duration: 0.01ms;
-    animation-iteration-count: 1;
-  }
-}
