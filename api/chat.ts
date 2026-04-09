@@ -197,6 +197,7 @@ const SEARCH_POLICY = {
     current: /(今天|今日|昨天|最近|最新|刚刚|现在|目前|本周|今年|此刻|新闻|消息|动态|公告|发布|上线|市值|股价|融资|收购|价格|定价|费用|成本|现状|趋势|发生了什么)/,
     official: /(官网|官方|文档|api|sdk|参数|安装|接入|教程|仓库|github|说明|版本|更新日志|release|changelog|pricing|price|pricing page|docs|documentation)/i,
     comparison: /(对比|哪个好|哪家|谁在做|谁更强|有没有|是否已经|排名|评价|评测|推荐|方案|选型|值得买吗|适合|怎么选|区别|差异|vs|versus|相比)/i,
+    deviceComparison: /(iphone|apple|ios|小米|xiaomi|redmi|华为|huawei|oppo|vivo|三星|samsung).*(谁好用|哪个好|值不值得买|怎么选|参数|评测|体验|续航|拍照|性能)|((谁好用|哪个好|值不值得买|怎么选|参数|评测|体验|续航|拍照|性能).*(iphone|apple|ios|小米|xiaomi|redmi|华为|huawei|oppo|vivo|三星|samsung))/i,
     decision: /(企业|客服|客服系统|客服机器人|部署|稳定性|延迟|响应速度|预算|token|模型|能力|上下文|合规|安全|集成|工作流|automation|agent)/i,
     disabled: /(https?:\/\/|www\.)/i
   },
@@ -263,14 +264,14 @@ const ENTITY_HINTS = [
     match: /(iphone|apple|ios)/i,
     keywords: ['iphone', 'apple', 'ios'],
     preferredHosts: ['apple.com', 'support.apple.com'],
-    officialSeedUrls: ['https://www.apple.com/iphone/', 'https://support.apple.com/iphone']
+    officialSeedUrls: ['https://www.apple.com/iphone/compare/', 'https://www.apple.com/iphone/']
   },
   {
     id: 'xiaomi',
     match: /(小米|xiaomi|mi\s?\d|mi phone|redmi)/i,
     keywords: ['xiaomi', '小米', 'redmi'],
     preferredHosts: ['mi.com', 'xiaomi.com'],
-    officialSeedUrls: ['https://www.mi.com/', 'https://www.mi.com/global/']
+    officialSeedUrls: ['https://www.mi.com/global/product/', 'https://www.mi.com/']
   },
   {
     id: 'vercel-next',
@@ -379,6 +380,20 @@ const hardDecideSearchRoute = (query: string): SearchRouteDecision | null => {
     return { source: 'rules', needSearch: false, intent: 'none', searchQueries: [], rationale: 'has-url' };
   }
 
+  if (SEARCH_POLICY.triggerPatterns.deviceComparison.test(normalized)) {
+    return {
+      source: 'rules',
+      needSearch: true,
+      intent: 'comparison',
+      searchQueries: [
+        `${normalized} 参数 价格 评测 使用体验`,
+        `${normalized} 发布时间 续航 拍照 性能`,
+        `${normalized} 官方 参数 评测`
+      ],
+      rationale: 'device-comparison-fallback'
+    };
+  }
+
   return null;
 };
 
@@ -386,6 +401,7 @@ const detectSearchIntent = (query: string): SearchIntent | null => {
   const normalized = normalizeQuery(query);
   if (!normalized || normalized.length <= 6) return null;
   if (SEARCH_POLICY.triggerPatterns.disabled.test(normalized)) return null;
+  if (SEARCH_POLICY.triggerPatterns.deviceComparison.test(normalized)) return 'comparison';
   if (SEARCH_POLICY.triggerPatterns.official.test(normalized)) return 'official';
   if (SEARCH_POLICY.triggerPatterns.current.test(normalized)) return 'current';
   if (SEARCH_POLICY.triggerPatterns.comparison.test(normalized)) return 'comparison';
