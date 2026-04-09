@@ -40,8 +40,32 @@ const normalizeAssistantReply = (content: string) =>
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
+const JOBS_CHAT_DEBUG_KEY = `${JOBS_CHAT_STORAGE_KEY}-debug-unlimited`;
+const JOBS_CHAT_DEBUG_PARAM = 'debug-unlimited';
+
+const getDeveloperUnlimited = () => {
+  if (typeof window === 'undefined') return false;
+
+  const params = new URLSearchParams(window.location.search);
+  const debugParam = params.get(JOBS_CHAT_DEBUG_PARAM);
+
+  if (debugParam === '1') {
+    window.localStorage.setItem(JOBS_CHAT_DEBUG_KEY, '1');
+    return true;
+  }
+
+  if (debugParam === '0') {
+    window.localStorage.removeItem(JOBS_CHAT_DEBUG_KEY);
+    return false;
+  }
+
+  return window.localStorage.getItem(JOBS_CHAT_DEBUG_KEY) === '1';
+};
+
 const getInitialRemaining = () => {
   if (typeof window === 'undefined') return JOBS_CHAT_FREE_LIMIT;
+  if (getDeveloperUnlimited()) return JOBS_CHAT_FREE_LIMIT;
+
   const cached = window.localStorage.getItem(JOBS_CHAT_STORAGE_KEY);
   if (cached === null) {
     window.localStorage.setItem(JOBS_CHAT_STORAGE_KEY, String(JOBS_CHAT_FREE_LIMIT));
@@ -60,12 +84,13 @@ const initialAssistantMessage: ChatMessage = {
 export default function JobsChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([initialAssistantMessage]);
   const [input, setInput] = useState('');
+  const [isDeveloperUnlimited] = useState(getDeveloperUnlimited);
   const [remaining, setRemaining] = useState(getInitialRemaining);
   const [isSending, setIsSending] = useState(false);
   const [modeLabel, setModeLabel] = useState(`演示模式：${getJobsChatApiHint()}`);
   const [error, setError] = useState('');
 
-  const canSend = useMemo(() => input.trim().length > 0 && remaining > 0 && !isSending, [input, remaining, isSending]);
+  const canSend = useMemo(() => input.trim().length > 0 && (isDeveloperUnlimited || remaining > 0) && !isSending, [input, isDeveloperUnlimited, remaining, isSending]);
 
   const handleClear = () => {
     setMessages([initialAssistantMessage]);
@@ -136,6 +161,10 @@ export default function JobsChatPage() {
       ]);
 
       setRemaining((value) => {
+        if (isDeveloperUnlimited) {
+          return value;
+        }
+
         const next = Math.max(0, value - 1);
         if (typeof window !== 'undefined') {
           window.localStorage.setItem(JOBS_CHAT_STORAGE_KEY, String(next));
@@ -170,7 +199,7 @@ export default function JobsChatPage() {
           <section className="jobs-chat-panel" aria-label="虚拟乔布斯对话区域">
             <div className="jobs-chat-panel__topline">
               <p className="jobs-chat-panel__mode">{modeLabel}</p>
-              <span className="jobs-chat-panel__quota">剩余体验：{remaining}/{JOBS_CHAT_FREE_LIMIT}</span>
+              <span className="jobs-chat-panel__quota">{isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`}</span>
             </div>
 
             <div className="jobs-chat-messages">
