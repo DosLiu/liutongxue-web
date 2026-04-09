@@ -96,6 +96,23 @@ type SearchAttempt = {
   providerPreference: 'bing-first' | 'baidu-first';
 };
 
+type SearchDebugInfo = {
+  requestId: string;
+  enabled: boolean;
+  triggered: boolean;
+  intent: SearchIntent | 'none';
+  hit: boolean;
+  attempts: Array<{
+    query: string;
+    relaxed: boolean;
+    providerPreference: 'bing-first' | 'baidu-first';
+    bingCount: number;
+    baiduCount: number;
+    rankedCount: number;
+    topHosts: string[];
+  }>;
+};
+
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://dosliu.github.io',
   'http://localhost:5173',
@@ -221,6 +238,7 @@ const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 const normalizeHost = (value: string) => value.toLowerCase().replace(/^www\./, '');
 
 const SEARCH_ENABLED = env.WEB_SEARCH_ENABLED !== '0';
+const SEARCH_DEBUG_ENABLED = env.WEB_SEARCH_DEBUG !== '0';
 const SEARCH_TOP_K = Math.min(
   Math.max(Number.parseInt(env.WEB_SEARCH_TOP_K || String(SEARCH_POLICY.topK), 10) || SEARCH_POLICY.topK, 1),
   8
@@ -613,24 +631,68 @@ const buildSearchContext = (query: string, results: SearchResultItem[]) => {
   return `以下是围绕用户问题“${query}”的外部检索摘要。\n这些内容只作为事实参考，不要机械复述；先判断，再引用最关键的一两条事实。\n如果结果之间存在冲突，直接指出冲突，不要装作确定。\n\n${items}`;
 };
 
-const getSearchContext = async (query: string) => {
-  if (!SEARCH_ENABLED) return '';
+const logSearchDebug = (debug: SearchDebugInfo, originalQuery: string) => {
+  if (!SEARCH_DEBUG_ENABLED) return;
+
+  console.info(
+    '[search-debug]',
+    JSON.stringify({
+      ...debug,
+      query: originalQuery
+    })
+  );
+};
+
+const getSearchContext = async (query: string, requestId: string) => {
+  const baseDebug: SearchDebugInfo = {
+    requestId,
+    enabled: SEARCH_ENABLED,
+    triggered: false,
+    intent: 'none',
+    hit: false,
+    attempts: []
+  };
+
+  if (!SEARCH_ENABLED) {
+    return { searchContext: '', debug: baseDebug };
+  }
 
   const intent = detectSearchIntent(query);
-  if (!intent) return '';
+  if (!intent) {
+    return { searchContext: '', debug: baseDebug };
+  }
 
   const attempts = buildAttempts(query, intent);
+  const debug: SearchDebugInfo = {
+    ...baseDebug,
+    triggered: true,
+    intent
+  };
 
   for (const attempt of attempts) {
     const [bingResults, baiduResults] = await Promise.all([searchWithBingCn(attempt.query), searchWithBaidu(attempt.query)]);
     const rankedResults = mergeAndRankResults([...bingResults, ...baiduResults], intent, attempt);
 
+    debug.attempts.push({
+      query: attempt.query,
+      relaxed: attempt.relaxed,
+      providerPreference: attempt.providerPreference,
+      bingCount: bingResults.length,
+      baiduCount: baiduResults.length,
+      rankedCount: rankedResults.length,
+      topHosts: rankedResults.slice(0, 3).map((item) => item.hostname)
+    });
+
     if (rankedResults.length >= 2) {
-      return buildSearchContext(query, rankedResults);
+      debug.hit = true;
+      return {
+        searchContext: buildSearchContext(query, rankedResults),
+        debug
+      };
     }
   }
 
-  return '';
+  return { searchContext: '', debug };
 };
 
 const parseAllowedOrigins = () => {
@@ -711,7 +773,9 @@ export default async function handler(req: any, res: any) {
     .filter((message) => message.content)
     .slice(-12);
 
-  const searchContext = await getSearchContext(content);
+  const requestId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const { searchContext, debug: searchDebug } = await getSearchContext(content, requestId);
+  logSearchDebug(searchDebug, content);
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000);
 
