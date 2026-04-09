@@ -420,9 +420,18 @@ const requiresOfficialEvidence = (query: string, intent: SearchIntent) =>
   getPreferredHostsForQuery(query).length > 0 &&
   (intent === 'official' || intent === 'current' || intent === 'comparison' || /价格|定价|成本|企业|客服|预算|合规/.test(query));
 
-const requiresBalancedOfficialEvidence = (query: string, intent: SearchIntent) =>
-  getMatchedEntityIds(query).length >= 2 &&
-  (intent === 'comparison' || /适合|区别|差异|谁更|哪个好|谁好用|值不值得买|体验|怎么选|vs|versus|相比|企业|客服/.test(query));
+const BALANCED_EVIDENCE_ENTITY_IDS = new Set(['openai', 'anthropic', 'google', 'vercel-next']);
+
+const requiresBalancedOfficialEvidence = (query: string, intent: SearchIntent) => {
+  const matchedEntityIds = getMatchedEntityIds(query);
+  const hasBusinessEntities = matchedEntityIds.some((id) => BALANCED_EVIDENCE_ENTITY_IDS.has(id));
+
+  return (
+    hasBusinessEntities &&
+    matchedEntityIds.length >= 2 &&
+    (intent === 'comparison' || /api|企业|客服|定价|价格|成本|预算|合规|安全|适合|怎么选|vs|versus|相比/.test(query))
+  );
+};
 
 const tokenizeQuery = (query: string) => {
   const normalized = normalizeQuery(query).toLowerCase();
@@ -912,7 +921,7 @@ const decideSearchRoute = async ({
 
 const buildEvidenceGuardReply = (query: string, reason: 'missing-balanced-official-evidence' | 'missing-official-evidence') => {
   if (reason === 'missing-balanced-official-evidence') {
-    return `现在直接拍板是 shit。\n1. 我这轮只拿到单边官方证据，没有拿到双方同等级的官方材料。\n2. 单边证据会把判断带偏，尤其是 Claude 和 OpenAI 这种企业级方案对比题。\n3. 没有双边官方证据，我不会替你下死结论。\n\n你更看重安全合规、成本，还是响应速度？或者直接给我双方官方链接，我再给你结论。`;
+    return `现在直接拍板是 shit。\n1. 我这轮只拿到单边官方证据，没有拿到双方同等级的官方材料。\n2. 单边证据会把判断带偏，尤其是多方方案对比题。\n3. 没有双边官方证据，我不会替你下死结论。\n\n你更看重哪几个维度？或者直接给我双方官方链接，我再给你结论。`;
   }
 
   return `现在硬下结论是 shit。\n1. 我没有拿到足够的官方证据。\n2. 没有官网、官方文档或官方 pricing，继续判断只是在编。\n3. 这种题必须先把事实钉住，再谈选择。\n\n给我更具体的对象、版本、官方链接或价格页，我再继续。`;
