@@ -709,20 +709,39 @@ const buildAttempts = (query: string, intent: SearchIntent): SearchAttempt[] => 
 const buildSearchContext = (query: string, results: SearchResultItem[]) => {
   if (!results.length) return '';
 
-  const items = results
-    .map((item, index) => {
-      const trustLabel =
-        item.trustLevel === 'official'
-          ? '官方'
-          : item.trustLevel === 'trusted'
-            ? '高可信'
-            : item.trustLevel === 'reference'
-              ? '参考'
-              : '候选';
+  const renderItem = (item: SearchResultItem, index: number) => {
+    const trustLabel =
+      item.trustLevel === 'official'
+        ? '官方'
+        : item.trustLevel === 'trusted'
+          ? '高可信'
+          : item.trustLevel === 'reference'
+            ? '参考'
+            : '候选';
 
-      return `${index + 1}. [${trustLabel}] 标题：${item.title}\n链接：${item.url}\n摘要：${item.snippet || '无摘要'}`;
-    })
-    .join('\n\n');
+    return `${index + 1}. [${trustLabel}] 标题：${item.title}\n链接：${item.url}\n摘要：${item.snippet || '无摘要'}`;
+  };
+
+  const matchedEntities = getMatchedEntityHints(query);
+
+  if (matchedEntities.length >= 2) {
+    const groupedSections = matchedEntities
+      .map((entity) => {
+        const entityResults = results.filter((item) => endsWithHost(item.hostname, entity.preferredHosts)).slice(0, 2);
+        if (!entityResults.length) return '';
+        return `对象：${entity.id}\n${entityResults.map((item, index) => renderItem(item, index)).join('\n\n')}`;
+      })
+      .filter(Boolean)
+      .join('\n\n');
+
+    const remaining = results
+      .filter((item) => !matchedEntities.some((entity) => endsWithHost(item.hostname, entity.preferredHosts)))
+      .slice(0, 2);
+
+    return `以下是围绕用户问题“${query}”的外部检索摘要。\n这是一个多方对比题。只能引用双方官方材料都直接支持的判断；如果某个结论只来自单边官方材料，必须明确说“单边证据，不足以下死结论”。\n如果双方材料口径不一致，直接指出差异，不要替任何一方脑补。\n\n${groupedSections}${remaining.length ? `\n\n补充结果：\n${remaining.map((item, index) => renderItem(item, index)).join('\n\n')}` : ''}`;
+  }
+
+  const items = results.map((item, index) => renderItem(item, index)).join('\n\n');
 
   return `以下是围绕用户问题“${query}”的外部检索摘要。\n这些内容只作为事实参考，不要机械复述；先判断，再引用最关键的一两条事实。\n如果结果之间存在冲突，直接指出冲突，不要装作确定。\n\n${items}`;
 };
