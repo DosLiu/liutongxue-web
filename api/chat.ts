@@ -739,6 +739,14 @@ const logSearchDebug = (debug: SearchDebugInfo, originalQuery: string) => {
   );
 };
 
+const buildEvidenceGuardReply = (query: string, reason: 'missing-balanced-official-evidence' | 'missing-official-evidence') => {
+  if (reason === 'missing-balanced-official-evidence') {
+    return `现在直接拍板是 shit。\n1. 我这轮只拿到单边官方证据，没有拿到双方同等级的官方材料。\n2. 单边证据会把判断带偏，尤其是 Claude 和 OpenAI 这种企业级方案对比题。\n3. 没有双边官方证据，我不会替你下死结论。\n\n你更看重安全合规、成本，还是响应速度？或者直接给我双方官方链接，我再给你结论。`;
+  }
+
+  return `现在硬下结论是 shit。\n1. 我没有拿到足够的官方证据。\n2. 没有官网、官方文档或官方 pricing，继续判断只是在编。\n3. 这种题必须先把事实钉住，再谈选择。\n\n给我更具体的对象、版本、官方链接或价格页，我再继续。`;
+};
+
 const getSearchContext = async (query: string, requestId: string) => {
   const baseDebug: SearchDebugInfo = {
     requestId,
@@ -750,12 +758,12 @@ const getSearchContext = async (query: string, requestId: string) => {
   };
 
   if (!SEARCH_ENABLED) {
-    return { searchContext: '', guardContext: '', debug: baseDebug };
+    return { searchContext: '', guardContext: '', forcedReply: '', debug: baseDebug };
   }
 
   const intent = detectSearchIntent(query);
   if (!intent) {
-    return { searchContext: '', guardContext: '', debug: baseDebug };
+    return { searchContext: '', guardContext: '', forcedReply: '', debug: baseDebug };
   }
 
   const attempts = buildAttempts(query, intent);
@@ -794,6 +802,7 @@ const getSearchContext = async (query: string, requestId: string) => {
       return {
         searchContext: buildSearchContext(query, rankedResults),
         guardContext: '',
+        forcedReply: '',
         debug
       };
     }
@@ -805,6 +814,7 @@ const getSearchContext = async (query: string, requestId: string) => {
       searchContext: '',
       guardContext:
         '系统提示：当前外部检索没有形成双边官方证据覆盖。对于这种多方对比题，不允许下死结论；必须明确说明证据单边或证据不足，并要求用户给出更具体的评估维度。',
+      forcedReply: buildEvidenceGuardReply(query, 'missing-balanced-official-evidence'),
       debug
     };
   }
@@ -815,11 +825,12 @@ const getSearchContext = async (query: string, requestId: string) => {
       searchContext: '',
       guardContext:
         '系统提示：当前外部检索没有拿到足够的官方证据。不要假装确定；直接说明公开官方信息不足，并要求用户提供更具体的对象、版本、链接或评估维度。',
+      forcedReply: buildEvidenceGuardReply(query, 'missing-official-evidence'),
       debug
     };
   }
 
-  return { searchContext: '', guardContext: '', debug };
+  return { searchContext: '', guardContext: '', forcedReply: '', debug };
 };
 
 const parseAllowedOrigins = () => {
@@ -901,8 +912,18 @@ export default async function handler(req: any, res: any) {
     .slice(-12);
 
   const requestId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  const { searchContext, guardContext, debug: searchDebug } = await getSearchContext(content, requestId);
+  const { searchContext, guardContext, forcedReply, debug: searchDebug } = await getSearchContext(content, requestId);
   logSearchDebug(searchDebug, content);
+
+  if (forcedReply) {
+    res.status(200).json({
+      reply: forcedReply,
+      mode: 'api',
+      reason: '当前回复已通过检索护栏返回。'
+    });
+    return;
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000);
 
