@@ -70,7 +70,7 @@ type RequestBody = {
 
 type SearchIntent = 'official' | 'current' | 'comparison' | 'general';
 type SearchTrustLevel = 'official' | 'trusted' | 'reference' | 'unknown';
-type SearchProvider = 'bing-cn' | 'baidu';
+type SearchProvider = 'bing-cn' | 'baidu' | 'seed';
 
 type SearchResultItem = {
   title: string;
@@ -106,6 +106,7 @@ type SearchDebugInfo = {
     query: string;
     relaxed: boolean;
     providerPreference: 'bing-first' | 'baidu-first';
+    seedCount: number;
     bingCount: number;
     baiduCount: number;
     rankedCount: number;
@@ -208,27 +209,32 @@ const ENTITY_HINTS = [
   {
     match: /(openai|gpt|chatgpt)/i,
     keywords: ['openai', 'gpt', 'chatgpt'],
-    preferredHosts: ['openai.com', 'platform.openai.com']
+    preferredHosts: ['openai.com', 'platform.openai.com'],
+    officialSeedUrls: ['https://openai.com/api/pricing/', 'https://platform.openai.com/docs/overview']
   },
   {
     match: /(claude|anthropic)/i,
     keywords: ['claude', 'anthropic'],
-    preferredHosts: ['anthropic.com', 'docs.anthropic.com', 'console.anthropic.com']
+    preferredHosts: ['anthropic.com', 'docs.anthropic.com', 'console.anthropic.com'],
+    officialSeedUrls: ['https://www.anthropic.com/pricing', 'https://docs.anthropic.com/en/docs/overview']
   },
   {
     match: /(gemini|google ai|google api)/i,
     keywords: ['gemini', 'google'],
-    preferredHosts: ['ai.google.dev', 'cloud.google.com']
+    preferredHosts: ['ai.google.dev', 'cloud.google.com'],
+    officialSeedUrls: ['https://ai.google.dev/gemini-api/docs', 'https://cloud.google.com/vertex-ai/generative-ai/docs']
   },
   {
     match: /(tailwind)/i,
     keywords: ['tailwind'],
-    preferredHosts: ['tailwindcss.com']
+    preferredHosts: ['tailwindcss.com'],
+    officialSeedUrls: ['https://tailwindcss.com/docs/installation', 'https://tailwindcss.com/docs']
   },
   {
     match: /(vercel|next\.js|nextjs)/i,
     keywords: ['vercel', 'nextjs', 'next.js'],
-    preferredHosts: ['vercel.com', 'nextjs.org']
+    preferredHosts: ['vercel.com', 'nextjs.org'],
+    officialSeedUrls: ['https://vercel.com/docs', 'https://nextjs.org/docs']
   }
 ] as const;
 
@@ -318,8 +324,15 @@ const extractEntityHints = (query: string) => {
 const getPreferredHostsForQuery = (query: string) =>
   [...new Set(extractEntityHints(query).flatMap((item) => item.preferredHosts))];
 
+const getOfficialSeedUrlsForQuery = (query: string) =>
+  [...new Set(extractEntityHints(query).flatMap((item) => item.officialSeedUrls))];
+
 const getEntityKeywordsForQuery = (query: string) =>
   [...new Set(extractEntityHints(query).flatMap((item) => item.keywords))];
+
+const requiresOfficialEvidence = (query: string, intent: SearchIntent) =>
+  getPreferredHostsForQuery(query).length > 0 &&
+  (intent === 'official' || intent === 'current' || intent === 'comparison' || /价格|定价|成本|企业|客服|预算|合规/.test(query));
 
 const tokenizeQuery = (query: string) => {
   const normalized = normalizeQuery(query).toLowerCase();
@@ -421,6 +434,7 @@ const scoreTrustLevel = (trustLevel: SearchTrustLevel) => {
 };
 
 const scoreProvider = (provider: SearchProvider, providerPreference: SearchAttempt['providerPreference']) => {
+  if (provider === 'seed') return 60;
   if (providerPreference === 'bing-first') {
     return provider === 'bing-cn' ? 40 : 20;
   }
@@ -472,6 +486,41 @@ const fetchText = async (url: string, timeoutMs: number) => {
   } finally {
     clearTimeout(timeoutId);
   }
+};
+
+const extractPageMeta = (html: string) => {
+  const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const metaDescriptionMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([\s\S]*?)["'][^>]*>/i);
+  const ogDescriptionMatch = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([\s\S]*?)["'][^>]*>/i);
+
+  return {
+    title: decodeHtml(titleMatch?.[1] || ''),
+    snippet: decodeHtml(metaDescriptionMatch?.[1] || ogDescriptionMatch?.[1] || html.slice(0, 400))
+  };
+};
+
+const fetchOfficialSeedResults = async (query: string) => {
+  const urls = getOfficialSeedUrlsForQuery(query).slice(0, 4);
+  if (!urls.length) return [] as RawSearchResultItem[];
+
+  const pages = await Promise.all(
+    urls.map(async (url, index) => {
+      const html = await fetchText(url, SEARCH_POLICY.providerTimeoutMs);
+      if (!html) return null;
+      const meta = extractPageMeta(html);
+      if (!meta.title) return null;
+
+      return {
+        title: meta.title,
+        url: normalizeUrl(url),
+        snippet: meta.snippet,
+        provider: 'seed' as const,
+        position: index + 1
+      };
+    })
+  );
+
+  return pages.filter((item): item is RawSearchResultItem => Boolean(item));
 };
 
 const extractBingResults = (xml: string) => {
@@ -670,20 +719,28 @@ const getSearchContext = async (query: string, requestId: string) => {
   };
 
   for (const attempt of attempts) {
-    const [bingResults, baiduResults] = await Promise.all([searchWithBingCn(attempt.query), searchWithBaidu(attempt.query)]);
-    const rankedResults = mergeAndRankResults([...bingResults, ...baiduResults], intent, attempt);
+    const [seedResults, bingResults, baiduResults] = await Promise.all([
+      fetchOfficialSeedResults(attempt.query),
+      searchWithBingCn(attempt.query),
+      searchWithBaidu(attempt.query)
+    ]);
+    const rankedResults = mergeAndRankResults([...seedResults, ...bingResults, ...baiduResults], intent, attempt);
+    const hasOfficialEvidence = rankedResults.some(
+      (item) => item.trustLevel === 'official' || endsWithHost(item.hostname, getPreferredHostsForQuery(query))
+    );
 
     debug.attempts.push({
       query: attempt.query,
       relaxed: attempt.relaxed,
       providerPreference: attempt.providerPreference,
+      seedCount: seedResults.length,
       bingCount: bingResults.length,
       baiduCount: baiduResults.length,
       rankedCount: rankedResults.length,
       topHosts: rankedResults.slice(0, 3).map((item) => item.hostname)
     });
 
-    if (rankedResults.length >= 2) {
+    if (rankedResults.length >= 2 && (!requiresOfficialEvidence(query, intent) || hasOfficialEvidence)) {
       debug.hit = true;
       return {
         searchContext: buildSearchContext(query, rankedResults),
