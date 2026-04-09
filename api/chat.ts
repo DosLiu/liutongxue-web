@@ -72,7 +72,7 @@ type RequestBody = {
 
 type SearchIntent = 'official' | 'current' | 'comparison' | 'general';
 type SearchTrustLevel = 'official' | 'trusted' | 'reference' | 'unknown';
-type SearchProvider = 'bing-cn' | 'baidu' | 'seed';
+type SearchProvider = 'bing-cn' | 'baidu' | 'duckduckgo' | 'seed';
 
 type SearchResultItem = {
   title: string;
@@ -95,7 +95,7 @@ type RawSearchResultItem = {
 type SearchAttempt = {
   query: string;
   relaxed: boolean;
-  providerPreference: 'bing-first' | 'baidu-first';
+  providerPreference: 'bing-first' | 'baidu-first' | 'ddg-first';
 };
 
 type SearchRouteDecision = {
@@ -120,10 +120,11 @@ type SearchDebugInfo = {
   attempts: Array<{
     query: string;
     relaxed: boolean;
-    providerPreference: 'bing-first' | 'baidu-first';
+    providerPreference: 'bing-first' | 'baidu-first' | 'ddg-first';
     seedCount: number;
     bingCount: number;
     baiduCount: number;
+    ddgCount: number;
     rankedCount: number;
     topHosts: string[];
     officialCoverageEntities: string[];
@@ -297,11 +298,12 @@ const SEARCH_ROUTE_PROMPT = `你是搜索路由器。你的任务不是回答用
 判断规则：
 1. 只要问题依赖最新事实、发布时间、发售状态、价格、参数、评测、真实产品信息、官网文档、API 文档、方案对比、型号比较，就应 needSearch=true。
 2. 像“谁好用”“值不值得买”“怎么选”“使用体验如何”“续航怎么样”“拍照怎么样”这类自然问法，只要对象是具体产品/品牌/模型，也应 needSearch=true。
-3. 对消费电子、手机、电脑、汽车、AI 产品、SaaS、API、品牌方案比较，只要涉及具体对象，默认先搜再答。
-4. 纯主观、纯框架、纯价值观讨论，且不依赖外部事实时，needSearch=false。
-5. 如果问题里出现多个具体对象做比较，intent 优先给 comparison。
-6. searchQueries 要给 1 到 3 条最有搜索价值的 query，尽量短，保留核心实体；对于具体产品比较，优先包含“参数 / 价格 / 评测 / 使用体验 / 发布时间”等词。
-7. 如果不需要搜索，intent 必须是 none，searchQueries 为空数组。`;
+3. 对消费电子、手机、电脑、汽车等产品比较，默认给 comparison，并优先围绕“参数 / 价格 / 评测 / 使用体验 / 发布时间”生成 query。
+4. 对官网、文档、API、定价、公告类问题，优先给 official 或 current。
+5. 纯主观、纯框架、纯价值观讨论，且不依赖外部事实时，needSearch=false。
+6. 如果问题里出现多个具体对象做比较，intent 优先给 comparison。
+7. searchQueries 要给 1 到 3 条最有搜索价值的 query，尽量短，保留核心实体；对于具体产品比较，优先包含“参数 / 价格 / 评测 / 使用体验 / 发布时间”等词。
+8. 如果不需要搜索，intent 必须是 none，searchQueries 为空数组。`;
 const SEARCH_TOP_K = Math.min(
   Math.max(Number.parseInt(env.WEB_SEARCH_TOP_K || String(SEARCH_POLICY.topK), 10) || SEARCH_POLICY.topK, 1),
   8
@@ -559,10 +561,13 @@ const scoreTrustLevel = (trustLevel: SearchTrustLevel) => {
 
 const scoreProvider = (provider: SearchProvider, providerPreference: SearchAttempt['providerPreference']) => {
   if (provider === 'seed') return 60;
-  if (providerPreference === 'bing-first') {
-    return provider === 'bing-cn' ? 40 : 20;
+  if (providerPreference === 'ddg-first') {
+    return provider === 'duckduckgo' ? 44 : provider === 'bing-cn' ? 28 : 20;
   }
-  return provider === 'baidu' ? 40 : 20;
+  if (providerPreference === 'bing-first') {
+    return provider === 'bing-cn' ? 40 : provider === 'duckduckgo' ? 26 : 20;
+  }
+  return provider === 'baidu' ? 40 : provider === 'duckduckgo' ? 24 : 20;
 };
 
 const getKeywordOverlapScore = (query: string, candidateText: string) => {
@@ -710,6 +715,35 @@ const searchWithBaidu = async (query: string) => {
   return extractBaiduResults(html);
 };
 
+const extractDuckDuckGoResults = (html: string) => {
+  const results: RawSearchResultItem[] = [];
+  const pattern = /<a[^>]+class="[^"]*result__a[^"]*"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]{0,1600}?(?:<a[^>]+class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/a>|<div[^>]+class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/div>)/g;
+
+  for (const match of html.matchAll(pattern)) {
+    const url = normalizeUrl(decodeHtml(match[1] || ''));
+    const title = decodeHtml(match[2] || '');
+    const snippet = decodeHtml(match[3] || match[4] || '');
+
+    if (!title || !url) continue;
+
+    results.push({ title, url, snippet, provider: 'duckduckgo', position: results.length + 1 });
+    if (results.length >= 8) break;
+  }
+
+  return results;
+};
+
+const searchWithDuckDuckGo = async (query: string) => {
+  const html = await fetchText(
+    `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
+    SEARCH_POLICY.providerTimeoutMs
+  );
+
+  if (!html) return [];
+  if (/anomaly-modal|challenge-form|error-lite@duckduckgo\.com/i.test(html)) return [];
+  return extractDuckDuckGoResults(html);
+};
+
 const mergeAndRankResults = (items: RawSearchResultItem[], intent: SearchIntent, attempt: SearchAttempt): SearchResultItem[] => {
   const deduped = new Map<string, SearchResultItem>();
 
@@ -795,8 +829,25 @@ const mergeAndRankResults = (items: RawSearchResultItem[], intent: SearchIntent,
   return sortedResults.slice(0, SEARCH_TOP_K);
 };
 
+const isProductComparisonQuery = (query: string) =>
+  SEARCH_POLICY.triggerPatterns.deviceComparison.test(query) ||
+  /参数|评测|体验|续航|拍照|性能|值不值得买|谁好用|发布时间|发售/i.test(query);
+
 const buildAttempts = (query: string, intent: SearchIntent, preferredQueries: string[] = []): SearchAttempt[] => {
   const variants = buildFallbackQueries(query, intent, preferredQueries);
+  const comparisonLike = intent === 'comparison' && isProductComparisonQuery(query);
+
+  if (comparisonLike) {
+    return [
+      { query: variants[0] || query, relaxed: false, providerPreference: 'ddg-first' },
+      { query: variants[1] || variants[0] || query, relaxed: false, providerPreference: 'bing-first' },
+      {
+        query: variants[2] || variants[1] || variants[0] || query,
+        relaxed: true,
+        providerPreference: 'ddg-first'
+      }
+    ];
+  }
 
   return [
     { query: variants[0] || query, relaxed: false, providerPreference: 'bing-first' },
@@ -969,12 +1020,13 @@ const getSearchContext = async (query: string, requestId: string, routeDecision:
   };
 
   for (const attempt of attempts) {
-    const [seedResults, bingResults, baiduResults] = await Promise.all([
+    const [seedResults, bingResults, baiduResults, ddgResults] = await Promise.all([
       fetchOfficialSeedResults(attempt.query),
       searchWithBingCn(attempt.query),
-      searchWithBaidu(attempt.query)
+      searchWithBaidu(attempt.query),
+      searchWithDuckDuckGo(attempt.query)
     ]);
-    const rankedResults = mergeAndRankResults([...seedResults, ...bingResults, ...baiduResults], intent, attempt);
+    const rankedResults = mergeAndRankResults([...seedResults, ...bingResults, ...baiduResults, ...ddgResults], intent, attempt);
     const officialCoverageEntities = getOfficialCoverageEntities(query, rankedResults);
     const hasOfficialEvidence = !requiresOfficialEvidence(query, intent) || officialCoverageEntities.length >= 1;
     const hasBalancedOfficialEvidence = !requiresBalancedOfficialEvidence(query, intent) || officialCoverageEntities.length >= 2;
@@ -986,6 +1038,7 @@ const getSearchContext = async (query: string, requestId: string, routeDecision:
       seedCount: seedResults.length,
       bingCount: bingResults.length,
       baiduCount: baiduResults.length,
+      ddgCount: ddgResults.length,
       rankedCount: rankedResults.length,
       topHosts: rankedResults.slice(0, 3).map((item) => item.hostname),
       officialCoverageEntities
