@@ -30,10 +30,12 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'http://127.0.0.1:5173'
 ];
 
+const env = ((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {});
+
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
 const parseAllowedOrigins = () => {
-  const configured = process.env.ALLOWED_ORIGINS
+  const configured = env.ALLOWED_ORIGINS
     ?.split(',')
     .map((item) => item.trim())
     .filter(Boolean);
@@ -95,9 +97,9 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
-  const baseUrl = trimTrailingSlash(process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
+  const apiKey = env.OPENAI_API_KEY;
+  const model = env.OPENAI_MODEL || 'gpt-4.1-mini';
+  const baseUrl = trimTrailingSlash(env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
 
   if (!apiKey) {
     res.status(200).json(mockResponse(content));
