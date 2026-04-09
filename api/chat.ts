@@ -48,7 +48,9 @@ Step 4：始终检查价值闭环。
 
 当系统提供了外部检索结果时：
 - 把结果当事实参考，不要机械复述。
-- 优先采用官网、官方文档、官方 pricing、官方公告里的事实。
+- 优先采用官网、官方文档、官方 pricing、官方公告、可信评测里的事实。
+- 只要检索结果已经提供了足够事实，就直接下判断，不要再把用户打回去自己找资料。
+- 对具体产品/具体型号/具体方案的比较题，先吸收参数、价格、发布时间、真实体验，再给判断。
 - 先判断，再引用最关键的一两条事实。
 - 如果结果互相矛盾，直接指出冲突，不要装作确定。
 `;
@@ -181,7 +183,15 @@ const SEARCH_POLICY = {
     'sspai.com',
     'theverge.com',
     'techcrunch.com',
-    'huggingface.co'
+    'huggingface.co',
+    'gsmarena.com',
+    'notebookcheck.net',
+    'techradar.com',
+    'cnet.com',
+    'engadget.com',
+    'theverge.com',
+    'tomsguide.com',
+    'dxomark.com'
   ],
   triggerPatterns: {
     current: /(今天|今日|昨天|最近|最新|刚刚|现在|目前|本周|今年|此刻|新闻|消息|动态|公告|发布|上线|市值|股价|融资|收购|价格|定价|费用|成本|现状|趋势|发生了什么)/,
@@ -249,6 +259,20 @@ const ENTITY_HINTS = [
     officialSeedUrls: ['https://tailwindcss.com/docs/installation', 'https://tailwindcss.com/docs']
   },
   {
+    id: 'apple',
+    match: /(iphone|apple|ios)/i,
+    keywords: ['iphone', 'apple', 'ios'],
+    preferredHosts: ['apple.com', 'support.apple.com'],
+    officialSeedUrls: ['https://www.apple.com/iphone/', 'https://support.apple.com/iphone']
+  },
+  {
+    id: 'xiaomi',
+    match: /(小米|xiaomi|mi\s?\d|mi phone|redmi)/i,
+    keywords: ['xiaomi', '小米', 'redmi'],
+    preferredHosts: ['mi.com', 'xiaomi.com'],
+    officialSeedUrls: ['https://www.mi.com/', 'https://www.mi.com/global/']
+  },
+  {
     id: 'vercel-next',
     match: /(vercel|next\.js|nextjs)/i,
     keywords: ['vercel', 'nextjs', 'next.js'],
@@ -271,11 +295,12 @@ const SEARCH_ROUTE_PROMPT = `你是搜索路由器。你的任务不是回答用
 
 判断规则：
 1. 只要问题依赖最新事实、发布时间、发售状态、价格、参数、评测、真实产品信息、官网文档、API 文档、方案对比、型号比较，就应 needSearch=true。
-2. 像“谁好用”“值不值得买”“怎么选”“使用体验如何”这类自然问法，只要对象是具体产品/品牌/模型，也通常 needSearch=true。
-3. 纯主观、纯框架、纯价值观讨论，且不依赖外部事实时，needSearch=false。
-4. 如果问题里出现多个具体对象做比较，intent 优先给 comparison。
-5. searchQueries 要给 1 到 3 条最有搜索价值的 query，尽量短，保留核心实体。
-6. 如果不需要搜索，intent 必须是 none，searchQueries 为空数组。`;
+2. 像“谁好用”“值不值得买”“怎么选”“使用体验如何”“续航怎么样”“拍照怎么样”这类自然问法，只要对象是具体产品/品牌/模型，也应 needSearch=true。
+3. 对消费电子、手机、电脑、汽车、AI 产品、SaaS、API、品牌方案比较，只要涉及具体对象，默认先搜再答。
+4. 纯主观、纯框架、纯价值观讨论，且不依赖外部事实时，needSearch=false。
+5. 如果问题里出现多个具体对象做比较，intent 优先给 comparison。
+6. searchQueries 要给 1 到 3 条最有搜索价值的 query，尽量短，保留核心实体；对于具体产品比较，优先包含“参数 / 价格 / 评测 / 使用体验 / 发布时间”等词。
+7. 如果不需要搜索，intent 必须是 none，searchQueries 为空数组。`;
 const SEARCH_TOP_K = Math.min(
   Math.max(Number.parseInt(env.WEB_SEARCH_TOP_K || String(SEARCH_POLICY.topK), 10) || SEARCH_POLICY.topK, 1),
   8
@@ -397,7 +422,7 @@ const requiresOfficialEvidence = (query: string, intent: SearchIntent) =>
 
 const requiresBalancedOfficialEvidence = (query: string, intent: SearchIntent) =>
   getMatchedEntityIds(query).length >= 2 &&
-  (intent === 'comparison' || /适合|区别|差异|谁更|哪个好|怎么选|vs|versus|相比|企业|客服/.test(query));
+  (intent === 'comparison' || /适合|区别|差异|谁更|哪个好|谁好用|值不值得买|体验|怎么选|vs|versus|相比|企业|客服/.test(query));
 
 const tokenizeQuery = (query: string) => {
   const normalized = normalizeQuery(query).toLowerCase();
@@ -441,6 +466,10 @@ const buildFallbackQueries = (query: string, intent: SearchIntent, preferredQuer
 
   if (intent === 'general') {
     variants.push(`${compact || normalized} 官方 文档 价格 能力 企业 ${entityText}`.trim());
+  }
+
+  if (/iphone|apple|ios|小米|xiaomi|redmi|手机|发售|参数|评测|体验|谁好用|值不值得买/i.test(normalized)) {
+    variants.push(`${compact || normalized} 参数 价格 评测 使用体验 发布时间`.trim());
   }
 
   if (/客服|企业|预算|成本|价格|定价/.test(normalized)) {
