@@ -96,9 +96,20 @@ type SearchAttempt = {
   providerPreference: 'bing-first' | 'baidu-first';
 };
 
+type SearchRouteDecision = {
+  source: 'llm' | 'rules';
+  needSearch: boolean;
+  intent: SearchIntent | 'none';
+  searchQueries: string[];
+  rationale?: string;
+};
+
 type SearchDebugInfo = {
   requestId: string;
   enabled: boolean;
+  routeSource?: 'llm' | 'rules';
+  routeNeedSearch?: boolean;
+  routeQueries?: string[];
   triggered: boolean;
   intent: SearchIntent | 'none';
   hit: boolean;
@@ -253,6 +264,18 @@ const normalizeHost = (value: string) => value.toLowerCase().replace(/^www\./, '
 
 const SEARCH_ENABLED = env.WEB_SEARCH_ENABLED !== '0';
 const SEARCH_DEBUG_ENABLED = env.WEB_SEARCH_DEBUG !== '0';
+const SEARCH_ROUTE_PROMPT = `你是搜索路由器。你的任务不是回答用户，而是判断当前问题是否需要联网检索。
+
+输出必须是 JSON，不要输出任何额外文字。格式：
+{"needSearch":boolean,"intent":"official|current|comparison|general|none","searchQueries":[string,string,string],"rationale":string}
+
+判断规则：
+1. 只要问题依赖最新事实、发布时间、发售状态、价格、参数、评测、真实产品信息、官网文档、API 文档、方案对比、型号比较，就应 needSearch=true。
+2. 像“谁好用”“值不值得买”“怎么选”“使用体验如何”这类自然问法，只要对象是具体产品/品牌/模型，也通常 needSearch=true。
+3. 纯主观、纯框架、纯价值观讨论，且不依赖外部事实时，needSearch=false。
+4. 如果问题里出现多个具体对象做比较，intent 优先给 comparison。
+5. searchQueries 要给 1 到 3 条最有搜索价值的 query，尽量短，保留核心实体。
+6. 如果不需要搜索，intent 必须是 none，searchQueries 为空数组。`;
 const SEARCH_TOP_K = Math.min(
   Math.max(Number.parseInt(env.WEB_SEARCH_TOP_K || String(SEARCH_POLICY.topK), 10) || SEARCH_POLICY.topK, 1),
   8
@@ -313,6 +336,27 @@ const looksOfficialByText = (value: string) =>
 
 const normalizeQuery = (query: string) => query.trim().replace(/\s+/g, ' ');
 
+const extractJsonObject = (raw: string) => {
+  const cleaned = raw.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```$/i, '').trim();
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if (start === -1 || end === -1 || end <= start) return null;
+  return cleaned.slice(start, end + 1);
+};
+
+const hardDecideSearchRoute = (query: string): SearchRouteDecision | null => {
+  const normalized = normalizeQuery(query);
+  if (!normalized || normalized.length <= 6) {
+    return { source: 'rules', needSearch: false, intent: 'none', searchQueries: [], rationale: 'too-short' };
+  }
+
+  if (SEARCH_POLICY.triggerPatterns.disabled.test(normalized)) {
+    return { source: 'rules', needSearch: false, intent: 'none', searchQueries: [], rationale: 'has-url' };
+  }
+
+  return null;
+};
+
 const detectSearchIntent = (query: string): SearchIntent | null => {
   const normalized = normalizeQuery(query);
   if (!normalized || normalized.length <= 6) return null;
@@ -363,7 +407,12 @@ const tokenizeQuery = (query: string) => {
   return [...new Set([...englishTokens, ...chineseTokens])].filter((token) => !QUERY_STOP_WORDS.has(token));
 };
 
-const buildFallbackQueries = (query: string, intent: SearchIntent) => {
+const buildFallbackQueries = (query: string, intent: SearchIntent, preferredQueries: string[] = []) => {
+  const preferred = preferredQueries.map((item) => normalizeQuery(item)).filter(Boolean);
+  if (preferred.length >= 3) {
+    return [...new Set(preferred)].slice(0, 3);
+  }
+
   const normalized = normalizeQuery(query);
   const compact = normalized
     .replace(/(请问|帮我|麻烦|一下|现在|目前|最新的|最近的|给我|看看|到底|有没有|一下子)/g, ' ')
@@ -372,7 +421,7 @@ const buildFallbackQueries = (query: string, intent: SearchIntent) => {
 
   const entityKeywords = getEntityKeywordsForQuery(normalized);
   const entityText = entityKeywords.join(' ');
-  const variants = [normalized];
+  const variants = [...preferred, normalized];
 
   if (compact && compact !== normalized) {
     variants.push(compact);
@@ -692,8 +741,8 @@ const mergeAndRankResults = (items: RawSearchResultItem[], intent: SearchIntent,
   return sortedResults.slice(0, SEARCH_TOP_K);
 };
 
-const buildAttempts = (query: string, intent: SearchIntent): SearchAttempt[] => {
-  const variants = buildFallbackQueries(query, intent);
+const buildAttempts = (query: string, intent: SearchIntent, preferredQueries: string[] = []): SearchAttempt[] => {
+  const variants = buildFallbackQueries(query, intent, preferredQueries);
 
   return [
     { query: variants[0] || query, relaxed: false, providerPreference: 'bing-first' },
@@ -758,6 +807,80 @@ const logSearchDebug = (debug: SearchDebugInfo, originalQuery: string) => {
   );
 };
 
+const decideSearchRoute = async ({
+  query,
+  apiKey,
+  model,
+  baseUrl
+}: {
+  query: string;
+  apiKey: string;
+  model: string;
+  baseUrl: string;
+}): Promise<SearchRouteDecision> => {
+  const hardDecision = hardDecideSearchRoute(query);
+  if (hardDecision) return hardDecision;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+    const response = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0,
+        messages: [
+          { role: 'system', content: SEARCH_ROUTE_PROMPT },
+          { role: 'user', content: query }
+        ]
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      const data = await response.json();
+      const raw = data?.choices?.[0]?.message?.content?.trim() || '';
+      const jsonText = extractJsonObject(raw);
+      if (jsonText) {
+        const parsed = JSON.parse(jsonText) as {
+          needSearch?: boolean;
+          intent?: SearchIntent | 'none';
+          searchQueries?: string[];
+          rationale?: string;
+        };
+
+        const intent = parsed.intent && ['official', 'current', 'comparison', 'general', 'none'].includes(parsed.intent)
+          ? parsed.intent
+          : 'none';
+
+        return {
+          source: 'llm',
+          needSearch: Boolean(parsed.needSearch),
+          intent,
+          searchQueries: Array.isArray(parsed.searchQueries) ? parsed.searchQueries.slice(0, 3).filter(Boolean) : [],
+          rationale: parsed.rationale || ''
+        };
+      }
+    }
+  } catch {}
+
+  const fallbackIntent = detectSearchIntent(query);
+  return {
+    source: 'rules',
+    needSearch: Boolean(fallbackIntent),
+    intent: fallbackIntent || 'none',
+    searchQueries: [],
+    rationale: fallbackIntent ? 'rules-fallback-hit' : 'rules-fallback-miss'
+  };
+};
+
 const buildEvidenceGuardReply = (query: string, reason: 'missing-balanced-official-evidence' | 'missing-official-evidence') => {
   if (reason === 'missing-balanced-official-evidence') {
     return `现在直接拍板是 shit。\n1. 我这轮只拿到单边官方证据，没有拿到双方同等级的官方材料。\n2. 单边证据会把判断带偏，尤其是 Claude 和 OpenAI 这种企业级方案对比题。\n3. 没有双边官方证据，我不会替你下死结论。\n\n你更看重安全合规、成本，还是响应速度？或者直接给我双方官方链接，我再给你结论。`;
@@ -766,26 +889,25 @@ const buildEvidenceGuardReply = (query: string, reason: 'missing-balanced-offici
   return `现在硬下结论是 shit。\n1. 我没有拿到足够的官方证据。\n2. 没有官网、官方文档或官方 pricing，继续判断只是在编。\n3. 这种题必须先把事实钉住，再谈选择。\n\n给我更具体的对象、版本、官方链接或价格页，我再继续。`;
 };
 
-const getSearchContext = async (query: string, requestId: string) => {
+const getSearchContext = async (query: string, requestId: string, routeDecision: SearchRouteDecision) => {
   const baseDebug: SearchDebugInfo = {
     requestId,
     enabled: SEARCH_ENABLED,
+    routeSource: routeDecision.source,
+    routeNeedSearch: routeDecision.needSearch,
+    routeQueries: routeDecision.searchQueries,
     triggered: false,
     intent: 'none',
     hit: false,
     attempts: []
   };
 
-  if (!SEARCH_ENABLED) {
+  if (!SEARCH_ENABLED || !routeDecision.needSearch || routeDecision.intent === 'none') {
     return { searchContext: '', guardContext: '', forcedReply: '', debug: baseDebug };
   }
 
-  const intent = detectSearchIntent(query);
-  if (!intent) {
-    return { searchContext: '', guardContext: '', forcedReply: '', debug: baseDebug };
-  }
-
-  const attempts = buildAttempts(query, intent);
+  const intent = routeDecision.intent;
+  const attempts = buildAttempts(query, intent, routeDecision.searchQueries);
   const debug: SearchDebugInfo = {
     ...baseDebug,
     triggered: true,
@@ -931,7 +1053,13 @@ export default async function handler(req: any, res: any) {
     .slice(-12);
 
   const requestId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  const { searchContext, guardContext, forcedReply, debug: searchDebug } = await getSearchContext(content, requestId);
+  const routeDecision = await decideSearchRoute({
+    query: content,
+    apiKey,
+    model,
+    baseUrl
+  });
+  const { searchContext, guardContext, forcedReply, debug: searchDebug } = await getSearchContext(content, requestId, routeDecision);
   logSearchDebug(searchDebug, content);
 
   if (forcedReply) {
