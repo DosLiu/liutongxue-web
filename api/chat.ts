@@ -45,6 +45,11 @@ Step 4：始终检查价值闭环。
 - 这件事有没有直接改善获客、成交或交付？
 - 最该砍掉的复杂性是什么？
 - 哪个关键环节必须自己控制，不能交给别人？
+
+当系统提供了联网搜索结果时：
+- 把搜索结果当事实参考，不要机械复述。
+- 先判断，再引用最关键的一两条事实。
+- 如果搜索结果互相矛盾，直接指出冲突，不要装作确定。
 `;
 
 const buildMockReply = (message: string) => {
@@ -62,6 +67,12 @@ type RequestBody = {
   messages?: IncomingMessage[];
 };
 
+type SearchResultItem = {
+  title: string;
+  url: string;
+  snippet: string;
+};
+
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://dosliu.github.io',
   'http://localhost:5173',
@@ -71,6 +82,73 @@ const DEFAULT_ALLOWED_ORIGINS = [
 const env = ((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {});
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
+const SEARCH_PROVIDER = env.WEB_SEARCH_PROVIDER || 'bing-cn';
+const SEARCH_ENABLED = env.WEB_SEARCH_ENABLED !== '0';
+const SEARCH_TOP_K = Math.min(Math.max(Number.parseInt(env.WEB_SEARCH_TOP_K || '5', 10) || 5, 1), 8);
+
+const decodeHtml = (value: string) =>
+  value
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const extractBingResults = (html: string) => {
+  const results: SearchResultItem[] = [];
+  const pattern = /<li class="b_algo"[\s\S]*?<h2><a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a><\/h2>[\s\S]*?(?:<p>([\s\S]*?)<\/p>)?/g;
+
+  for (const match of html.matchAll(pattern)) {
+    const url = match[1]?.trim();
+    const title = decodeHtml(match[2] || '');
+    const snippet = decodeHtml(match[3] || '');
+
+    if (!url || !title) continue;
+
+    results.push({ title, url, snippet });
+    if (results.length >= SEARCH_TOP_K) break;
+  }
+
+  return results;
+};
+
+const searchWithBingCn = async (query: string) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+  try {
+    const searchUrl = `https://cn.bing.com/search?q=${encodeURIComponent(query)}&setlang=zh-Hans&ensearch=0`;
+    const response = await fetch(searchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; LiutongxueBot/1.0; +https://dosliu.github.io/liutongxue-web/)'
+      },
+      signal: controller.signal
+    });
+
+    if (!response.ok) return [];
+
+    const html = await response.text();
+    return extractBingResults(html);
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
+const buildSearchContext = (query: string, results: SearchResultItem[]) => {
+  if (!results.length) return '';
+
+  const items = results
+    .map((item, index) => `${index + 1}. 标题：${item.title}\n链接：${item.url}\n摘要：${item.snippet || '无摘要'}`)
+    .join('\n\n');
+
+  return `以下是围绕用户问题“${query}”的${SEARCH_PROVIDER === 'bing-cn' ? '中国必应' : '联网'}搜索结果摘要。\n这些内容只作为事实参考，不要机械复述；先判断，再引用最关键的事实。\n\n${items}`;
+};
 
 const parseAllowedOrigins = () => {
   const configured = env.ALLOWED_ORIGINS
@@ -150,6 +228,9 @@ export default async function handler(req: any, res: any) {
     .filter((message) => message.content)
     .slice(-12);
 
+  const searchResults = SEARCH_ENABLED && SEARCH_PROVIDER === 'bing-cn' ? await searchWithBingCn(content) : [];
+  const searchContext = buildSearchContext(content, searchResults);
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000);
 
@@ -165,6 +246,7 @@ export default async function handler(req: any, res: any) {
         temperature: 0.35,
         messages: [
           { role: 'system', content: JOBS_SYSTEM_PROMPT },
+          ...(searchContext ? [{ role: 'system', content: searchContext }] : []),
           ...requestMessages
         ]
       }),
@@ -188,7 +270,7 @@ export default async function handler(req: any, res: any) {
     res.status(200).json({
       reply: reply || buildMockReply(content),
       mode: 'api',
-      reason: '当前回复已通过真实模型返回。'
+      reason: searchResults.length ? '当前回复已通过真实模型返回，并参考了中国必应搜索结果。' : '当前回复已通过真实模型返回。'
     });
   } catch (error: any) {
     const isTimeout = error?.name === 'AbortError';
