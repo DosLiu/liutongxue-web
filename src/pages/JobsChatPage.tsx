@@ -262,7 +262,7 @@ export default function JobsChatPage() {
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={handleInputKeyDown}
-                placeholder="我的小公司想用 AI 提高销售转化，但不知道先从哪里下手。"
+                placeholder=""
                 rows={4}
                 maxLength={400}
               />
