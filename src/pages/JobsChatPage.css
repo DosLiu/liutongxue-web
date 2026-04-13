@@ -96,14 +96,9 @@
   align-items: stretch;
   gap: 0;
   min-width: 12.8rem;
-  padding: 0.72rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.28rem 0;
   border-radius: 1rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 12px 30px -22px rgba(0, 0, 0, 0.82);
-  backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
 }
 
 .jobs-chat-panel__mode,
@@ -126,9 +121,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.65rem;
-  margin-top: 0.38rem;
-  padding-top: 0.42rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  margin-top: 0.16rem;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -236,7 +229,7 @@
   border-radius: 999px;
   font-size: 0.92rem;
   font-weight: 600;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .jobs-chat-form__ghost {
@@ -246,9 +239,14 @@
 }
 
 .jobs-chat-form__submit {
-  color: #060010;
-  background: linear-gradient(135deg, rgba(191, 228, 255, 0.96), rgba(208, 186, 255, 0.96));
-  border: none;
+  min-width: 8.6rem;
+  padding: 0.72rem 1.35rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #8a5cff 0%, #5b8cff 52%, #42c8ff 100%);
+  border: 1px solid rgba(186, 205, 255, 0.32);
+  box-shadow:
+    0 14px 34px -18px rgba(91, 140, 255, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .jobs-chat-form__ghost:hover,
@@ -256,9 +254,16 @@
   transform: translateY(-1px);
 }
 
+.jobs-chat-form__submit:hover:not(:disabled) {
+  box-shadow:
+    0 18px 38px -18px rgba(91, 140, 255, 1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
 .jobs-chat-form__submit:disabled {
   opacity: 0.42;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .jobs-chat-form__note,
