@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import SiteHeader from '../components/SiteHeader';
 import {
   buildMockReply,
@@ -9,7 +9,6 @@ import {
 } from '../config/jobsPersona';
 import {
   getJobsChatApiFallbackReason,
-  getJobsChatApiInitialModeLabel,
   getJobsChatApiUrl
 } from '../config/jobsChatApi';
 import './JobsChatPage.css';
@@ -87,8 +86,38 @@ export default function JobsChatPage() {
   const [isDeveloperUnlimited] = useState(getDeveloperUnlimited);
   const [remaining, setRemaining] = useState(getInitialRemaining);
   const [isSending, setIsSending] = useState(false);
-  const [modeLabel, setModeLabel] = useState(getJobsChatApiInitialModeLabel);
+  const [isApiHealthy, setIsApiHealthy] = useState<boolean | null>(null);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const apiUrl = getJobsChatApiUrl();
+
+    if (!apiUrl) {
+      setIsApiHealthy(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const checkApiHealth = async () => {
+      try {
+        const response = await fetch(apiUrl, { method: 'GET' });
+        if (!cancelled) {
+          setIsApiHealthy(response.ok || response.status === 405);
+        }
+      } catch {
+        if (!cancelled) {
+          setIsApiHealthy(false);
+        }
+      }
+    };
+
+    void checkApiHealth();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const canSend = useMemo(() => input.trim().length > 0 && (isDeveloperUnlimited || remaining > 0) && !isSending, [input, isDeveloperUnlimited, remaining, isSending]);
 
@@ -145,11 +174,7 @@ export default function JobsChatPage() {
         }
       }
 
-      setModeLabel(
-        mode === 'api'
-          ? `在线模式：${reason || '当前回复已通过真实模型返回。'}`
-          : `演示模式：${reason}`
-      );
+      setIsApiHealthy(mode === 'api');
 
       setMessages((current) => [
         ...current,
@@ -189,7 +214,6 @@ export default function JobsChatPage() {
 
         <div className="jobs-chat-shell">
           <section className="jobs-chat-hero" aria-labelledby="jobs-chat-title">
-            <span className="jobs-chat-kicker">Embodied AI Demo</span>
             <h1 id="jobs-chat-title" className="jobs-chat-title">
               {JOBS_CHAT_TITLE}
             </h1>
@@ -198,8 +222,13 @@ export default function JobsChatPage() {
 
           <section className="jobs-chat-panel" aria-label="虚拟乔布斯对话区域">
             <div className="jobs-chat-panel__topline">
-              <p className="jobs-chat-panel__mode">{modeLabel}</p>
-              <span className="jobs-chat-panel__quota">{isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`}</span>
+              <div className="jobs-chat-panel__status-group">
+                <span className="jobs-chat-panel__quota">{isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`}</span>
+                <p className={`jobs-chat-panel__mode ${isApiHealthy ? 'is-healthy' : 'is-unhealthy'}`}>
+                  <span className="jobs-chat-panel__mode-dot" aria-hidden="true" />
+                  在线模式
+                </p>
+              </div>
             </div>
 
             <div className="jobs-chat-messages">
