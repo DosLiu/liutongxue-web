@@ -74,7 +74,7 @@
 
 .jobs-chat-panel {
   margin-top: 1.75rem;
-  padding: 1.5rem;
+  padding: 0.95rem 1.5rem 1.15rem;
   border: 1px solid transparent;
   border-radius: 1.6rem;
   background:
@@ -161,7 +161,11 @@
 .jobs-chat-messages {
   display: grid;
   gap: 0.9rem;
-  margin-top: 1.25rem;
+  margin-top: 0.72rem;
+}
+
+.jobs-chat-messages:empty {
+  display: none;
 }
 
 .jobs-chat-message {
@@ -197,8 +201,8 @@
 }
 
 .jobs-chat-form {
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
+  margin-top: 0.72rem;
+  padding-top: 0.82rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
