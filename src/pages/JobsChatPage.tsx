@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react';
 import SiteHeader from '../components/SiteHeader';
 import {
   buildMockReply,
@@ -74,14 +74,8 @@ const getInitialRemaining = () => {
   return Number.isNaN(parsed) ? JOBS_CHAT_FREE_LIMIT : Math.max(0, parsed);
 };
 
-const initialAssistantMessage: ChatMessage = {
-  id: 'assistant-intro',
-  role: 'assistant',
-  content: '我先说明一次：我会以乔布斯视角和你聊，基于公开言论推断，不是本人。现在，说重点。你最痛的业务问题是什么？一句话，不要背景。'
-};
-
 export default function JobsChatPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([initialAssistantMessage]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isDeveloperUnlimited] = useState(getDeveloperUnlimited);
   const [remaining, setRemaining] = useState(getInitialRemaining);
@@ -122,9 +116,16 @@ export default function JobsChatPage() {
   const canSend = useMemo(() => input.trim().length > 0 && (isDeveloperUnlimited || remaining > 0) && !isSending, [input, isDeveloperUnlimited, remaining, isSending]);
 
   const handleClear = () => {
-    setMessages([initialAssistantMessage]);
+    setMessages([]);
     setInput('');
     setError('');
+  };
+
+  const handleInputKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      void sendMessage(event as unknown as FormEvent);
+    }
   };
 
   const sendMessage = async (event: FormEvent) => {
@@ -225,8 +226,8 @@ export default function JobsChatPage() {
               <div className="jobs-chat-panel__status-group">
                 <span className="jobs-chat-panel__quota">{isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`}</span>
                 <p className={`jobs-chat-panel__mode ${isApiHealthy ? 'is-healthy' : 'is-unhealthy'}`}>
-                  <span className="jobs-chat-panel__mode-dot" aria-hidden="true" />
                   在线模式
+                  <span className="jobs-chat-panel__mode-dot" aria-hidden="true" />
                 </p>
               </div>
             </div>
@@ -256,6 +257,7 @@ export default function JobsChatPage() {
                 className="jobs-chat-form__input"
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
+                onKeyDown={handleInputKeyDown}
                 placeholder="例如：我的小公司想用 AI 提高销售转化，但不知道先从哪里下手。"
                 rows={4}
                 maxLength={400}
