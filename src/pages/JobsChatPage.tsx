@@ -7,10 +7,7 @@ import {
   JOBS_CHAT_STORAGE_KEY,
   JOBS_CHAT_TITLE
 } from '../config/jobsPersona';
-import {
-  getJobsChatApiFallbackReason,
-  getJobsChatApiUrl
-} from '../config/jobsChatApi';
+import { getJobsChatApiUrl } from '../config/jobsChatApi';
 import './JobsChatPage.css';
 
 type ChatRole = 'assistant' | 'user';
@@ -24,7 +21,6 @@ type ChatMessage = {
 type ChatApiResponse = {
   reply: string;
   mode?: 'api' | 'mock';
-  reason?: string;
 };
 
 const normalizeAssistantReply = (content: string) =>
@@ -42,6 +38,20 @@ const normalizeAssistantReply = (content: string) =>
 const JOBS_CHAT_DEBUG_KEY = `${JOBS_CHAT_STORAGE_KEY}-debug-unlimited`;
 const JOBS_CHAT_DEBUG_PARAM = 'debug-unlimited';
 
+const getStorage = () => (typeof window === 'undefined' ? null : window.localStorage);
+
+const setDeveloperUnlimited = (enabled: boolean) => {
+  const storage = getStorage();
+  if (!storage) return;
+
+  if (enabled) {
+    storage.setItem(JOBS_CHAT_DEBUG_KEY, '1');
+    return;
+  }
+
+  storage.removeItem(JOBS_CHAT_DEBUG_KEY);
+};
+
 const getDeveloperUnlimited = () => {
   if (typeof window === 'undefined') return false;
 
@@ -49,30 +59,43 @@ const getDeveloperUnlimited = () => {
   const debugParam = params.get(JOBS_CHAT_DEBUG_PARAM);
 
   if (debugParam === '1') {
-    window.localStorage.setItem(JOBS_CHAT_DEBUG_KEY, '1');
+    setDeveloperUnlimited(true);
     return true;
   }
 
   if (debugParam === '0') {
-    window.localStorage.removeItem(JOBS_CHAT_DEBUG_KEY);
+    setDeveloperUnlimited(false);
     return false;
   }
 
-  return window.localStorage.getItem(JOBS_CHAT_DEBUG_KEY) === '1';
+  return getStorage()?.getItem(JOBS_CHAT_DEBUG_KEY) === '1';
 };
 
-const getInitialRemaining = () => {
-  if (typeof window === 'undefined') return JOBS_CHAT_FREE_LIMIT;
-  if (getDeveloperUnlimited()) return JOBS_CHAT_FREE_LIMIT;
+const getStoredRemaining = () => {
+  const storage = getStorage();
+  if (!storage) return JOBS_CHAT_FREE_LIMIT;
 
-  const cached = window.localStorage.getItem(JOBS_CHAT_STORAGE_KEY);
+  const cached = storage.getItem(JOBS_CHAT_STORAGE_KEY);
   if (cached === null) {
-    window.localStorage.setItem(JOBS_CHAT_STORAGE_KEY, String(JOBS_CHAT_FREE_LIMIT));
+    storage.setItem(JOBS_CHAT_STORAGE_KEY, String(JOBS_CHAT_FREE_LIMIT));
     return JOBS_CHAT_FREE_LIMIT;
   }
+
   const parsed = Number.parseInt(cached, 10);
   return Number.isNaN(parsed) ? JOBS_CHAT_FREE_LIMIT : Math.max(0, parsed);
 };
+
+const setStoredRemaining = (value: number) => {
+  getStorage()?.setItem(JOBS_CHAT_STORAGE_KEY, String(value));
+};
+
+const getInitialRemaining = () => (getDeveloperUnlimited() ? JOBS_CHAT_FREE_LIMIT : getStoredRemaining());
+
+const getQuotaText = (isDeveloperUnlimited: boolean, remaining: number) =>
+  isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`;
+
+const getApiStatusText = (isApiHealthy: boolean | null) =>
+  isApiHealthy === null ? '检测中' : isApiHealthy ? '正常' : '异常';
 
 export default function JobsChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -82,7 +105,8 @@ export default function JobsChatPage() {
   const [isSending, setIsSending] = useState(false);
   const [isApiHealthy, setIsApiHealthy] = useState<boolean | null>(null);
   const [error, setError] = useState('');
-  const apiStatusText = isApiHealthy === null ? '检测中' : isApiHealthy ? '正常' : '异常';
+  const apiStatusText = getApiStatusText(isApiHealthy);
+  const quotaText = getQuotaText(isDeveloperUnlimited, remaining);
 
   useEffect(() => {
     const apiUrl = getJobsChatApiUrl();
@@ -122,15 +146,7 @@ export default function JobsChatPage() {
     setError('');
   };
 
-  const handleInputKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      void sendMessage(event as unknown as FormEvent);
-    }
-  };
-
-  const sendMessage = async (event: FormEvent) => {
-    event.preventDefault();
+  const submitMessage = async () => {
     const content = input.trim();
     if (!content || !canSend) return;
 
@@ -140,6 +156,8 @@ export default function JobsChatPage() {
       content
     };
 
+    const requestMessages = [...messages, userMessage].map(({ role, content: text }) => ({ role, content: text }));
+
     setMessages((current) => [...current, userMessage]);
     setInput('');
     setError('');
@@ -147,8 +165,7 @@ export default function JobsChatPage() {
 
     try {
       let replyText = normalizeAssistantReply(buildMockReply(content));
-      let mode = 'mock';
-      let reason = getJobsChatApiFallbackReason();
+      let mode: ChatApiResponse['mode'] = 'mock';
       const apiUrl = getJobsChatApiUrl();
 
       if (apiUrl) {
@@ -158,21 +175,16 @@ export default function JobsChatPage() {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              messages: [...messages, userMessage].map(({ role, content: text }) => ({ role, content: text }))
-            })
+            body: JSON.stringify({ messages: requestMessages })
           });
 
           if (response.ok) {
             const payload = (await response.json()) as ChatApiResponse;
             replyText = normalizeAssistantReply(payload.reply || replyText);
             mode = payload.mode ?? mode;
-            reason = payload.reason ?? reason;
-          } else {
-            reason = '模型接口暂时不可用，已自动回退到演示回复。';
           }
         } catch {
-          reason = '模型接口暂时不可达，已自动回退到演示回复。';
+          // keep mock reply
         }
       }
 
@@ -193,9 +205,7 @@ export default function JobsChatPage() {
         }
 
         const next = Math.max(0, value - 1);
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem(JOBS_CHAT_STORAGE_KEY, String(next));
-        }
+        setStoredRemaining(next);
         return next;
       });
     } catch {
@@ -203,6 +213,18 @@ export default function JobsChatPage() {
     } finally {
       setIsSending(false);
     }
+  };
+
+  const handleInputKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      void submitMessage();
+    }
+  };
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    void submitMessage();
   };
 
   return (
@@ -225,9 +247,7 @@ export default function JobsChatPage() {
           <section className="jobs-chat-panel" aria-label="虚拟乔布斯对话区域">
             <div className="jobs-chat-panel__topline">
               <div className="jobs-chat-panel__status-group">
-                <div className="jobs-chat-panel__status-line">
-                  {isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`}
-                </div>
+                <div className="jobs-chat-panel__status-line">{quotaText}</div>
                 <div className={`jobs-chat-panel__status-line jobs-chat-panel__status-line--mode ${isApiHealthy === null ? 'is-pending' : isApiHealthy ? 'is-healthy' : 'is-unhealthy'}`}>
                   在线模式：{apiStatusText}
                   <span className="jobs-chat-panel__mode-dot" aria-hidden="true" />
@@ -244,14 +264,12 @@ export default function JobsChatPage() {
                   <span className="jobs-chat-message__role">
                     {message.role === 'assistant' ? '虚拟乔布斯' : '你'}
                   </span>
-                  <p className="jobs-chat-message__text">
-                    {message.role === 'assistant' ? normalizeAssistantReply(message.content) : message.content}
-                  </p>
+                  <p className="jobs-chat-message__text">{message.content}</p>
                 </article>
               ))}
             </div>
 
-            <form className="jobs-chat-form" onSubmit={sendMessage}>
+            <form className="jobs-chat-form" onSubmit={handleSubmit}>
               <label className="jobs-chat-form__label" htmlFor="jobs-chat-input">
                 把你当前最想了解的问题，用一句话说清楚
               </label>
