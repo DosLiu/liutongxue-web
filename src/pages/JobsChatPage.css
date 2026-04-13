@@ -104,17 +104,19 @@
 
 .jobs-chat-panel__mode,
 .jobs-chat-panel__quota {
+  width: 100%;
   margin: 0;
   font-family: inherit;
   font-size: 0.8rem;
   font-weight: 500;
   line-height: 1.34;
   letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-align: right;
 }
 
 .jobs-chat-panel__quota {
   color: rgba(255, 255, 255, 0.56);
-  white-space: nowrap;
 }
 
 .jobs-chat-panel__mode {
@@ -122,20 +124,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.14rem;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.jobs-chat-panel__mode-label {
-  color: rgba(255, 255, 255, 0.72);
-  font: inherit;
-}
-
-.jobs-chat-panel__mode-value {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.18rem;
-  font: inherit;
+  gap: 0.16rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .jobs-chat-panel__mode-dot {

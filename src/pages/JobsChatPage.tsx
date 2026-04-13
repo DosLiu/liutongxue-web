@@ -227,11 +227,8 @@ export default function JobsChatPage() {
               <div className="jobs-chat-panel__status-group">
                 <span className="jobs-chat-panel__quota">{isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`}</span>
                 <p className={`jobs-chat-panel__mode ${isApiHealthy === null ? 'is-pending' : isApiHealthy ? 'is-healthy' : 'is-unhealthy'}`}>
-                  <span className="jobs-chat-panel__mode-label">在线模式：</span>
-                  <span className="jobs-chat-panel__mode-value">
-                    {apiStatusText}
-                    <span className="jobs-chat-panel__mode-dot" aria-hidden="true" />
-                  </span>
+                  在线模式：{apiStatusText}
+                  <span className="jobs-chat-panel__mode-dot" aria-hidden="true" />
                 </p>
               </div>
             </div>
