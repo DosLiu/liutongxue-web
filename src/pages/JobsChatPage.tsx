@@ -225,11 +225,13 @@ export default function JobsChatPage() {
           <section className="jobs-chat-panel" aria-label="虚拟乔布斯对话区域">
             <div className="jobs-chat-panel__topline">
               <div className="jobs-chat-panel__status-group">
-                <span className="jobs-chat-panel__quota">{isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`}</span>
-                <p className={`jobs-chat-panel__mode ${isApiHealthy === null ? 'is-pending' : isApiHealthy ? 'is-healthy' : 'is-unhealthy'}`}>
+                <div className="jobs-chat-panel__status-line">
+                  {isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`}
+                </div>
+                <div className={`jobs-chat-panel__status-line jobs-chat-panel__status-line--mode ${isApiHealthy === null ? 'is-pending' : isApiHealthy ? 'is-healthy' : 'is-unhealthy'}`}>
                   在线模式：{apiStatusText}
                   <span className="jobs-chat-panel__mode-dot" aria-hidden="true" />
-                </p>
+                </div>
               </div>
             </div>
 

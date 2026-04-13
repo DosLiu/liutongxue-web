@@ -91,21 +91,22 @@
 }
 
 .jobs-chat-panel__status-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  display: grid;
+  justify-items: end;
   gap: 0.08rem;
-  width: fit-content;
+  width: max-content;
   max-width: 100%;
   margin-left: auto;
   padding: 0;
-  text-align: right;
 }
 
-.jobs-chat-panel__mode,
-.jobs-chat-panel__quota {
-  width: 100%;
+.jobs-chat-panel__status-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.16rem;
   margin: 0;
+  color: rgba(255, 255, 255, 0.56);
   font-family: inherit;
   font-size: 0.8rem;
   font-weight: 500;
@@ -115,17 +116,9 @@
   text-align: right;
 }
 
-.jobs-chat-panel__quota {
-  color: rgba(255, 255, 255, 0.56);
-}
-
-.jobs-chat-panel__mode {
+.jobs-chat-panel__status-line--mode {
   --status-color: #62d882;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.16rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.56);
 }
 
 .jobs-chat-panel__mode-dot {
@@ -137,15 +130,15 @@
   flex: none;
 }
 
-.jobs-chat-panel__mode.is-healthy {
+.jobs-chat-panel__status-line--mode.is-healthy {
   --status-color: #62d882;
 }
 
-.jobs-chat-panel__mode.is-unhealthy {
+.jobs-chat-panel__status-line--mode.is-unhealthy {
   --status-color: #ff6b6b;
 }
 
-.jobs-chat-panel__mode.is-pending {
+.jobs-chat-panel__status-line--mode.is-pending {
   --status-color: #f2c14e;
 }
 
