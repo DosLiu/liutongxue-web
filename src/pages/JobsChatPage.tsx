@@ -82,6 +82,7 @@ export default function JobsChatPage() {
   const [isSending, setIsSending] = useState(false);
   const [isApiHealthy, setIsApiHealthy] = useState<boolean | null>(null);
   const [error, setError] = useState('');
+  const apiStatusText = isApiHealthy === null ? '检测中' : isApiHealthy ? '正常' : '异常';
 
   useEffect(() => {
     const apiUrl = getJobsChatApiUrl();
@@ -225,9 +226,12 @@ export default function JobsChatPage() {
             <div className="jobs-chat-panel__topline">
               <div className="jobs-chat-panel__status-group">
                 <span className="jobs-chat-panel__quota">{isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${JOBS_CHAT_FREE_LIMIT}`}</span>
-                <p className={`jobs-chat-panel__mode ${isApiHealthy ? 'is-healthy' : 'is-unhealthy'}`}>
-                  在线模式
-                  <span className="jobs-chat-panel__mode-dot" aria-hidden="true" />
+                <p className={`jobs-chat-panel__mode ${isApiHealthy === null ? 'is-pending' : isApiHealthy ? 'is-healthy' : 'is-unhealthy'}`}>
+                  <span className="jobs-chat-panel__mode-label">在线模式：</span>
+                  <span className="jobs-chat-panel__mode-value">
+                    {apiStatusText}
+                    <span className="jobs-chat-panel__mode-dot" aria-hidden="true" />
+                  </span>
                 </p>
               </div>
             </div>

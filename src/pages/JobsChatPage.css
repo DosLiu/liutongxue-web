@@ -94,9 +94,9 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0;
+  gap: 0.02rem;
   min-width: 12.8rem;
-  padding: 0.28rem 0;
+  padding: 0.06rem 0;
   border-radius: 1rem;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
 }
@@ -105,7 +105,7 @@
 .jobs-chat-panel__quota {
   margin: 0;
   font-size: 0.84rem;
-  line-height: 1.6;
+  line-height: 1.32;
 }
 
 .jobs-chat-panel__quota {
@@ -119,20 +119,30 @@
   --status-color: #62d882;
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.65rem;
-  margin-top: 0.16rem;
+  justify-content: flex-start;
+  gap: 0.16rem;
+  margin-top: 0.02rem;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
   letter-spacing: 0.01em;
 }
 
+.jobs-chat-panel__mode-label {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.jobs-chat-panel__mode-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+}
+
 .jobs-chat-panel__mode-dot {
-  width: 0.52rem;
-  height: 0.52rem;
+  width: 0.44rem;
+  height: 0.44rem;
   border-radius: 999px;
   background: var(--status-color);
-  box-shadow: 0 0 12px var(--status-color);
+  box-shadow: 0 0 10px var(--status-color);
   flex: none;
 }
 
@@ -142,6 +152,10 @@
 
 .jobs-chat-panel__mode.is-unhealthy {
   --status-color: #ff6b6b;
+}
+
+.jobs-chat-panel__mode.is-pending {
+  --status-color: #f2c14e;
 }
 
 .jobs-chat-messages {
