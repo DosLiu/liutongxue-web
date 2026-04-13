@@ -275,7 +275,7 @@ export default function JobsChatPage() {
                 </button>
               </div>
 
-              <p className="jobs-chat-form__note">本 Demo 不保存聊天记录，关闭或刷新页面后，对话将自动清空。</p>
+              <p className="jobs-chat-form__note">本AI不保存聊天记录，关闭或刷新页面后，对话将自动清空</p>
               {error ? <p className="jobs-chat-form__error">{error}</p> : null}
             </form>
           </section>

@@ -1,5 +1,5 @@
 export const JOBS_CHAT_TITLE = '乔布斯';
-export const JOBS_CHAT_DESCRIPTION = '一个轻量化具身AI乔布斯。不保存聊天记录，每台设备可免费发送 5 条消息。';
+export const JOBS_CHAT_DESCRIPTION = '一个轻量化具身AI乔布斯 不保存聊天记录，每台设备可免费发送 5 条消息';
 export const JOBS_CHAT_STORAGE_KEY = 'liutongxue-jobs-chat-remaining';
 export const JOBS_CHAT_FREE_LIMIT = 5;
 
