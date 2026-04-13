@@ -95,9 +95,10 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0.12rem;
-  min-width: 13.2rem;
-  padding: 0.58rem 0.85rem 0.52rem;
-  border-radius: 1.15rem;
+  width: min(100%, 21rem);
+  margin-left: auto;
+  padding: 0.68rem 1rem 0.62rem;
+  border-radius: 1.35rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%),
     rgba(10, 6, 21, 0.72);
@@ -109,16 +110,16 @@
 .jobs-chat-panel__mode,
 .jobs-chat-panel__quota {
   margin: 0;
-  font-size: 0.84rem;
-  line-height: 1.32;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.38;
+  letter-spacing: 0.01em;
 }
 
 .jobs-chat-panel__quota {
-  color: rgba(255, 255, 255, 0.48);
+  color: rgba(255, 255, 255, 0.5);
   white-space: nowrap;
-  font-size: 0.74rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
 }
 
 .jobs-chat-panel__mode {
