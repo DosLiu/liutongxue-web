@@ -22,6 +22,7 @@ export default defineConfig({
         sceneDigitalResident20260326: resolve(__dirname, 'scene/digital-resident/2026-03-26/index.html'),
         sceneDigitalResident20260327: resolve(__dirname, 'scene/digital-resident/2026-03-27/index.html'),
         sceneBlogOps: resolve(__dirname, 'scene/blog-ops/index.html'),
+        sceneBlogOps20260313: resolve(__dirname, 'scene/blog-ops/2026-03-13/index.html'),
         sceneSiteOps: resolve(__dirname, 'scene/site-ops/index.html')
       }
     }
