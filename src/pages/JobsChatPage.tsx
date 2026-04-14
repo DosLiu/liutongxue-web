@@ -375,13 +375,6 @@ export default function JobsChatPage() {
             </div>
 
             <div className="jobs-chat-messages" aria-live="polite" aria-busy={isSending}>
-              {messages.length === 0 ? (
-                <div className="jobs-chat-empty" role="note">
-                  <p className="jobs-chat-empty__headline">还没开始对话。</p>
-                  <p className="jobs-chat-empty__text">先丢一个你现在最想搞清楚的问题。Enter 发送，Shift+Enter 换行。</p>
-                </div>
-              ) : null}
-
               {messages.map((message) => (
                 <article key={message.id} className={`jobs-chat-message jobs-chat-message--${message.role}`}>
                   <span className="jobs-chat-message__role">{message.role === 'assistant' ? '虚拟乔布斯' : '你'}</span>
