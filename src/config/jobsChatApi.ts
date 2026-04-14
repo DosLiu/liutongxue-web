@@ -5,13 +5,20 @@ const isLocalHost = (hostname: string) =>
 
 const getExplicitApiBaseUrl = () => {
   const configured = import.meta.env.VITE_JOBS_CHAT_API_BASE_URL?.trim();
-  return configured ? trimTrailingSlash(configured) : '';
+
+  if (!configured) {
+    return '';
+  }
+
+  return configured === '/' ? '' : trimTrailingSlash(configured);
 };
 
 export const getJobsChatApiUrl = () => {
   const explicitApiBaseUrl = getExplicitApiBaseUrl();
-  if (explicitApiBaseUrl) {
-    return `${explicitApiBaseUrl}/api/chat`;
+  const hasExplicitConfig = typeof import.meta.env.VITE_JOBS_CHAT_API_BASE_URL === 'string' && import.meta.env.VITE_JOBS_CHAT_API_BASE_URL.trim().length > 0;
+
+  if (hasExplicitConfig) {
+    return explicitApiBaseUrl ? `${explicitApiBaseUrl}/api/chat` : '/api/chat';
   }
 
   if (typeof window === 'undefined') {
@@ -26,4 +33,3 @@ export const getJobsChatApiUrl = () => {
 
   return null;
 };
-

@@ -88,6 +88,9 @@ type RequestBody = {
   messages?: IncomingMessage[];
 };
 
+type ResponseMode = 'api' | 'mock';
+type ResponseStatus = 'api' | 'mock' | 'offline';
+
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://dosliu.github.io',
   'http://localhost:5173',
@@ -97,6 +100,16 @@ const DEFAULT_ALLOWED_ORIGINS = [
 const env = ((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {});
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
+
+const normalizeText = (value: unknown) =>
+  typeof value === 'string'
+    ? value
+        .replace(/\r\n?/g, '\n')
+        .replace(/\u00A0/g, ' ')
+        .replace(/[\t ]+\n/g, '\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+    : '';
 
 const parseAllowedOrigins = () => {
   const configured = env.ALLOWED_ORIGINS
@@ -127,16 +140,92 @@ const applyCors = (req: any, res: any) => {
     : DEFAULT_ALLOWED_ORIGINS[0];
 
   res.setHeader('Access-Control-Allow-Origin', allowOrigin);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Vary', 'Origin');
 };
 
-const mockResponse = (message: string, reason = '接口未配置模型 key，返回演示回复。') => ({
-  reply: buildMockReply(message),
-  mode: 'mock',
-  reason
+const buildResponse = ({
+  reply,
+  mode,
+  status,
+  reason,
+  shouldConsume
+}: {
+  reply: string;
+  mode: ResponseMode;
+  status: ResponseStatus;
+  reason: string;
+  shouldConsume: boolean;
+}) => ({
+  reply,
+  mode,
+  status,
+  reason,
+  shouldConsume
 });
+
+const mockResponse = (message: string, reason: string, status: ResponseStatus = 'mock') =>
+  buildResponse({
+    reply: buildMockReply(message),
+    mode: 'mock',
+    status,
+    reason,
+    shouldConsume: false
+  });
+
+const parseRequestBody = (body: unknown): RequestBody => {
+  if (typeof body === 'string') {
+    try {
+      return JSON.parse(body) as RequestBody;
+    } catch {
+      return {};
+    }
+  }
+
+  if (body && typeof body === 'object') {
+    return body as RequestBody;
+  }
+
+  return {};
+};
+
+const sanitizeMessages = (messages: unknown) => {
+  if (!Array.isArray(messages)) {
+    return [] as IncomingMessage[];
+  }
+
+  return messages
+    .filter((message): message is IncomingMessage => {
+      if (!message || typeof message !== 'object') return false;
+      const role = (message as IncomingMessage).role;
+      return role === 'user' || role === 'assistant';
+    })
+    .map((message) => ({
+      role: message.role,
+      content: normalizeText(message.content).slice(0, 2000)
+    }))
+    .filter((message) => message.content)
+    .slice(-12);
+};
+
+const getHealthPayload = () => {
+  const apiKey = env.OPENAI_API_KEY;
+
+  return apiKey
+    ? {
+        status: 'api' as const,
+        mode: 'api' as const,
+        reason: '当前已接入真实模型。',
+        shouldConsume: true
+      }
+    : {
+        status: 'mock' as const,
+        mode: 'mock' as const,
+        reason: '当前未配置模型 key，会自动回退到演示模式。',
+        shouldConsume: false
+      };
+};
 
 export default async function handler(req: any, res: any) {
   applyCors(req, res);
@@ -146,15 +235,20 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
+  if (req.method === 'GET') {
+    res.status(200).json(getHealthPayload());
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
 
-  const body = (req.body || {}) as RequestBody;
-  const messages = Array.isArray(body.messages) ? body.messages : [];
+  const body = parseRequestBody(req.body);
+  const messages = sanitizeMessages(body.messages);
   const latestUserMessage = [...messages].reverse().find((item) => item.role === 'user');
-  const content = latestUserMessage?.content?.trim() || '';
+  const content = latestUserMessage?.content || '';
 
   if (!content) {
     res.status(400).json({ error: 'Message content is required.' });
@@ -166,15 +260,9 @@ export default async function handler(req: any, res: any) {
   const baseUrl = trimTrailingSlash(env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
 
   if (!apiKey) {
-    res.status(200).json(mockResponse(content));
+    res.status(200).json(mockResponse(content, '当前未配置模型 key，已自动切到演示模式。'));
     return;
   }
-
-  const requestMessages = messages
-    .filter((message) => message.role === 'user' || message.role === 'assistant')
-    .map((message) => ({ role: message.role, content: message.content.trim() }))
-    .filter((message) => message.content)
-    .slice(-12);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000);
@@ -189,10 +277,7 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify({
         model,
         temperature: 0.1,
-        messages: [
-          { role: 'system', content: JOBS_SYSTEM_PROMPT },
-          ...requestMessages
-        ]
+        messages: [{ role: 'system', content: JOBS_SYSTEM_PROMPT }, ...messages]
       }),
       signal: controller.signal
     });
@@ -202,24 +287,33 @@ export default async function handler(req: any, res: any) {
       res.status(200).json(
         mockResponse(
           content,
-          `模型接口返回异常，已自动回退到演示回复。${errorText ? `（${errorText.slice(0, 120)}）` : ''}`
+          `模型接口返回异常，已自动切到演示模式。${errorText ? `（${errorText.slice(0, 120)}）` : ''}`
         )
       );
       return;
     }
 
     const data = await response.json();
-    const reply = data?.choices?.[0]?.message?.content?.trim();
+    const reply = normalizeText(data?.choices?.[0]?.message?.content);
 
-    res.status(200).json({
-      reply: reply || buildMockReply(content),
-      mode: 'api',
-      reason: '当前回复已通过真实模型返回。'
-    });
+    if (!reply) {
+      res.status(200).json(mockResponse(content, '模型接口返回了空内容，已自动切到演示模式。'));
+      return;
+    }
+
+    res.status(200).json(
+      buildResponse({
+        reply,
+        mode: 'api',
+        status: 'api',
+        reason: '当前回复来自真实模型。',
+        shouldConsume: true
+      })
+    );
   } catch (error: any) {
     const isTimeout = error?.name === 'AbortError';
     res.status(200).json(
-      mockResponse(content, isTimeout ? '模型接口响应超时，已自动回退到演示回复。' : '当前环境未连上模型 API，已自动回退到演示回复。')
+      mockResponse(content, isTimeout ? '模型接口响应超时，已自动切到演示模式。' : '当前环境未连上模型 API，已自动切到演示模式。')
     );
   } finally {
     clearTimeout(timeoutId);
