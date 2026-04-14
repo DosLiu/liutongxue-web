@@ -31,21 +31,19 @@ export default function SceneLogDetailPage({ logDate, logTitle, paragraphs, imag
             </h1>
           </section>
 
-          {imageSrc || imageCaption ? (
-            <section className="scene-log-detail__media" aria-label="日志配图预留区">
-              {imageSrc ? (
-                <>
-                  <img src={imageSrc} alt={imageAlt ?? logTitle} className="scene-log-detail__image" />
-                  {imageCaption ? <p className="scene-log-detail__image-caption">{imageCaption}</p> : null}
-                </>
-              ) : (
-                <div className="scene-log-detail__image-placeholder">
-                  <span className="scene-log-detail__image-placeholder-tag">图片预留区</span>
-                  <p className="scene-log-detail__image-placeholder-text">{imageCaption ?? '这里后续可插入截图，让读者不用一上来只看长文字。'}</p>
-                </div>
-              )}
-            </section>
-          ) : null}
+          <section className="scene-log-detail__media" aria-label="日志配图预留区">
+            {imageSrc ? (
+              <>
+                <img src={imageSrc} alt={imageAlt ?? logTitle} className="scene-log-detail__image" />
+                {imageCaption ? <p className="scene-log-detail__image-caption">{imageCaption}</p> : null}
+              </>
+            ) : (
+              <div className="scene-log-detail__image-placeholder">
+                <span className="scene-log-detail__image-placeholder-tag">图片预留区</span>
+                <p className="scene-log-detail__image-placeholder-text">{imageCaption ?? '这里后续可插入截图，让读者不用一上来只看长文字。'}</p>
+              </div>
+            )}
+          </section>
 
           <article className="scene-log-detail__panel">
             <div className="scene-log-detail__body">
