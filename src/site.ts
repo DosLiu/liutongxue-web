@@ -11,7 +11,8 @@ export const sitePaths = {
     siteOps: `${baseUrl}scene/site-ops/`
   },
   sceneLogDetails: {
-    digitalResidentFirst: `${baseUrl}scene/digital-resident/2026-03-21/`
+    digitalResidentFirst: `${baseUrl}scene/digital-resident/2026-03-21/`,
+    digitalResidentSecond: `${baseUrl}scene/digital-resident/2026-03-22/`
   },
   contact: 'mailto:hello@liutongxue.com'
 } as const;
