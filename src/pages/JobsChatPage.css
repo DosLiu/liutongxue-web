@@ -144,6 +144,10 @@
   --status-color: #f2c14e;
 }
 
+.jobs-chat-panel__status-line--mode.is-preview {
+  --status-color: #7dc9ff;
+}
+
 .jobs-chat-messages {
   display: grid;
   gap: 0.9rem;

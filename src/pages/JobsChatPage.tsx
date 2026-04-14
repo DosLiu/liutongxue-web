@@ -7,11 +7,11 @@ import {
   JOBS_CHAT_STORAGE_KEY,
   JOBS_CHAT_TITLE
 } from '../config/jobsPersona';
-import { getJobsChatApiUrl } from '../config/jobsChatApi';
+import { getJobsChatApiUrl, getJobsChatSurface } from '../config/jobsChatApi';
 import './JobsChatPage.css';
 
 type ChatRole = 'assistant' | 'user';
-type ChatServiceStatus = 'checking' | 'api' | 'mock' | 'offline';
+type ChatServiceStatus = 'checking' | 'api' | 'mock' | 'offline' | 'preview';
 
 type ChatMessage = {
   id: string;
@@ -121,6 +121,8 @@ const getStatusMeta = (status: ChatServiceStatus) => {
       return { label: '演示模式', toneClassName: 'is-pending' };
     case 'offline':
       return { label: '未连接', toneClassName: 'is-unhealthy' };
+    case 'preview':
+      return { label: '静态预览', toneClassName: 'is-preview' };
     default:
       return { label: '检测中', toneClassName: 'is-pending' };
   }
@@ -157,6 +159,8 @@ export default function JobsChatPage() {
   const [serviceStatus, setServiceStatus] = useState<ChatServiceStatus>('checking');
   const [error, setError] = useState('');
   const [statusNotice, setStatusNotice] = useState('');
+  const surface = getJobsChatSurface();
+  const isStaticPreview = surface === 'static-preview';
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const normalizedInput = useMemo(() => normalizeUserInput(input), [input]);
@@ -180,7 +184,7 @@ export default function JobsChatPage() {
     const apiUrl = getJobsChatApiUrl();
 
     if (!apiUrl) {
-      setServiceStatus('offline');
+      setServiceStatus(isStaticPreview ? 'preview' : 'offline');
       return;
     }
 
@@ -227,7 +231,7 @@ export default function JobsChatPage() {
       controller.abort();
       window.clearTimeout(timeoutId);
     };
-  }, []);
+  }, [isStaticPreview]);
 
   const handleClear = () => {
     setMessages([]);
@@ -265,8 +269,12 @@ export default function JobsChatPage() {
     setIsSending(true);
 
     let replyText = normalizeAssistantReply(buildMockReply(content));
-    let nextStatus: Exclude<ChatServiceStatus, 'checking'> = apiUrl ? 'mock' : 'offline';
-    let nextNotice = apiUrl ? '当前返回的是演示回复，不会扣减体验次数。' : '当前未连接服务，先给你演示回复，不会扣减体验次数。';
+    let nextStatus: Exclude<ChatServiceStatus, 'checking'> = apiUrl ? 'mock' : isStaticPreview ? 'preview' : 'offline';
+    let nextNotice = apiUrl
+      ? '当前返回的是演示回复，不会扣减体验次数。'
+      : isStaticPreview
+        ? '当前是静态预览，最新功能与正式结果以 Vercel 为准，不会扣减体验次数。'
+        : '当前未连接服务，先给你演示回复，不会扣减体验次数。';
     let shouldConsume = false;
 
     if (apiUrl) {

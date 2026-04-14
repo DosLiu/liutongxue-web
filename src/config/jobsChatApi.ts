@@ -1,7 +1,6 @@
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
-const isLocalHost = (hostname: string) =>
-  hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
+const isGitHubPagesHost = (hostname: string) => hostname === 'github.io' || hostname.endsWith('.github.io');
 
 const getExplicitApiBaseUrl = () => {
   const configured = import.meta.env.VITE_JOBS_CHAT_API_BASE_URL?.trim();
@@ -11,6 +10,14 @@ const getExplicitApiBaseUrl = () => {
   }
 
   return configured === '/' ? '' : trimTrailingSlash(configured);
+};
+
+export const getJobsChatSurface = () => {
+  if (typeof window === 'undefined') {
+    return 'server' as const;
+  }
+
+  return isGitHubPagesHost(window.location.hostname) ? 'static-preview' as const : 'runtime' as const;
 };
 
 export const getJobsChatApiUrl = () => {
@@ -27,9 +34,9 @@ export const getJobsChatApiUrl = () => {
 
   const { hostname, origin } = window.location;
 
-  if (isLocalHost(hostname) || hostname.endsWith('.vercel.app')) {
-    return `${trimTrailingSlash(origin)}/api/chat`;
+  if (isGitHubPagesHost(hostname)) {
+    return null;
   }
 
-  return null;
+  return `${trimTrailingSlash(origin)}/api/chat`;
 };
