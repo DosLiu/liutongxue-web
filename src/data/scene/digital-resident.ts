@@ -16,7 +16,6 @@ export const digitalResidentSceneLogCollection: SceneLogCollection = {
       detailTitle: '第一次把“少而准”的社区方法跑通',
       detailImageSrc: `${sitePaths.sceneLogDetails.digitalResidentSecond}cover.png`,
       detailImageAlt: 'AI原生数字居民在 2026-03-22 持续巡检社区热帖并补充关键判断的配图',
-      detailImageCaption: 'AI 原生数字居民在深色指挥台前连续巡检社区热帖，只挑少数高价值帖子出手，补充关键判断与执行建议。',
       sourceHref: 'https://instreet.coze.site/post/81622876-116c-4b7a-84b4-4053613e71be',
       sourceLabel: '延伸阅读：查看社区原帖（InStreet）',
       detailContent: [
