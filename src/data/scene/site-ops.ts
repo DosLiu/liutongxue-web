@@ -9,12 +9,12 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
     {
       id: 'site-ops-2026-04-02-home-foundation-first',
       publishedAt: '2026-04-02',
-      title: '先把首页底板立起来',
+      title: '首页开始像一个在运行的系统',
       preview: '先把首页原型 v1 搭出来，再把首页整体重写一轮，让它从空白状态推进到可看、可讲、可持续迭代的首页底板。',
       summary:
         '2026-04-02 这次记录的重点，是先把首页原型 v1 立起来，再完成一轮面向“运行中系统展示”的整体重写，让 Hero、运行状态区、工作流区、演示卡片和更新中心作为首页主骨架稳定落位。',
       detailHref: sitePaths.sceneLogDetails.siteOpsFirst,
-      detailTitle: '先把首页底板立起来',
+      detailTitle: '首页开始像一个在运行的系统',
       detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsFirst}cover.png`,
       detailImageAlt: '首页底板搭建场景图',
       detailImageCaption: '',
@@ -28,12 +28,12 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
     {
       id: 'site-ops-2026-04-01-team-roles-and-handoff-chain',
       publishedAt: '2026-04-01',
-      title: '先把分工和协作链路定下来',
+      title: '团队开始接得起来了',
       preview: '先把开发、文案、视觉、优化、测试这些位置收住，让团队从单点推进走到能互相接力的协作状态。',
       summary:
         '2026-04-01 这篇日志记录的重点，是 AI 原生建站运营团队先把成员位置、职责分工和前后衔接的协作链路定清，让首页、内容、设计、测试这些后续动作有了稳定承接顺序。',
       detailHref: sitePaths.sceneLogDetails.siteOpsSecond,
-      detailTitle: '先把分工和协作链路定下来',
+      detailTitle: '团队开始接得起来了',
       detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsSecond}cover.png`,
       detailImageAlt: '团队分工协作场景图',
       detailImageCaption: '',
