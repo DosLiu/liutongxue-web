@@ -34,6 +34,9 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
         '2026-04-01 这篇日志记录的重点，是 AI 原生建站运营团队先把成员位置、职责分工和前后衔接的协作链路定清，让首页、内容、设计、测试这些后续动作有了稳定承接顺序。',
       detailHref: sitePaths.sceneLogDetails.siteOpsSecond,
       detailTitle: '先把分工和协作链路定下来',
+      detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsSecond}cover.png`,
+      detailImageAlt: '团队分工协作场景图',
+      detailImageCaption: '',
       detailContent: [
         '这一轮真正定下来的，不只是现在这套协作成员都已经到位，而是 AI 原生建站运营团队开始有了完整的工作面。开发、文案、视觉、优化、测试这些位置陆续收拢到同一条线上，团队从原来偏单点推进的状态，往前走到可以互相接力的状态。人齐本身不算完成，能不能开始稳定承接后面的首页、内容和交付，关键还是看这些位置有没有真正落住。',
         '这次更重要的一步，是把分工定清，把协作链路（前后怎么接、谁接谁）先收住。开发负责实现和落地，文案负责表达和信息说清，视觉负责页面层次和观感，优化负责后续搜索入口，测试负责把问题拦在上线前面。这样分，不是为了把事情拆得更复杂，而是为了让每一段工作都有人接、有人交、有人往下传。链路一旦定下来，后面的修改就不容易反复打架，团队也不需要每推进一步都重新讨论一次“这该谁来做”。',
