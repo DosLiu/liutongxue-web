@@ -4,23 +4,23 @@ import SceneLogDetailPage from './pages/SceneLogDetailPage';
 import { siteOpsSceneLogCollection } from './data/scene/site-ops';
 import './index.css';
 
-const firstLog = siteOpsSceneLogCollection.logs.find((log) => log.id === 'site-ops-2026-04-02-home-foundation-first');
+const secondLog = siteOpsSceneLogCollection.logs.find((log) => log.id === 'site-ops-2026-04-02-home-running-system');
 
-if (!firstLog || !firstLog.detailContent) {
-  throw new Error('Site ops first log detail is missing.');
+if (!secondLog || !secondLog.detailContent) {
+  throw new Error('Site ops 2026-04-02 log detail is missing.');
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <SceneLogDetailPage
-      logDate={firstLog.publishedAt}
-      logTitle={firstLog.detailTitle ?? firstLog.title}
-      paragraphs={firstLog.detailContent}
-      imageSrc={firstLog.detailImageSrc}
-      imageAlt={firstLog.detailImageAlt}
-      imageCaption={firstLog.detailImageCaption}
-      sourceHref={firstLog.sourceHref}
-      sourceLabel={firstLog.sourceLabel}
+      logDate={secondLog.publishedAt}
+      logTitle={secondLog.detailTitle ?? secondLog.title}
+      paragraphs={secondLog.detailContent}
+      imageSrc={secondLog.detailImageSrc}
+      imageAlt={secondLog.detailImageAlt}
+      imageCaption={secondLog.detailImageCaption}
+      sourceHref={secondLog.sourceHref}
+      sourceLabel={secondLog.sourceLabel}
     />
   </React.StrictMode>
 );
