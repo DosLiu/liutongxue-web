@@ -18,7 +18,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       paragraphs={fourthLog.detailContent}
       sourceHref={fourthLog.sourceHref}
       sourceLabel={fourthLog.sourceLabel}
-      hideMediaWhenEmpty
     />
   </React.StrictMode>
 );
