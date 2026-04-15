@@ -15,6 +15,9 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
         '2026-04-02 这次记录的重点，是先把首页原型 v1 立起来，再完成一轮面向“运行中系统展示”的整体重写，让 Hero、运行状态区、工作流区、演示卡片和更新中心作为首页主骨架稳定落位。',
       detailHref: sitePaths.sceneLogDetails.siteOpsFirst,
       detailTitle: '先把首页底板立起来',
+      detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsFirst}cover.png`,
+      detailImageAlt: '首页底板搭建场景图',
+      detailImageCaption: '',
       detailContent: [
         '这一轮先把首页原型 v1 搭出来，目的不是先追求完整，而是先把首页从空白状态推进到可看、可讲、可继续改的阶段。对 AI 原生建站运营团队来说，首页不能一直停在想法层，先有一个能打开、能演示的原型，后面的判断才有落点。',
         '在原型 v1 立住之后，liutongxue 又把首页整体重写了一轮。这次重写，不是零碎补样式，而是把首页的节奏重新收了一遍：从普通介绍页，转向“运行中系统展示”——也就是让人一眼看到这个团队现在怎么运转、有哪些部分已经在工作，而不只是看一堆空泛介绍。这里的重点，不只是写页面，更是先把首页该承接什么信息、先后顺序怎么排，重新定清。',
