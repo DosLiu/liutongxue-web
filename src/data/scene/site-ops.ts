@@ -15,6 +15,9 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
         '2026-04-03 这次记录的重点，是按“从零重开”的方式把首页重新往前推，先收住方向、稳住首屏重心，再用更稳的 CSS 氛围背景换回一个能正常打开的主预览基线。',
       detailHref: sitePaths.sceneLogDetails.siteOpsThird,
       detailTitle: '首页重新有了一个能继续往前推的起点',
+      detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsThird}cover.png`,
+      detailImageAlt: '首页主屏预览图',
+      detailImageCaption: '',
       detailContent: [
         '这一轮没有沿着旧版本继续修，而是先把旧预览和旧站内容清掉，按“从零重开”的方式把首页重新往前推。liutongxue 先把方向收住：这一步不急着追求更满、更像，而是先让首页重新回到一个能接着做事的起点上。对 AI原生建站运营团队来说，这比在旧问题上来回补洞更重要。',
         '在这个前提下，首页先落了一版 composio 首屏 v1，接着又连续两次把左右两侧的氛围扫光往里收。调整的重点不是做更多东西，而是把主画面的重心重新稳住，让人一打开就能看清首页到底想先呈现什么。liutongxue 在这里更像是在带节奏和收边界，先把该留下的画面留下，把容易分散注意力的部分往后退。',
