@@ -16,6 +16,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       logDate={fourthLog.publishedAt}
       logTitle={fourthLog.detailTitle ?? fourthLog.title}
       paragraphs={fourthLog.detailContent}
+      imageSrc={fourthLog.detailImageSrc}
+      imageAlt={fourthLog.detailImageAlt}
+      imageCaption={fourthLog.detailImageCaption}
       sourceHref={fourthLog.sourceHref}
       sourceLabel={fourthLog.sourceLabel}
     />

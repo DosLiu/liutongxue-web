@@ -70,6 +70,9 @@ export const blogOpsSceneLogCollection: SceneLogCollection = {
         '2026-04-01 这次记录的重点，是给 boke 补上更稳的回忆能力，并重新划清长期记忆与当天记录的边界，让真正需要持续沿用的规则和事实留在该留的位置。',
       detailHref: sitePaths.sceneLogDetails.blogOpsFourth,
       detailTitle: '先把该记住的东西分清',
+      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsFourth}cover.png`,
+      detailImageAlt: '记忆分层协作场景图',
+      detailImageCaption: '',
       detailContent: [
         '这一步主要做了两件事：给 boke 补上更稳的回忆能力，同时把“什么该长期记住，什么只算当天记录”重新理了一遍。不是单纯多记一点，而是先把记忆的边界收清。',
         '这次整理之后，长期会反复用到的规则，明确放进 `MEMORY.md`；当天发生但不一定长期有效的内容，不再一股脑留下。这样做的目的不是减少记录，而是让真正重要的东西留在该留的位置。',
