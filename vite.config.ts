@@ -23,7 +23,8 @@ export default defineConfig({
         sceneDigitalResident20260327: resolve(__dirname, 'scene/digital-resident/2026-03-27/index.html'),
         sceneBlogOps: resolve(__dirname, 'scene/blog-ops/index.html'),
         sceneBlogOps20260313: resolve(__dirname, 'scene/blog-ops/2026-03-13/index.html'),
-        sceneSiteOps: resolve(__dirname, 'scene/site-ops/index.html')
+        sceneSiteOps: resolve(__dirname, 'scene/site-ops/index.html'),
+        sceneSiteOps20260325: resolve(__dirname, 'scene/site-ops/2026-03-25/index.html')
       }
     }
   }
