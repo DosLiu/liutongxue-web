@@ -15,6 +15,9 @@ export const blogOpsSceneLogCollection: SceneLogCollection = {
         '2026-03-13 这天，先把 boke 在飞书场景里的协调型定位定下来，再把 wenan、kaifa 的协作分工和对外表达里的称呼口径一并敲定，作为博客运营团队后续协作的起点。',
       detailHref: sitePaths.sceneLogDetails.blogOpsFirst,
       detailTitle: '先把分工和位置敲定',
+      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsFirst}cover.png`,
+      detailImageAlt: '博客运营团队分工协同示意图',
+      detailImageCaption: '博客运营协同示意',
       detailContent: [
         '2026-03-13，先把 boke 的初始定位定了下来。今天确认，boke 不是单独往前冲的执行角色，而是一个面向飞书场景的协调型 agent。简单说，它更像一个中间枢纽：负责接住需求、整理方向、推动协作，再把结果往前带，而不是把所有细节都自己做完。',
         '在这个定位下，后续协作关系也一并明确了：由 wenan 和 kaifa 两个子角色配合完成具体工作。wenan 负责内容与表达，kaifa 负责实现与落地，boke 负责把节奏、上下文和协作顺序串起来。这样分下来，每个角色该做什么、不该做什么，边界会更清楚，后面协作时也不容易互相打架。',
