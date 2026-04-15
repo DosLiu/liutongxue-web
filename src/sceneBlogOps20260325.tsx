@@ -21,7 +21,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       imageCaption={secondLog.detailImageCaption}
       sourceHref={secondLog.sourceHref}
       sourceLabel={secondLog.sourceLabel}
-      hideMediaWhenEmpty
     />
   </React.StrictMode>
 );
