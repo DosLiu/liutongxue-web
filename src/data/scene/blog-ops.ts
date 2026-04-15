@@ -52,6 +52,8 @@ export const blogOpsSceneLogCollection: SceneLogCollection = {
         '2026-03-25 这次记录的重点，是在并行事项里把深圳鲲鹏径这条内容线稳稳接住，让十多篇稿子沿着同一条工作流连续成稿，先把持续交付的节奏建立起来。',
       detailHref: sitePaths.sceneLogDetails.blogOpsThird,
       detailTitle: '先把连续成稿稳住',
+      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsThird}cover.png`,
+      detailImageAlt: '连续成稿工作流场景图',
       detailContent: [
         '这段时间在维护 OpenClaw 的同时，深圳鲲鹏径系列这条内容线也没有停下来。不是先放一放、回头再补，而是持续往前推，持续往下接。对博客运营团队来说，能在并行事项里把一条内容线稳住，本身就是很实际的进展。',
         '从第二段一路推到第十三段，十多篇稿子连续成稿。这里面没有靠临时补位，也不是东一篇、西一篇地分散处理，而是在同一条工作流（协作流程）里顺着往前走，一篇接一篇落下来。先把连续性接住，比单篇冒出来更重要。',
