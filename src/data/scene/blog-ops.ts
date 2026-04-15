@@ -33,6 +33,9 @@ export const blogOpsSceneLogCollection: SceneLogCollection = {
         '2026-03-18 这次记录的重点不是直接修好 Notion，而是先把报错来源和运行路径梳理清楚，判断问题更像是当前环境没有传入 NOTION_API_KEY，为后续恢复相关工作流把修复方向先找准。',
       detailHref: sitePaths.sceneLogDetails.blogOpsSecond,
       detailTitle: '先把报错归因找准',
+      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsSecond}cover.png`,
+      detailImageAlt: '报错归因排查场景图',
+      detailImageCaption: '',
       detailContent: [
         '这次没有急着去“修 Notion”，而是先把报错往回捋清。看到内置 notion skill（能力模块）提示“Missing: env:NOTION_API_KEY”之后，先做的不是反复重试，而是回头看 skill 定义、运行环境留下来的痕迹，以及当前 OpenClaw 的状态，先把问题到底出在哪一层看明白。',
         '这一轮排下来，方向很快就收住了：更像是当前运行环境没有传入 `NOTION_API_KEY`（环境变量里的接口密钥），而不是 Notion API（接口）本身失效。这个判断看起来只是把话说准了一点，实际差别很大。原因一旦判错，后面就容易把时间耗在外部接口上；原因判对了，修复动作自然就会回到配置和环境接入这一层。',
