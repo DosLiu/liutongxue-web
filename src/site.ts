@@ -20,7 +20,8 @@ export const sitePaths = {
     blogOpsSecond: `${baseUrl}scene/blog-ops/2026-03-18/`,
     blogOpsThird: `${baseUrl}scene/blog-ops/2026-03-25/`,
     blogOpsFourth: `${baseUrl}scene/blog-ops/2026-04-01/`,
-    siteOpsFirst: `${baseUrl}scene/site-ops/2026-04-02/`
+    siteOpsFirst: `${baseUrl}scene/site-ops/2026-04-02/`,
+    siteOpsSecond: `${baseUrl}scene/site-ops/2026-04-01/`
   },
   contact: 'mailto:hello@liutongxue.com'
 } as const;
