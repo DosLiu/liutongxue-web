@@ -4,23 +4,23 @@ import SceneLogDetailPage from './pages/SceneLogDetailPage';
 import { blogOpsSceneLogCollection } from './data/scene/blog-ops';
 import './index.css';
 
-const secondLog = blogOpsSceneLogCollection.logs.find((log) => log.id === 'blog-ops-2026-03-25-find-the-right-cause-first');
+const thirdLog = blogOpsSceneLogCollection.logs.find((log) => log.id === 'blog-ops-2026-03-25-keep-the-draft-flow-steady');
 
-if (!secondLog || !secondLog.detailContent) {
-  throw new Error('Blog ops second log detail is missing.');
+if (!thirdLog || !thirdLog.detailContent) {
+  throw new Error('Blog ops third log detail is missing.');
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <SceneLogDetailPage
-      logDate={secondLog.publishedAt}
-      logTitle={secondLog.detailTitle ?? secondLog.title}
-      paragraphs={secondLog.detailContent}
-      imageSrc={secondLog.detailImageSrc}
-      imageAlt={secondLog.detailImageAlt}
-      imageCaption={secondLog.detailImageCaption}
-      sourceHref={secondLog.sourceHref}
-      sourceLabel={secondLog.sourceLabel}
+      logDate={thirdLog.publishedAt}
+      logTitle={thirdLog.detailTitle ?? thirdLog.title}
+      paragraphs={thirdLog.detailContent}
+      imageSrc={thirdLog.detailImageSrc}
+      imageAlt={thirdLog.detailImageAlt}
+      imageCaption={thirdLog.detailImageCaption}
+      sourceHref={thirdLog.sourceHref}
+      sourceLabel={thirdLog.sourceLabel}
     />
   </React.StrictMode>
 );
