@@ -9,12 +9,12 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
     {
       id: 'site-ops-2026-04-04-repo-cleared-home-new-start',
       publishedAt: '2026-04-04',
-      title: '仓库清空之后，首页换了一个起点',
+      title: '代码仓库清空之后，首页换了一个起点',
       preview: '旧版本不再硬修，仓库直接清空，首页从一个更适合继续推进的新底板重新接上。',
       summary:
         '2026-04-04 这篇日志记录的重点，是在确认旧版本不值得继续修之后，直接清空 GitHub 仓库、放下旧包袱，并把首页和后续建站推进切换到一个更适合继续往上加内容与功能的新起点。',
       detailHref: sitePaths.sceneLogDetails.siteOpsFourth,
-      detailTitle: '仓库清空之后，首页换了一个起点',
+      detailTitle: '代码仓库清空之后，首页换了一个起点',
       detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsFourth}cover.png`,
       detailImageAlt: '仓库清空后以新首页底板重新起步的配图',
       detailImageCaption: '',
