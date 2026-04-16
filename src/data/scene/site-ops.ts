@@ -15,6 +15,8 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
         '2026-04-04 这篇日志记录的重点，是在确认旧版本不值得继续修之后，直接清空 GitHub 仓库、放下旧包袱，并把首页和后续建站推进切换到一个更适合继续往上加内容与功能的新起点。',
       detailHref: sitePaths.sceneLogDetails.siteOpsFourth,
       detailTitle: '仓库清空之后，首页换了一个起点',
+      detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsFourth}cover.png`,
+      detailImageAlt: '仓库清空后以新首页底板重新起步的配图',
       detailImageCaption: '',
       detailContent: [
         '前一版做到这里，已经判断不值得再继续修了。页面结构、表达方式和后续扩展都不顺，越往后补，成本只会越高。liutongxue 没有让团队继续在旧版本上反复打补丁，而是把话说清楚：旧版本作废，方向重开。',
