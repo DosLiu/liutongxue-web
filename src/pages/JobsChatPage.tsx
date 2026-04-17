@@ -367,7 +367,9 @@ export default function JobsChatPage() {
         <div className="jobs-chat-shell">
           <a href={sitePaths.figures} className="jobs-chat-back-link">
             <span className="jobs-chat-back-link__icon" aria-hidden="true">
-              ←
+              <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.5 2.25L3.75 6L7.5 9.75" />
+              </svg>
             </span>
             <span>返回人物入口</span>
           </a>
