@@ -9,7 +9,7 @@
 
 .figures-shell {
   width: 100%;
-  max-width: var(--page-content-max);
+  max-width: 1200px;
   margin: 0 auto;
   padding: calc(var(--header-height) + clamp(2rem, 5vw, 3.5rem)) var(--page-gutter)
     clamp(4rem, 7vw, 5.5rem);
@@ -34,8 +34,8 @@
 .figures-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(2.4rem, 4vw, 4.2rem);
-  width: min(100%, 74rem);
+  gap: clamp(3.2rem, 5vw, 5.4rem);
+  width: min(100%, 76rem);
   margin: 0 auto;
 }
 
@@ -52,8 +52,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: clamp(11.4rem, 21vw, 14.4rem);
-  height: clamp(11.4rem, 21vw, 14.4rem);
+  width: clamp(12rem, 22vw, 15.1rem);
+  height: clamp(12rem, 22vw, 15.1rem);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(95, 121, 255, 0.05) 100%);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -62,8 +62,8 @@
     0 22px 68px rgba(0, 0, 0, 0.24);
   transform-origin: center bottom;
   will-change: transform;
-  animation: figures-avatar-bounce 2.8s cubic-bezier(0.22, 0.7, 0.18, 1) infinite;
   transition:
+    transform 0.18s ease-out,
     border-color 0.26s ease,
     background 0.26s ease,
     box-shadow 0.26s ease;
@@ -86,34 +86,30 @@
 
 @keyframes figures-avatar-bounce {
   0%,
-  14%,
   100% {
     transform: translateY(0) scale(1);
   }
 
-  28% {
-    transform: translateY(-14px) scale(1.028);
+  24% {
+    transform: translateY(-15px) scale(1.022);
   }
 
-  40% {
+  48% {
     transform: translateY(0) scale(0.992);
   }
 
-  52% {
-    transform: translateY(-7px) scale(1.012);
+  68% {
+    transform: translateY(-7px) scale(1.01);
   }
 
-  64% {
+  84% {
     transform: translateY(0) scale(1);
   }
 }
 
-.figures-entry:nth-child(2) .figures-entry__avatar {
-  animation-delay: 0.18s;
-}
-
-.figures-entry:nth-child(3) .figures-entry__avatar {
-  animation-delay: 0.36s;
+.figures-entry:hover .figures-entry__avatar,
+.figures-entry:focus-within .figures-entry__avatar {
+  animation: figures-avatar-bounce 0.95s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
 }
 
 .figures-entry--active:hover .figures-entry__avatar {
@@ -155,7 +151,7 @@
   }
 
   .figures-grid {
-    gap: 1.15rem;
+    gap: 1.35rem;
     width: 100%;
   }
 
@@ -164,8 +160,8 @@
   }
 
   .figures-entry__avatar {
-    width: clamp(8.6rem, 34vw, 10.5rem);
-    height: clamp(8.6rem, 34vw, 10.5rem);
+    width: clamp(9.1rem, 36vw, 11rem);
+    height: clamp(9.1rem, 36vw, 11rem);
   }
 
   .figures-entry__avatar-label {
