@@ -6,8 +6,6 @@ export const sitePaths = {
   toolsPage: `${baseUrl}tools/`,
   figures: `${baseUrl}figures/`,
   figuresSteveJobs: `${baseUrl}figures/steve-jobs/`,
-  jobsChatLegacy: `${baseUrl}jobs-chat/`,
-  jobsChatSteveJobsLegacy: `${baseUrl}jobs-chat/steve-jobs/`,
   sceneLogs: {
     digitalResident: `${baseUrl}scene/digital-resident/`,
     blogOps: `${baseUrl}scene/blog-ops/`,
