@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import JobsRoleEntryPage from './pages/JobsRoleEntryPage';
+import JobsChatPage from './pages/JobsChatPage';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <JobsRoleEntryPage />
+    <JobsChatPage />
   </React.StrictMode>
 );

@@ -55,6 +55,23 @@
   text-align: center;
 }
 
+.jobs-chat-back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.jobs-chat-back-link:hover {
+  color: rgba(255, 255, 255, 0.88);
+}
+
 .jobs-chat-title {
   margin: 0;
   color: rgba(255, 255, 255, 0.96);
