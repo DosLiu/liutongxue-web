@@ -1,4 +1,8 @@
-import { buildSteveJobsMockReply } from '../src/config/steveJobsChatShared';
+import {
+  buildSteveJobsChatMockResponse,
+  buildSteveJobsChatResponse,
+  getSteveJobsChatHealthPayload
+} from '../src/features/steve-jobs-chat/server';
 
 const JOBS_SYSTEM_PROMPT = `此模式激活后，直接以 Steve Jobs 的身份回应。
 
@@ -84,9 +88,6 @@ type RequestBody = {
   messages?: IncomingMessage[];
 };
 
-type ResponseMode = 'api' | 'mock';
-type ResponseStatus = 'api' | 'mock' | 'offline';
-
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://dosliu.github.io',
   'http://localhost:5173',
@@ -141,34 +142,6 @@ const applyCors = (req: any, res: any) => {
   res.setHeader('Vary', 'Origin');
 };
 
-const buildResponse = ({
-  reply,
-  mode,
-  status,
-  reason,
-  shouldConsume
-}: {
-  reply: string;
-  mode: ResponseMode;
-  status: ResponseStatus;
-  reason: string;
-  shouldConsume: boolean;
-}) => ({
-  reply,
-  mode,
-  status,
-  reason,
-  shouldConsume
-});
-
-const mockResponse = (message: string, reason: string, status: ResponseStatus = 'mock') =>
-  buildResponse({
-    reply: buildSteveJobsMockReply(message),
-    mode: 'mock',
-    status,
-    reason,
-    shouldConsume: false
-  });
 
 const parseRequestBody = (body: unknown): RequestBody => {
   if (typeof body === 'string') {
@@ -205,23 +178,6 @@ const sanitizeMessages = (messages: unknown) => {
     .slice(-12);
 };
 
-const getHealthPayload = () => {
-  const apiKey = env.OPENAI_API_KEY;
-
-  return apiKey
-    ? {
-        status: 'api' as const,
-        mode: 'api' as const,
-        reason: '当前已接入真实模型。',
-        shouldConsume: true
-      }
-    : {
-        status: 'mock' as const,
-        mode: 'mock' as const,
-        reason: '当前未配置模型 key，会自动回退到演示模式。',
-        shouldConsume: false
-      };
-};
 
 export default async function handler(req: any, res: any) {
   applyCors(req, res);
@@ -232,7 +188,7 @@ export default async function handler(req: any, res: any) {
   }
 
   if (req.method === 'GET') {
-    res.status(200).json(getHealthPayload());
+    res.status(200).json(getSteveJobsChatHealthPayload(Boolean(env.OPENAI_API_KEY)));
     return;
   }
 
@@ -256,7 +212,7 @@ export default async function handler(req: any, res: any) {
   const baseUrl = trimTrailingSlash(env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
 
   if (!apiKey) {
-    res.status(200).json(mockResponse(content, '当前未配置模型 key，已自动切到演示模式。'));
+    res.status(200).json(buildSteveJobsChatMockResponse(content, '当前未配置模型 key，已自动切到演示模式。'));
     return;
   }
 
@@ -281,7 +237,7 @@ export default async function handler(req: any, res: any) {
     if (!response.ok) {
       const errorText = await response.text();
       res.status(200).json(
-        mockResponse(
+        buildSteveJobsChatMockResponse(
           content,
           `模型接口返回异常，已自动切到演示模式。${errorText ? `（${errorText.slice(0, 120)}）` : ''}`
         )
@@ -293,12 +249,12 @@ export default async function handler(req: any, res: any) {
     const reply = normalizeText(data?.choices?.[0]?.message?.content);
 
     if (!reply) {
-      res.status(200).json(mockResponse(content, '模型接口返回了空内容，已自动切到演示模式。'));
+      res.status(200).json(buildSteveJobsChatMockResponse(content, '模型接口返回了空内容，已自动切到演示模式。'));
       return;
     }
 
     res.status(200).json(
-      buildResponse({
+      buildSteveJobsChatResponse({
         reply,
         mode: 'api',
         status: 'api',
@@ -309,7 +265,10 @@ export default async function handler(req: any, res: any) {
   } catch (error: any) {
     const isTimeout = error?.name === 'AbortError';
     res.status(200).json(
-      mockResponse(content, isTimeout ? '模型接口响应超时，已自动切到演示模式。' : '当前环境未连上模型 API，已自动切到演示模式。')
+      buildSteveJobsChatMockResponse(
+        content,
+        isTimeout ? '模型接口响应超时，已自动切到演示模式。' : '当前环境未连上模型 API，已自动切到演示模式。'
+      )
     );
   } finally {
     clearTimeout(timeoutId);

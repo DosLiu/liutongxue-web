@@ -1,5 +1,5 @@
-// Legacy compatibility wrapper. Prefer steveJobsChatApi exports for new work.
+// Legacy compatibility wrapper. Prefer steve-jobs-chat/runtime exports for new work.
 export {
   getSteveJobsChatApiUrl as getJobsChatApiUrl,
   getSteveJobsChatSurface as getJobsChatSurface
-} from './steveJobsChatApi';
+} from '../features/steve-jobs-chat/runtime';

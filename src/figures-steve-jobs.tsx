@@ -1,3 +1,3 @@
-import { renderSteveJobsChatPage } from './entries/renderSteveJobsChatPage';
+import { mountSteveJobsChatPage } from './features/steve-jobs-chat/mountSteveJobsChatPage';
 
-renderSteveJobsChatPage();
+mountSteveJobsChatPage();
