@@ -366,18 +366,13 @@ export default function JobsChatPage() {
 
         <div className="jobs-chat-shell">
           <section className="jobs-chat-hero" aria-labelledby="jobs-chat-title">
-            <a href={sitePaths.figures} className="jobs-chat-back-link" aria-label="返回人物入口页">
-              <span className="jobs-chat-back-link__icon" aria-hidden="true">
-                ←
-              </span>
-              <span>返回人物入口</span>
+            <a href={sitePaths.figures} className="jobs-chat-back-link">
+              返回选择角色
             </a>
-            <div className="jobs-chat-hero__copy">
-              <h1 id="jobs-chat-title" className="jobs-chat-title">
-                {JOBS_CHAT_TITLE}
-              </h1>
-              <p className="jobs-chat-subtitle">{JOBS_CHAT_DESCRIPTION}</p>
-            </div>
+            <h1 id="jobs-chat-title" className="jobs-chat-title">
+              {JOBS_CHAT_TITLE}
+            </h1>
+            <p className="jobs-chat-subtitle">{JOBS_CHAT_DESCRIPTION}</p>
           </section>
 
           <section className="jobs-chat-panel" aria-label="虚拟乔布斯对话区域">
@@ -404,7 +399,7 @@ export default function JobsChatPage() {
 
             <form className="jobs-chat-form" onSubmit={handleSubmit}>
               <label className="jobs-chat-form__label" htmlFor="jobs-chat-input">
-                输入你的问题
+                把你当前最想了解的问题，用一句话说清楚
               </label>
               <textarea
                 id="jobs-chat-input"
