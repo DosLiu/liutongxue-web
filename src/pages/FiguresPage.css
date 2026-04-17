@@ -54,8 +54,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: clamp(10.25rem, 19vw, 12.6rem);
-  height: clamp(10.25rem, 19vw, 12.6rem);
+  width: clamp(10.66rem, 19.76vw, 13.1rem);
+  height: clamp(10.66rem, 19.76vw, 13.1rem);
   border-radius: 999px;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.03) 100%);
