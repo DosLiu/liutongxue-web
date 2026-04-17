@@ -1,4 +1,5 @@
 import SiteHeader from '../components/SiteHeader';
+import steveJobsAvatar from '../assets/figures/steve-jobs.jpg';
 import { sitePaths } from '../site';
 import './FiguresPage.css';
 
@@ -6,6 +7,7 @@ type FigureEntry = {
   id: string;
   name: string;
   avatarLabel: string;
+  avatarImageSrc?: string;
   href?: string;
 };
 
@@ -14,6 +16,7 @@ const figureEntries: FigureEntry[] = [
     id: 'steve-jobs',
     name: '乔布斯',
     avatarLabel: 'SJ',
+    avatarImageSrc: steveJobsAvatar,
     href: sitePaths.figuresSteveJobs
   },
   {
@@ -31,8 +34,12 @@ const figureEntries: FigureEntry[] = [
 function FigureEntryItem({ entry }: { entry: FigureEntry }) {
   const content = (
     <>
-      <div className="figures-entry__avatar" aria-hidden="true">
-        <span className="figures-entry__avatar-label">{entry.avatarLabel}</span>
+      <div
+        className={`figures-entry__avatar${entry.avatarImageSrc ? ' figures-entry__avatar--image' : ''}`}
+        style={entry.avatarImageSrc ? { backgroundImage: `url(${entry.avatarImageSrc})` } : undefined}
+        aria-hidden="true"
+      >
+        {!entry.avatarImageSrc ? <span className="figures-entry__avatar-label">{entry.avatarLabel}</span> : null}
       </div>
       <h2 className="figures-entry__name">{entry.name}</h2>
     </>
