@@ -52,11 +52,15 @@
 }
 
 .jobs-chat-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
 .jobs-chat-back-link {
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
   justify-content: flex-start;
   width: fit-content;
