@@ -3,7 +3,7 @@ import ReactBitsLogo from './ReactBitsLogo';
 import { siteNavItems, sitePaths, type SiteNavKey } from '../site';
 
 type SiteHeaderProps = {
-  activeKey: SiteNavKey;
+  activeKey?: SiteNavKey | null;
 };
 
 const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader({ activeKey }, ref) {
@@ -16,7 +16,7 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
 
         <nav className="landing-nav-items" aria-label="Primary">
           {siteNavItems.map((item) => {
-            const isActive = item.key === activeKey;
+            const isActive = activeKey != null && item.key === activeKey;
 
             if (item.key === 'contact') {
               return (
