@@ -13,8 +13,10 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         tools: resolve(__dirname, 'tools/index.html'),
-        jobsChat: resolve(__dirname, 'jobs-chat/index.html'),
-        jobsChatSteveJobs: resolve(__dirname, 'jobs-chat/steve-jobs/index.html'),
+        figures: resolve(__dirname, 'figures/index.html'),
+        figuresSteveJobs: resolve(__dirname, 'figures/steve-jobs/index.html'),
+        jobsChatLegacy: resolve(__dirname, 'jobs-chat/index.html'),
+        jobsChatSteveJobsLegacy: resolve(__dirname, 'jobs-chat/steve-jobs/index.html'),
         scene: resolve(__dirname, 'scene/index.html'),
         sceneDigitalResident: resolve(__dirname, 'scene/digital-resident/index.html'),
         sceneDigitalResident20260321: resolve(__dirname, 'scene/digital-resident/2026-03-21/index.html'),

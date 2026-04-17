@@ -15,7 +15,7 @@ const roleCards: RoleCard[] = [
     id: 'steve-jobs',
     name: '乔布斯',
     avatarText: '乔',
-    href: sitePaths.jobsChatSteveJobs
+    href: sitePaths.figuresSteveJobs
   },
   {
     id: 'coming-soon-1',

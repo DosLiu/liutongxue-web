@@ -4,8 +4,10 @@ export const sitePaths = {
   home: baseUrl,
   scene: `${baseUrl}scene/`,
   toolsPage: `${baseUrl}tools/`,
-  jobsChat: `${baseUrl}jobs-chat/`,
-  jobsChatSteveJobs: `${baseUrl}jobs-chat/steve-jobs/`,
+  figures: `${baseUrl}figures/`,
+  figuresSteveJobs: `${baseUrl}figures/steve-jobs/`,
+  jobsChatLegacy: `${baseUrl}jobs-chat/`,
+  jobsChatSteveJobsLegacy: `${baseUrl}jobs-chat/steve-jobs/`,
   sceneLogs: {
     digitalResident: `${baseUrl}scene/digital-resident/`,
     blogOps: `${baseUrl}scene/blog-ops/`,
