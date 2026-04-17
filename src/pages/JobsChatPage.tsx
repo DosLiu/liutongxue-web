@@ -357,7 +357,7 @@ export default function JobsChatPage() {
 
   return (
     <>
-      <SiteHeader activeKey="contact" />
+      <SiteHeader />
 
       <main className="jobs-chat-page">
         <div className="jobs-chat-page__ambient jobs-chat-page__ambient--left" aria-hidden="true" />
