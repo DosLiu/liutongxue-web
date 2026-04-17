@@ -58,12 +58,13 @@
 .jobs-chat-back-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  color: rgba(255, 255, 255, 0.58);
+  justify-content: flex-start;
+  width: fit-content;
+  margin-bottom: 1.15rem;
+  color: rgba(255, 255, 255, 0.56);
   font-size: 0.82rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-decoration: none;
   transition: color 0.2s ease, opacity 0.2s ease;
 }

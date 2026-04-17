@@ -365,10 +365,11 @@ export default function JobsChatPage() {
         <div className="jobs-chat-page__grid" aria-hidden="true" />
 
         <div className="jobs-chat-shell">
+          <a href={sitePaths.figures} className="jobs-chat-back-link">
+            返回人物入口
+          </a>
+
           <section className="jobs-chat-hero" aria-labelledby="jobs-chat-title">
-            <a href={sitePaths.figures} className="jobs-chat-back-link">
-              返回选择角色
-            </a>
             <h1 id="jobs-chat-title" className="jobs-chat-title">
               {JOBS_CHAT_TITLE}
             </h1>
