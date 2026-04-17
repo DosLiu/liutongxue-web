@@ -366,7 +366,10 @@ export default function JobsChatPage() {
 
         <div className="jobs-chat-shell">
           <a href={sitePaths.figures} className="jobs-chat-back-link">
-            返回人物入口
+            <span className="jobs-chat-back-link__icon" aria-hidden="true">
+              ←
+            </span>
+            <span>返回人物入口</span>
           </a>
 
           <section className="jobs-chat-hero" aria-labelledby="jobs-chat-title">
