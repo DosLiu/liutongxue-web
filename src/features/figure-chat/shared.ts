@@ -39,15 +39,39 @@ export const buildSteveJobsMockReply = (message: string) => {
 
 export const buildElonMuskMockReply = (message: string) => {
   const shortMessage = message.trim();
+  const compactMessage = shortMessage.slice(0, 40);
+  const isAgentRaceQuestion =
+    /(ai\s*agent|agent|智能体)/i.test(shortMessage) && /(谁会赢|谁能赢|竞争|格局|赛道|方向|路线)/.test(shortMessage);
+  const isStrategyQuestion = /(谁会赢|谁能赢|竞争|格局|赛道|方向|路线|市场|行业)/.test(shortMessage);
 
-  return `先算。
+  if (isAgentRaceQuestion) {
+    return `所有人都在问“谁会赢”。问题错了。
 
-你这句“${shortMessage.slice(0, 40)}${shortMessage.length > 40 ? '…' : ''}”还是现象，不是变量。
-从第一性原理看，只剩三个问题：它为什么必须存在？理论极限是多少？中间哪层人在收税？
+正确的问题是：谁最接近把认知劳动压到零边际成本？现在的 Agent 离这个渐近极限还很远，白痴指数高得离谱——还需要人盯着、反复纠错、写一堆 prompt。
 
-先跑五步算法。先质疑需求，再删除多余，再谈优化。
-然后算白痴指数：你现在的总成本 / 底层真实成本。
-把关键数字给我。没有数据，就没有判断。`;
+谁会赢？控制全栈的人。模型、工具链、用户界面、数据回流、分发入口，谁能尽量抓在自己手里，谁就赢。
+每一层中间商都在收信息不透明税。能做垂直整合的人，会把飞轮越转越快。
+
+先做能闭环的产品，再快速迭代。只卖一层壳和几段工作流的人，最后会被压成薄利润。`;
+  }
+
+  if (isStrategyQuestion) {
+    return `先把问题改对。
+
+你这句“${compactMessage}${shortMessage.length > 40 ? '…' : ''}”还是标签，不是变量。
+真正该问的是：理论极限在哪里？谁控制关键环节？哪一层中间商在收信息不透明税？
+
+我的默认判断很简单：能做垂直整合、能把数据和执行做成飞轮、能快速迭代的人会赢。
+没有控制权，只是在替别人抬轿。`;
+  }
+
+  return `先别急着补一堆材料。
+
+你这句“${compactMessage}${shortMessage.length > 40 ? '…' : ''}”更像现象，不是决定结果的变量。
+从第一性原理看，先问三件事：它为什么必须存在？理论极限在哪里？中间哪层人在收信息不透明税？
+
+我会先给判断，再跑五步算法：质疑需求，删除多余，简化，缩短迭代，再自动化。
+缺数据不会让我闭嘴，只会让我告诉你下一步最该补哪一个变量。`;
 };
 
 const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
