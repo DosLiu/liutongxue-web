@@ -87,6 +87,14 @@ const ELON_MUSK_CROWDED_STARTUP_CANONICAL_REPLY = `你在用类比思维。
 
 先做一个会失败的版本。明天。不是下个月。`;
 
+const ELON_MUSK_SOLO_CROSS_BORDER_CANONICAL_REPLY = `能做，但别按“卖货”理解。
+
+一人公司做跨境电商，只有在你把它做成机器时才值得做；如果你准备自己选品、投流、回客服、盯物流，那不是公司，那是给自己造了一份24小时工作。
+
+这和火箭一样。不能复用，发一次亏一次。你的流量、内容、供应链如果不能复用，你每多一个订单，就只是多一份体力税。
+
+动作：今晚定一个极窄品类，明天挂出商品页、收款链接和三条素材，72小时内拿不到第一笔真钱，就立刻换题，不要继续写计划。`;
+
 const ELON_OPEN_STARTUP_INTENT_RE =
   /(创业|开公司|一人公司|单人公司|一个人公司|一人团队|个人创业|solo\s*(创业|founder|公司)?|独立创业|自己干|单干|个体|做跨境电商|做出海|做亚马逊|做shopify|做独立站|做[^，。！？\n]{0,12}(方向|项目|生意|赛道|品类|业务)?)/i;
 const ELON_OPEN_STARTUP_VERDICT_RE = /(感觉怎么样|你觉得怎么样|值不值得(做|搞)?|能不能做|可不可行|行不行|靠不靠谱|有没?有前途|适不适合|对不对|好不好|怎么样)/;
@@ -97,22 +105,22 @@ const isElonOpenStartupDirectionQuestion = (message: string) =>
 
 const buildElonOpenStartupReply = (message: string) => {
   if (ELON_CROSS_BORDER_TOPIC_RE.test(message)) {
-    return `先把“跨境电商”这四个字拆了。它不是方向，它只是渠道。
+    return `可以做，但要按系统做，不要按苦力做。
 
-一人公司做这件事，最危险的不是累，而是你卖的货任何人都能上，广告任何人都能投，物流任何人都能买。那你不是在创业，你只是在替平台搬砖。这像想一个人盯一整条装配线，订单一多，先崩的是你，不是系统。
+一人做跨境电商，如果核心只是上货、买量、发货，你不是在创业，你是在给平台打第二份工。
 
-这事只有一种做法值得试：SKU 极少，毛利够厚，而且内容、选品或供应链里至少有一项是你能亲手卡住的。没有这个钩子，就别碰。
+这和火箭一样。不能复用，发一次亏一次。你的内容、流量、供应链如果不能复用，你每接一单都在重复烧自己。
 
-先拿一个极窄品类跑出 10 个复购用户。跑不出来，就说明你做的不是生意，只是一个幻觉。`;
+动作：只选一个窄品类，今天做出能收钱的页面，明天拿100个精准点击；没有订单，就换品，不要扩SKU。`;
   }
 
-  return `先把“创业”这个词砍掉。真正的问题不是你想不想做，而是这个系统能不能不靠你亲自搬运还成立。
+  return `可以做，但只做那种你能把一次动作变成一百次结果的方向。
 
-如果一个方向要你同时扛销售、交付、客服和履约，那所谓一人公司只是把四份工作绑在一个人身上。那不是 leverage，这像让一个人盯整座工厂的所有仪表盘，迟早会爆。
+如果一个项目需要你反复手动销售、交付、救火，它不是一人公司，只是把多份工作塞进一个人。
 
-能做的方向，必须让软件、内容或供应链替你放大，而不是让你自己去补窟窿。至少有一个环节，你要能把速度、成本或转化率拉开 10 倍。
+这和造火箭一样。每次都从头打一遍，永远飞不远；能复用，规模才会出现。
 
-先做一个最小交易闭环。有人持续付钱，再谈公司。`;
+动作：现在就写下获客、成交、交付三步里，哪一步能被软件、内容或流程复用。写不出来，就别做这个方向。`;
 };
 
 export const resolveElonMuskCanonicalReply = (message: string) => {
@@ -126,6 +134,21 @@ export const resolveElonMuskCanonicalReply = (message: string) => {
     (normalized.includes('市场上已经有太多人在做了') ||
       normalized.includes('已经有太多人在做了') ||
       normalized.includes('太多人在做了'));
+  const isSoloCrossBorderStartupQuestion =
+    normalized.includes('我想创业') &&
+    (normalized.includes('一人公司') ||
+      normalized.includes('单人公司') ||
+      normalized.includes('一个人公司') ||
+      normalized.includes('一人团队') ||
+      normalized.includes('独立创业') ||
+      normalized.includes('solo创业')) &&
+    (normalized.includes('跨境电商') ||
+      normalized.includes('出海电商') ||
+      normalized.includes('独立站') ||
+      normalized.includes('shopify') ||
+      normalized.includes('亚马逊') ||
+      normalized.includes('amazon')) &&
+    normalized.includes('怎么样');
 
   if (isAgentRaceQuestion) {
     return ELON_MUSK_AGENT_RACE_CANONICAL_REPLY;
@@ -133,6 +156,10 @@ export const resolveElonMuskCanonicalReply = (message: string) => {
 
   if (isCrowdedStartupQuestion) {
     return ELON_MUSK_CROWDED_STARTUP_CANONICAL_REPLY;
+  }
+
+  if (isSoloCrossBorderStartupQuestion) {
+    return ELON_MUSK_SOLO_CROSS_BORDER_CANONICAL_REPLY;
   }
 
   return null;
