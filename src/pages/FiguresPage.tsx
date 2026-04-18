@@ -20,9 +20,10 @@ const figureEntries: FigureEntry[] = [
     href: sitePaths.figuresSteveJobs
   },
   {
-    id: 'figure-slot-02',
-    name: '人物 02',
-    avatarLabel: '02'
+    id: 'elon-musk',
+    name: '马斯克',
+    avatarLabel: 'EM',
+    href: sitePaths.figuresElonMusk
   },
   {
     id: 'figure-slot-03',
