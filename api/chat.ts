@@ -81,35 +81,61 @@ const ELON_MUSK_CROWDED_STARTUP_CANONICAL_REPLY = `你在用类比思维。
 
 先做一个会失败的版本。明天。不是下个月。`;
 
+type ElonDirectReply = {
+  reply: string;
+  reason: string;
+};
+
 const ELON_OPEN_STARTUP_INTENT_RE =
-  /(创业|开公司|一人公司|单人公司|一个人公司|一人团队|个人创业|solo\s*(创业|founder|公司)?|独立创业|自己干|单干|个体|做跨境电商|做出海|做亚马逊|做shopify|做独立站|做[^，。！？\n]{0,12}(方向|项目|生意|赛道|品类|业务)?)/i;
-const ELON_OPEN_STARTUP_VERDICT_RE = /(感觉怎么样|你觉得怎么样|值不值得(做|搞)?|能不能做|可不可行|行不行|靠不靠谱|有没?有前途|适不适合|对不对|好不好|怎么样)/;
+  /(创业|开公司|一人公司|单人公司|一个人公司|一人团队|个人创业|solo\s*(创业|founder|公司)?|独立创业|自己干|单干|个体|自由职业转公司|做跨境电商|做出海|做亚马逊|做shopify|做独立站|做[^，。！？\n]{0,18}(方向|项目|生意|赛道|品类|业务|服务)?)/i;
+const ELON_OPEN_STARTUP_VERDICT_RE =
+  /(感觉怎么样|你觉得怎么样|你觉得呢|你怎么看|怎么看|值不值得(做|搞|下场)?|值得做吗|能不能做|能做吗|可不可行|行不行|靠不靠谱|靠谱吗|有没?有前途|有没有搞头|有搞头吗|有戏吗|适不适合(一个人做|我做)?|适合(一个人做|我做)?|对不对|好不好|怎么样|能成吗|值得下场吗)/;
+const ELON_OPEN_STARTUP_ACTION_RE = /(怎么开始|从哪开始|怎么切|怎么选|先做什么|该怎么做)/;
 const ELON_CROSS_BORDER_TOPIC_RE = /(跨境电商|出海电商|独立站|shopify|亚马逊|amazon|temu|shopee|etsy)/i;
+const ELON_SERVICE_STARTUP_TOPIC_RE =
+  /(外包|咨询|顾问|工作室|agency|代运营|代投放|代做|接单|乙方|定制开发|定制交付|自动化外包|工作流外包|ai外包|AI外包|服务型生意|服务生意)/i;
 
 const isElonOpenStartupDirectionQuestion = (message: string) =>
-  ELON_OPEN_STARTUP_INTENT_RE.test(message) && ELON_OPEN_STARTUP_VERDICT_RE.test(message);
+  ELON_OPEN_STARTUP_INTENT_RE.test(message) &&
+  (ELON_OPEN_STARTUP_VERDICT_RE.test(message) || ELON_OPEN_STARTUP_ACTION_RE.test(message));
+
+const buildElonCrossBorderStartupReply = () => `跨境电商不是方向，它只是渠道。
+
+如果货任何人都能上，广告任何人都能投，物流任何人都能买，你不是在创业，你只是在替平台搬砖。这像让一个人盯整条装配线，订单一多，先崩的是你，不是系统。
+
+这事只在一种情况下值得试：SKU 极少，毛利够厚，而且内容、选品或供应链里至少有一项你能亲手卡住。没有这个钩子，别先铺货。
+
+先拿一个极窄品类跑出 10 个复购用户。跑不出来，就说明方向不存在。`;
+
+const buildElonServiceStartupReply = () => `AI 工作流外包这种题，默认不是公司，是一份工作换了新名字。
+
+如果每个客户都要重新访谈、搭流程、调模型、收尾款，你卖的不是软件，你卖的是你自己的晚上和周末。你的利润不是被成本吃掉的，是被复杂度吃掉的。
+
+它只在一种情况下值得做：把 80% 交付压成同一条流水线，行业够窄，报价按结果不是按工时。
+
+先卖一个固定套餐给 3 个同类客户。复用不起来，就别把自由职业包装成创业。`;
+
+const buildElonGenericOpenStartupReply = () => `先别急着把它叫创业。
+
+我只看一件事：你不在场，这个系统还能不能继续获客和交付。不能，那不是公司，那只是一份工作。
+
+玩家多，不等于问题被解决。更常见的情况是所有人都在同一个错误假设上堆复杂度。
+
+去找那个可以被删掉的默认假设，把一个高频环节做到 10 倍更快或 10 倍更便宜。先做一个会失败的版本。明天。不是下个月。`;
 
 const buildElonOpenStartupReply = (message: string) => {
   if (ELON_CROSS_BORDER_TOPIC_RE.test(message)) {
-    return `先把“跨境电商”这四个字拆了。它不是方向，它只是渠道。
-
-一人公司做这件事，最危险的不是累，而是你卖的货任何人都能上，广告任何人都能投，物流任何人都能买。那你不是在创业，你只是在替平台搬砖。这像想一个人盯一整条装配线，订单一多，先崩的是你，不是系统。
-
-这事只有一种做法值得试：SKU 极少，毛利够厚，而且内容、选品或供应链里至少有一项是你能亲手卡住的。没有这个钩子，就别碰。
-
-先拿一个极窄品类跑出 10 个复购用户。跑不出来，就说明你做的不是生意，只是一个幻觉。`;
+    return buildElonCrossBorderStartupReply();
   }
 
-  return `先把“创业”这个词砍掉。真正的问题不是你想不想做，而是这个系统能不能不靠你亲自搬运还成立。
+  if (ELON_SERVICE_STARTUP_TOPIC_RE.test(message)) {
+    return buildElonServiceStartupReply();
+  }
 
-如果一个方向要你同时扛销售、交付、客服和履约，那所谓一人公司只是把四份工作绑在一个人身上。那不是 leverage，这像让一个人盯整座工厂的所有仪表盘，迟早会爆。
-
-能做的方向，必须让软件、内容或供应链替你放大，而不是让你自己去补窟窿。至少有一个环节，你要能把速度、成本或转化率拉开 10 倍。
-
-先做一个最小交易闭环。有人持续付钱，再谈公司。`;
+  return buildElonGenericOpenStartupReply();
 };
 
-const resolveElonMuskCanonicalReply = (message: string) => {
+const resolveElonMuskDirectReply = (message: string): ElonDirectReply | null => {
   const normalized = normalizeElonCanonicalMessage(message);
   const isAgentRaceQuestion =
     (normalized.includes('aiagent') || normalized.includes('agent') || normalized.includes('智能体')) &&
@@ -122,21 +148,34 @@ const resolveElonMuskCanonicalReply = (message: string) => {
       normalized.includes('太多人在做了'));
 
   if (isAgentRaceQuestion) {
-    return ELON_MUSK_AGENT_RACE_CANONICAL_REPLY;
+    return {
+      reply: ELON_MUSK_AGENT_RACE_CANONICAL_REPLY,
+      reason: '当前回复命中马斯克仓库示例直出规则。'
+    };
   }
 
   if (isCrowdedStartupQuestion) {
-    return ELON_MUSK_CROWDED_STARTUP_CANONICAL_REPLY;
+    return {
+      reply: ELON_MUSK_CROWDED_STARTUP_CANONICAL_REPLY,
+      reason: '当前回复命中马斯克仓库示例直出规则。'
+    };
+  }
+
+  if (isElonOpenStartupDirectionQuestion(message)) {
+    return {
+      reply: buildElonOpenStartupReply(message),
+      reason: '当前回复命中马斯克开放创业直出规则。'
+    };
   }
 
   return null;
 };
 
 const buildElonMuskMockReply = (message: string) => {
-  const canonicalReply = resolveElonMuskCanonicalReply(message);
+  const directReply = resolveElonMuskDirectReply(message);
 
-  if (canonicalReply) {
-    return canonicalReply;
+  if (directReply) {
+    return directReply.reply;
   }
 
   const shortMessage = message.trim();
@@ -342,9 +381,13 @@ AI Agent也一样。
 对 创业 / 市场拥挤 / 一人公司方向题，优先看：
 - 玩家多，不等于问题被解决。
 - 这是不是把复杂系统伪装成“一个人也能做”的幻觉。
+- 如果是服务 / 外包型业务，先判断它是不是把自由职业包装成创业；如果每单都要重做，就直接点破。
+- 如果是跨境电商 / 渠道型业务，先指出渠道不是方向；护城河必须来自内容、选品或供应链至少一项。
 - 用户现在要走多少步，理论上最少多少步。
 - 哪个被默认接受的假设其实可以删掉。
-- 是否能把一个高频环节做到 10 倍更好或 10 倍更便宜。`;
+- 是否能把一个高频环节做到 10 倍更好或 10 倍更便宜。
+- 收尾不要落在“看执行”“看资源”“先调研”。必须落在明确判断，或一个明天就能验证的动作。
+- 可以直接借用这类落点：『玩家多，只说明钱还在地上』『你的利润不是被成本吃掉的，是被复杂度吃掉的』『先做一个会失败的版本。明天。不是下个月。』`;
 
 const FIGURE_DEFINITIONS: Record<
   FigureId,
@@ -535,17 +578,17 @@ export default async function handler(req: any, res: any) {
   const model = env.OPENAI_MODEL || 'gpt-4.1-mini';
   const baseUrl = trimTrailingSlash(env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
   const figureDefinition = FIGURE_DEFINITIONS[figureId];
-  const canonicalReply = figureId === 'elon-musk' ? resolveElonMuskCanonicalReply(content) : null;
+  const directReply = figureId === 'elon-musk' ? resolveElonMuskDirectReply(content) : null;
 
-  if (canonicalReply) {
+  if (directReply) {
     const hasApiKey = Boolean(apiKey);
 
     res.status(200).json(
       buildFigureChatResponse({
-        reply: canonicalReply,
+        reply: directReply.reply,
         mode: hasApiKey ? 'api' : 'mock',
         status: hasApiKey ? 'api' : 'mock',
-        reason: '当前回复命中马斯克仓库示例直出规则。',
+        reason: directReply.reason,
         shouldConsume: hasApiKey
       })
     );
