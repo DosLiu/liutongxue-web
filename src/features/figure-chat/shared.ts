@@ -87,6 +87,34 @@ const ELON_MUSK_CROWDED_STARTUP_CANONICAL_REPLY = `你在用类比思维。
 
 先做一个会失败的版本。明天。不是下个月。`;
 
+const ELON_OPEN_STARTUP_INTENT_RE =
+  /(创业|开公司|一人公司|单人公司|一个人公司|一人团队|个人创业|solo\s*(创业|founder|公司)?|独立创业|自己干|单干|个体|做跨境电商|做出海|做亚马逊|做shopify|做独立站|做[^，。！？\n]{0,12}(方向|项目|生意|赛道|品类|业务)?)/i;
+const ELON_OPEN_STARTUP_VERDICT_RE = /(感觉怎么样|你觉得怎么样|值不值得(做|搞)?|能不能做|可不可行|行不行|靠不靠谱|有没?有前途|适不适合|对不对|好不好|怎么样)/;
+const ELON_CROSS_BORDER_TOPIC_RE = /(跨境电商|出海电商|独立站|shopify|亚马逊|amazon|temu|shopee|etsy)/i;
+
+const isElonOpenStartupDirectionQuestion = (message: string) =>
+  ELON_OPEN_STARTUP_INTENT_RE.test(message) && ELON_OPEN_STARTUP_VERDICT_RE.test(message);
+
+const buildElonOpenStartupReply = (message: string) => {
+  if (ELON_CROSS_BORDER_TOPIC_RE.test(message)) {
+    return `先把“跨境电商”这四个字拆了。它不是方向，它只是渠道。
+
+一人公司做这件事，最危险的不是累，而是你卖的货任何人都能上，广告任何人都能投，物流任何人都能买。那你不是在创业，你只是在替平台搬砖。这像想一个人盯一整条装配线，订单一多，先崩的是你，不是系统。
+
+这事只有一种做法值得试：SKU 极少，毛利够厚，而且内容、选品或供应链里至少有一项是你能亲手卡住的。没有这个钩子，就别碰。
+
+先拿一个极窄品类跑出 10 个复购用户。跑不出来，就说明你做的不是生意，只是一个幻觉。`;
+  }
+
+  return `先把“创业”这个词砍掉。真正的问题不是你想不想做，而是这个系统能不能不靠你亲自搬运还成立。
+
+如果一个方向要你同时扛销售、交付、客服和履约，那所谓一人公司只是把四份工作绑在一个人身上。那不是 leverage，这像让一个人盯整座工厂的所有仪表盘，迟早会爆。
+
+能做的方向，必须让软件、内容或供应链替你放大，而不是让你自己去补窟窿。至少有一个环节，你要能把速度、成本或转化率拉开 10 倍。
+
+先做一个最小交易闭环。有人持续付钱，再谈公司。`;
+};
+
 export const resolveElonMuskCanonicalReply = (message: string) => {
   const normalized = normalizeElonCanonicalMessage(message);
   const isAgentRaceQuestion =
@@ -124,37 +152,42 @@ export const buildElonMuskMockReply = (message: string) => {
   const isCrowdedMarketQuestion =
     /(创业|做产品|做项目|入场|开始做|切入)/.test(shortMessage) &&
     /(太多人|很多人|已经有太多人|已经很多人|都在做|竞争太激烈|竞争激烈|红海|饱和|太卷)/.test(shortMessage);
+  const isOpenStartupDirectionQuestion = isElonOpenStartupDirectionQuestion(shortMessage);
   const isStrategyQuestion = /(谁会赢|谁能赢|竞争|格局|赛道|方向|路线|市场|行业)/.test(shortMessage);
 
   if (isAgentRaceQuestion) {
-    return `先别看热度，先看渐近极限。
+    return `热度不重要。Agent 还远没到渐近极限。
 
-现在的 Agent 远没有接近“零边际成本完成认知劳动”这个目标，所以别急着看榜单。真正重要的是，谁控制模型、工具链、界面、数据回流和分发，谁就更接近全栈飞轮。
-这和 Tesla 一样。你如果不控制关键部件，最后就只是别人供应链上的一个壳。
-谁能把执行反馈持续收回来、再压低中间层的税，谁就更可能赢。`;
+现在谁的 logo 更响没意义，关键是哪个系统能把模型、工具链、界面、数据和分发连成闭环。Tesla 不是赢在“大家都喜欢电动车”，而是赢在关键部件尽量自己抓。
+
+谁能持续收回执行反馈，谁就能把白痴指数往下打。剩下那些只包一层皮的公司，最后会像代工厂外面的广告牌。`;
   }
 
   if (isCrowdedMarketQuestion) {
-    return `玩家多，不等于问题被解决。
+    return `玩家多，通常只说明钱还在地上，不说明问题被解决。
 
-先算渐近极限：用户现在完成这件事要多少步，理论上最少多少步？如果差距还很大，说明这市场还远没被做透。
-这像火箭行业。大家都觉得成熟，只是因为所有人都默认接受同一个错误前提。
-别去做一个差不多的版本。去找那个应该被删掉的假设，把一个高频环节做到 10 倍更好。`;
+先看用户今天到底要走多少步，再看物理上最少能压到多少步。差距还大，说明所有人都还在同一个错误假设里绕圈。
+
+这和火箭行业一样。看上去拥挤，只是因为所有人都默认火箭应该一次性报废。别做一个“差不多的版本”，去把那个不必要的假设炸掉。`;
+  }
+
+  if (isOpenStartupDirectionQuestion) {
+    return buildElonOpenStartupReply(shortMessage);
   }
 
   if (isStrategyQuestion) {
-    return `先别被大词带着跑。
+    return `大词没有价值。
 
-“${compactMessage}”这种问法还在标签层，不在变量层。我会先看渐近极限，再看谁拿控制权，再看哪几层中间商在收信息不透明税。
-这更像造厂，不是 PPT 最漂亮的人赢，而是谁把最关键的环节握在自己手里。
-能把数据、执行、分发连成飞轮的人会赢。剩下的大多只是站在别人地基上贴皮。`;
+“${compactMessage}”这种问法还停在标签层，不在变量层。我先看哪一层最重、哪一层最蠢、哪一层本来就该被删掉。
+
+工厂不会因为墙上写着“智能化”就更高效；少一道搬运，少一次人工确认，系统才真的变快。所以先打穿最贵的摩擦点，再谈格局。`;
   }
 
-  return `先别急着下结论。
+  return `先别盯着表面现象。
 
-“${compactMessage}”更像表面现象，不是根因。我会先问它为什么必须存在，再看理论极限在哪里，然后顺着五步算法去删掉不必要的部分。
-如果一个流程离最优值还差很多，中间通常堆满了可以被砍掉的摩擦，这跟供应链里层层加价是一个逻辑。
-先抓最硬的变量，再决定要不要继续优化；别把力气花在一个本来就不该存在的东西上。`;
+“${compactMessage}”不是结论，它只是症状。我会先问这个东西为什么必须存在，再看理论极限在哪里，然后把中间多出来的环节一层层砍掉。
+
+如果一个流程离最优值还差很远，里面通常堆满了人为摩擦。先把最硬的瓶颈打穿，再决定要不要继续做。`;
 };
 
 const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
