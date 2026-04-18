@@ -460,7 +460,13 @@ const getFigureChatHealthPayload = (hasApiKey: boolean): FigureChatApiResponse =
         reply: ''
       };
 
-const DEFAULT_ALLOWED_ORIGINS = ['https://dosliu.github.io', 'http://localhost:5173', 'http://127.0.0.1:5173'];
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://liutongxue.com.cn',
+  'https://www.liutongxue.com.cn',
+  'https://dosliu.github.io',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+];
 
 const env = ((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {});
 

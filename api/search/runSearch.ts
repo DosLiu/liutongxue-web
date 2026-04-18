@@ -95,7 +95,7 @@ const fetchText = async (url: string, timeoutMs: number) => {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; LiutongxueBot/1.0; +https://dosliu.github.io/liutongxue-web/)',
+        'User-Agent': 'Mozilla/5.0 (compatible; LiutongxueBot/1.0; +https://liutongxue.com.cn/)',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8'
       },
       signal: controller.signal

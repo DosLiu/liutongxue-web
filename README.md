@@ -1,18 +1,26 @@
 # liutongxue-web
 
-## 与虚拟乔布斯对话：真实模型接入说明
+## 当前对外域名
 
-当前仓库采用“两段式”部署：
+当前正式对外域名：`https://liutongxue.com.cn`
 
-- 主站静态页面：GitHub Pages
-- 真实模型 API：Vercel `api/chat.ts`
+默认公开访问应以该域名为准；GitHub Pages / `vercel.app` 仅保留为技术预览或备用访问方式。
 
-### 1. 前端变量（GitHub Pages 构建时）
+## 人物聊天页：真实模型接入说明
 
-如果聊天页继续放在 GitHub Pages，需要把前端请求指到 Vercel 域名：
+当前站点的公开访问方式是：
+
+- 主站页面：Vercel + 自定义域名 `https://liutongxue.com.cn`
+- 真实模型 API：同项目下的 Vercel `api/chat.ts`
+
+### 1. 前端变量
+
+如果站点与 API 同域部署在 Vercel / 自定义域名下，通常**不需要**额外配置 `VITE_JOBS_CHAT_API_BASE_URL`。
+
+只有在前端静态页面单独部署到其他域名时，才需要显式指定 API 地址，例如：
 
 ```bash
-VITE_JOBS_CHAT_API_BASE_URL=https://your-vercel-domain.vercel.app
+VITE_JOBS_CHAT_API_BASE_URL=https://liutongxue.com.cn
 ```
 
 ### 2. Vercel 后端变量
@@ -23,8 +31,10 @@ VITE_JOBS_CHAT_API_BASE_URL=https://your-vercel-domain.vercel.app
 OPENAI_API_KEY=your_api_key
 OPENAI_MODEL=gpt-4.1-mini
 OPENAI_BASE_URL=https://api.openai.com/v1
-ALLOWED_ORIGINS=https://dosliu.github.io,https://your-vercel-domain.vercel.app,http://localhost:5173
+ALLOWED_ORIGINS=https://liutongxue.com.cn,https://www.liutongxue.com.cn,http://localhost:5173
 ```
+
+如果你仍保留 GitHub Pages / `vercel.app` 作为备用访问，也可以把它们继续附加到 `ALLOWED_ORIGINS` 中。
 
 ### 3. 本地开发
 
@@ -37,5 +47,5 @@ npm run build
 
 ### 4. 当前行为
 
-- 配好前端 API 地址 + Vercel 模型变量后，聊天页会直接走真实模型。
-- 如果缺少变量或接口不可达，前端会自动回退到演示回复，不会白屏。
+- 在 `liutongxue.com.cn` 同域访问时，聊天页默认直接请求当前域名下的 `/api/chat`。
+- 如果缺少模型变量或接口不可达，前端会自动回退到演示回复，不会白屏。
