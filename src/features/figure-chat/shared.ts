@@ -42,7 +42,81 @@ const clipElonPrompt = (message: string, max = 28) => {
   return trimmed.slice(0, max) + (trimmed.length > max ? '…' : '');
 };
 
+const normalizeElonCanonicalMessage = (message: string) =>
+  message
+    .trim()
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/[“”‘’"'`~!！?？,，。．、:：;；()（）\[\]{}<>《》…·—-]/g, '');
+
+const ELON_MUSK_AGENT_RACE_CANONICAL_REPLY = `所有人都在问「谁会赢」。错误的问题。
+
+正确的问题：Agent的渐近极限是什么？
+一个完美的Agent，理论上应该能零边际成本完成任何认知劳动。
+现在的白痴指数大概100以上——需要人盯着、反复纠正、
+精心设计prompt。中间有巨大改进空间。
+
+谁会赢？控制全栈的人。
+
+看Tesla的逻辑：不是一家「做电动车的公司」。
+我们控制电池、芯片、软件、充电网络、数据收集。
+每卖一辆车，自动驾驶数据就多一份。飞轮。
+
+AI Agent也一样。
+谁同时控制模型、工具链、用户界面和数据？谁就赢。
+每一层中间商都是在收信息不透明税。`;
+
+const ELON_MUSK_CROWDED_STARTUP_CANONICAL_REPLY = `你在用类比思维。
+「别人在做所以我不该做」——最蠢的推理方式。
+
+2002年我创办SpaceX，波音和洛马已经做了几十年火箭。
+所有人说「没机会了」。
+他们把「现有玩家多」等同于「问题已解决」。
+
+先算渐近极限。
+现在用户完成一个任务需要多少步骤？
+物理定律允许的最少步骤是多少？差距多大？
+
+差距10倍，说明所有人都在同一个错误假设上做渐进改进。
+就像所有火箭公司都假设火箭是一次性的。
+
+你不需要做一个「更好的X」。
+你需要找到那个所有人都接受但物理上不必要的假设，
+然后消灭它。
+
+先做一个会失败的版本。明天。不是下个月。`;
+
+export const resolveElonMuskCanonicalReply = (message: string) => {
+  const normalized = normalizeElonCanonicalMessage(message);
+  const isAgentRaceQuestion =
+    (normalized.includes('aiagent') || normalized.includes('agent') || normalized.includes('智能体')) &&
+    normalized.includes('赛道这么热') &&
+    normalized.includes('谁会赢');
+  const isCrowdedStartupQuestion =
+    normalized.includes('我想创业') &&
+    (normalized.includes('市场上已经有太多人在做了') ||
+      normalized.includes('已经有太多人在做了') ||
+      normalized.includes('太多人在做了'));
+
+  if (isAgentRaceQuestion) {
+    return ELON_MUSK_AGENT_RACE_CANONICAL_REPLY;
+  }
+
+  if (isCrowdedStartupQuestion) {
+    return ELON_MUSK_CROWDED_STARTUP_CANONICAL_REPLY;
+  }
+
+  return null;
+};
+
 export const buildElonMuskMockReply = (message: string) => {
+  const canonicalReply = resolveElonMuskCanonicalReply(message);
+
+  if (canonicalReply) {
+    return canonicalReply;
+  }
+
   const shortMessage = message.trim();
   const compactMessage = clipElonPrompt(shortMessage);
   const isAgentRaceQuestion =
@@ -53,19 +127,19 @@ export const buildElonMuskMockReply = (message: string) => {
   const isStrategyQuestion = /(谁会赢|谁能赢|竞争|格局|赛道|方向|路线|市场|行业)/.test(shortMessage);
 
   if (isAgentRaceQuestion) {
-    return `不会是声音最大的人。会是把闭环抓在手里的人。
+    return `先别看热度，先看渐近极限。
 
-现在的 Agent 离“几乎不用人盯”的渐近极限还很远，所以白痴指数依然高。真正该看的不是热度，而是谁能把模型、工具链、界面、数据回流和分发压成一个系统。
-这有点像造车：如果电池、操作系统、销售和数据都在别人手里，你最后只是装配工，不是赢家。
-能做垂直整合、还能把执行反馈滚成飞轮的人，会越做越强；剩下的大多会变成某个平台上的零件。`;
+现在的 Agent 远没有接近“零边际成本完成认知劳动”这个目标，所以别急着看榜单。真正重要的是，谁控制模型、工具链、界面、数据回流和分发，谁就更接近全栈飞轮。
+这和 Tesla 一样。你如果不控制关键部件，最后就只是别人供应链上的一个壳。
+谁能把执行反馈持续收回来、再压低中间层的税，谁就更可能赢。`;
   }
 
   if (isCrowdedMarketQuestion) {
-    return `太多人在做，不是坏消息。那说明需求已经被验证了。
+    return `玩家多，不等于问题被解决。
 
-坏消息是，大多数人只是在同一套假设上微调，所以白痴指数很高。先看渐近极限：用户完成这件事理论上最少要几步？现在为什么还这么绕？
-这跟火箭一样。行业里玩家很多，不代表问题被解决了；当年所有人都默认火箭只能一次性使用，所以大家都在错误前提上优化。
-如果你找不到那个该被删掉的假设，就别进。找到了，就切得更窄，把一个高频痛点做到 10 倍更好，再让飞轮转起来。`;
+先算渐近极限：用户现在完成这件事要多少步，理论上最少多少步？如果差距还很大，说明这市场还远没被做透。
+这像火箭行业。大家都觉得成熟，只是因为所有人都默认接受同一个错误前提。
+别去做一个差不多的版本。去找那个应该被删掉的假设，把一个高频环节做到 10 倍更好。`;
   }
 
   if (isStrategyQuestion) {
