@@ -1,5 +1,6 @@
 import SiteHeader from '../components/SiteHeader';
 import steveJobsAvatar from '../assets/figures/steve-jobs.jpg';
+import elonMuskAvatar from '../assets/figures/elon-musk.jpg';
 import { sitePaths } from '../site';
 import './FiguresPage.css';
 
@@ -8,6 +9,7 @@ type FigureEntry = {
   name: string;
   avatarLabel: string;
   avatarImageSrc?: string;
+  avatarImagePosition?: string;
   href?: string;
 };
 
@@ -23,6 +25,8 @@ const figureEntries: FigureEntry[] = [
     id: 'elon-musk',
     name: '马斯克',
     avatarLabel: 'EM',
+    avatarImageSrc: elonMuskAvatar,
+    avatarImagePosition: 'center 18%',
     href: sitePaths.figuresElonMusk
   },
   {
@@ -37,7 +41,14 @@ function FigureEntryItem({ entry }: { entry: FigureEntry }) {
     <>
       <div
         className={`figures-entry__avatar${entry.avatarImageSrc ? ' figures-entry__avatar--image' : ''}`}
-        style={entry.avatarImageSrc ? { backgroundImage: `url(${entry.avatarImageSrc})` } : undefined}
+        style={
+          entry.avatarImageSrc
+            ? {
+                backgroundImage: `url(${entry.avatarImageSrc})`,
+                backgroundPosition: entry.avatarImagePosition ?? 'center'
+              }
+            : undefined
+        }
         aria-hidden="true"
       >
         {!entry.avatarImageSrc ? <span className="figures-entry__avatar-label">{entry.avatarLabel}</span> : null}
