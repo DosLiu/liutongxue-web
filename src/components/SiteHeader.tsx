@@ -6,6 +6,10 @@ type SiteHeaderProps = {
   activeKey?: SiteNavKey | null;
 };
 
+const reservedNavTargets = {
+  contact: sitePaths.figures
+} satisfies Partial<Record<SiteNavKey, string>>;
+
 const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader({ activeKey }, ref) {
   return (
     <header ref={ref} className="header">
@@ -19,8 +23,17 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
             const isActive = activeKey != null && item.key === activeKey;
 
             if (item.key === 'contact') {
+              const reservedTarget = reservedNavTargets.contact;
+
               return (
-                <span key={item.label} className="nav-link nav-link--disabled" aria-disabled="true">
+                <span
+                  key={item.label}
+                  className="nav-link nav-link--disabled"
+                  aria-disabled="true"
+                  data-future-href={reservedTarget}
+                  data-future-page="figures"
+                  title="人物选择入口即将开放"
+                >
                   <span>{item.label}</span>
                   <span className="nav-link__meta">（开发中）</span>
                 </span>
