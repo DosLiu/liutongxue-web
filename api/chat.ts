@@ -463,7 +463,6 @@ const getFigureChatHealthPayload = (hasApiKey: boolean): FigureChatApiResponse =
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://liutongxue.com.cn',
   'https://www.liutongxue.com.cn',
-  'https://dosliu.github.io',
   'http://localhost:5173',
   'http://127.0.0.1:5173'
 ];

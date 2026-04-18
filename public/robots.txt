@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://liutongxue.com.cn/sitemap.xml
+Host: liutongxue.com.cn
