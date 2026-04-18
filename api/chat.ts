@@ -1,8 +1,74 @@
-import {
-  buildSteveJobsChatMockResponse,
-  buildSteveJobsChatResponse,
-  getSteveJobsChatHealthPayload
-} from '../src/features/steve-jobs-chat/server';
+type SteveJobsChatMode = 'api' | 'mock';
+type SteveJobsChatResolvedStatus = 'api' | 'mock' | 'offline' | 'preview';
+type SteveJobsChatApiResponse = {
+  reply: string;
+  mode?: SteveJobsChatMode;
+  status?: SteveJobsChatResolvedStatus;
+  reason?: string;
+  shouldConsume?: boolean;
+};
+
+const buildSteveJobsMockReply = (message: string) => {
+  const shortMessage = message.trim();
+
+  return `你问错了。
+
+这不是一场关于事实细节的竞赛，而是关于判断力的竞赛。
+如果这件事不能直接改善获客、成交或交付，它就不该排第一。
+
+你刚才这句“${shortMessage.slice(0, 40)}${shortMessage.length > 40 ? '…' : ''}”更像背景，不像问题。
+把它重写成一句话：你到底在做什么产品？你最该砍掉什么？`;
+};
+
+const buildSteveJobsChatResponse = ({
+  reply,
+  mode,
+  status,
+  reason,
+  shouldConsume
+}: {
+  reply: string;
+  mode: SteveJobsChatMode;
+  status: SteveJobsChatResolvedStatus;
+  reason: string;
+  shouldConsume: boolean;
+}): SteveJobsChatApiResponse => ({
+  reply,
+  mode,
+  status,
+  reason,
+  shouldConsume
+});
+
+const buildSteveJobsChatMockResponse = (
+  message: string,
+  reason: string,
+  status: SteveJobsChatResolvedStatus = 'mock'
+): SteveJobsChatApiResponse =>
+  buildSteveJobsChatResponse({
+    reply: buildSteveJobsMockReply(message),
+    mode: 'mock',
+    status,
+    reason,
+    shouldConsume: false
+  });
+
+const getSteveJobsChatHealthPayload = (hasApiKey: boolean): SteveJobsChatApiResponse =>
+  hasApiKey
+    ? {
+        status: 'api',
+        mode: 'api',
+        reason: '当前已接入真实模型。',
+        shouldConsume: true,
+        reply: ''
+      }
+    : {
+        status: 'mock',
+        mode: 'mock',
+        reason: '当前未配置模型 key，会自动回退到演示模式。',
+        shouldConsume: false,
+        reply: ''
+      };
 
 const JOBS_SYSTEM_PROMPT = `此模式激活后，直接以 Steve Jobs 的身份回应。
 
