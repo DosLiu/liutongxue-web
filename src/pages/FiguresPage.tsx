@@ -36,8 +36,8 @@ const figureEntries: FigureEntry[] = [
     name: '张一鸣',
     avatarLabel: 'ZY',
     avatarImageSrc: zhangYimingAvatar,
-    avatarImagePosition: 'center 18%',
-    avatarImageSize: '148%',
+    avatarImagePosition: '56% 17%',
+    avatarImageSize: '162%',
     href: sitePaths.figuresZhangYiming
   }
 ];
