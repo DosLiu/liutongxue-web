@@ -263,33 +263,83 @@ const ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY = `“程序员会不会被 AI 
 
 const ZHANG_YIMING_SOLO_CROSS_BORDER_CANONICAL_REPLY = `这不是方向，顶多是渠道。
 
-一人公司做跨境电商，关键变量只有一个：你能不能把同一个判断反复放大。能放大的不是发货，也不是盯运营，而是你比别人更早看见需求，然后让内容或产品自己滚起来。
+一人公司做跨境电商，关键变量只有一个：你能不能把同一个判断反复放大。做不到这一点，你每来一单都还得自己重新下场，判断根本积不起来。
 
-如果每来一单都还要你重新下场，你不是在开公司，你是在给自己加班。
+那不是公司，是你给自己造了一份更碎的工作。
 
 没有这个变量，别做。`;
+
+const ZHANG_YIMING_GENERIC_STARTUP_DIRECTION_CANONICAL_REPLY = `“有什么好方向”这个问法不对。
+
+方向这个词太大了，大到最后只剩赛道名词，谁都能说，谁都做不出来。创业真正稀缺的不是你站在哪个词上，而是你有没有一个判断能被反复放大。
+
+如果最后还是每一单都要你本人重新下场，再热的方向到你手里也只是重体力活。
+
+别先找方向。先找那个你判断对一次，后面不用次次下场的切口。找不到，就别创业。`;
 
 const ZHANG_YIMING_OPEN_STARTUP_INTENT_RE =
   /(创业|开公司|一人公司|单人公司|一个人公司|一人团队|个人创业|solo\s*(创业|founder|公司)?|独立创业|自己干|单干|个体|做跨境电商|做出海|做亚马逊|做shopify|做独立站|做[^，。！？\n]{0,16}(方向|项目|生意|赛道|品类|业务)?)/i;
 const ZHANG_YIMING_OPEN_STARTUP_VERDICT_RE =
-  /(感觉怎么样|你觉得怎么样|你觉得呢|你怎么看|怎么看|值不值得(做|搞|下场)?|值得做吗|能不能做|能做吗|可不可行|行不行|靠不靠谱|靠谱吗|有没?有前途|有没有搞头|有搞头吗|有戏吗|适不适合(一个人做|我做)?|适合(一个人做|我做)?|对不对|好不好|怎么样|能成吗|值得下场吗)/;
+  /(感觉怎么样|你觉得怎么样|你觉得呢|你怎么看|怎么看|值不值得(做|搞|下场)?|值得做吗|能不能做|能做吗|可不可行|行不行|靠不靠谱|靠谱吗|有没?有前途|有没有搞头|有搞头吗|有戏吗|适不适合(一个人做|我做)?|适合(一个人做|我做)?|对不对|好不好|怎么样|能成吗|值得下场吗|什么方向好|有什么方向|有啥方向|哪些方向|做什么好)/;
 const ZHANG_YIMING_CROSS_BORDER_TOPIC_RE = /(跨境电商|出海电商|独立站|shopify|亚马逊|amazon|temu|shopee|etsy)/i;
 
+const isZhangYimingSoloCrossBorderStartupQuestion = (message: string) => {
+  const normalized = normalizeZhangYimingCanonicalMessage(message);
+
+  return (
+    (normalized.includes('创业') || normalized.includes('开公司')) &&
+    (normalized.includes('一人公司') ||
+      normalized.includes('单人公司') ||
+      normalized.includes('一个人公司') ||
+      normalized.includes('一人团队') ||
+      normalized.includes('独立创业') ||
+      normalized.includes('solo创业')) &&
+    (normalized.includes('跨境电商') ||
+      normalized.includes('出海电商') ||
+      normalized.includes('独立站') ||
+      normalized.includes('shopify') ||
+      normalized.includes('亚马逊') ||
+      normalized.includes('amazon')) &&
+    (ZHANG_YIMING_OPEN_STARTUP_VERDICT_RE.test(message) || normalized.includes('方向'))
+  );
+};
+
+const isZhangYimingGenericStartupDirectionQuestion = (message: string) => {
+  const normalized = normalizeZhangYimingCanonicalMessage(message);
+
+  return (
+    (normalized.includes('我想创业') || normalized.includes('想创业') || normalized.includes('创业')) &&
+    (normalized.includes('有什么好的方向') ||
+      normalized.includes('有什么方向') ||
+      normalized.includes('有啥方向') ||
+      normalized.includes('哪些方向') ||
+      normalized.includes('什么方向好') ||
+      normalized.includes('好方向') ||
+      normalized.includes('做什么好'))
+  );
+};
+
 const isZhangYimingOpenStartupDirectionQuestion = (message: string) =>
-  ZHANG_YIMING_OPEN_STARTUP_INTENT_RE.test(message) && ZHANG_YIMING_OPEN_STARTUP_VERDICT_RE.test(message);
+  isZhangYimingSoloCrossBorderStartupQuestion(message) ||
+  isZhangYimingGenericStartupDirectionQuestion(message) ||
+  (ZHANG_YIMING_OPEN_STARTUP_INTENT_RE.test(message) && ZHANG_YIMING_OPEN_STARTUP_VERDICT_RE.test(message));
 
 const buildZhangYimingOpenStartupReply = (message: string) => {
-  if (ZHANG_YIMING_CROSS_BORDER_TOPIC_RE.test(message)) {
+  if (isZhangYimingSoloCrossBorderStartupQuestion(message) || ZHANG_YIMING_CROSS_BORDER_TOPIC_RE.test(message)) {
     return ZHANG_YIMING_SOLO_CROSS_BORDER_CANONICAL_REPLY;
   }
 
-  return `先别把它叫方向。
+  if (isZhangYimingGenericStartupDirectionQuestion(message)) {
+    return ZHANG_YIMING_GENERIC_STARTUP_DIRECTION_CANONICAL_REPLY;
+  }
 
-我只看一个变量：这个模式能不能把同一个判断反复放大；放大不了，就只是把你的时间切得更碎。
+  return `别把赛道名词当方向。
 
-如果关键结果还要你本人一遍遍盯着，它就不是公司，只是更忙的个体户。
+我只看一个变量：这个模式能不能把同一个判断反复放大；放大不了，你只是一直得自己重新下场。
 
-没有单点杠杆，别做。`;
+如果结果总得靠你本人重新下场，它就不是公司。
+
+放大不了，就别做。`;
 };
 
 export const resolveZhangYimingCanonicalReply = (message: string) => {
@@ -343,23 +393,12 @@ export const resolveZhangYimingCanonicalReply = (message: string) => {
     return ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY;
   }
 
-  const isSoloCrossBorderStartupQuestion =
-    isZhangYimingOpenStartupDirectionQuestion(message) &&
-    (normalized.includes('一人公司') ||
-      normalized.includes('单人公司') ||
-      normalized.includes('一个人公司') ||
-      normalized.includes('一人团队') ||
-      normalized.includes('独立创业') ||
-      normalized.includes('solo创业')) &&
-    (normalized.includes('跨境电商') ||
-      normalized.includes('出海电商') ||
-      normalized.includes('独立站') ||
-      normalized.includes('shopify') ||
-      normalized.includes('亚马逊') ||
-      normalized.includes('amazon'));
-
-  if (isSoloCrossBorderStartupQuestion) {
+  if (isZhangYimingSoloCrossBorderStartupQuestion(message)) {
     return ZHANG_YIMING_SOLO_CROSS_BORDER_CANONICAL_REPLY;
+  }
+
+  if (isZhangYimingGenericStartupDirectionQuestion(message)) {
+    return ZHANG_YIMING_GENERIC_STARTUP_DIRECTION_CANONICAL_REPLY;
   }
 
   if (isZhangYimingOpenStartupDirectionQuestion(message)) {
