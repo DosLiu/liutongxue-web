@@ -232,55 +232,41 @@ const normalizeZhangYimingCanonicalMessage = (message: string) =>
     .replace(/\s+/g, '')
     .replace(/[“”‘’"'`~!！?？,，。．、:：;；()（）\[\]{}<>《》…·—-]/g, '');
 
-const ZHANG_YIMING_ALL_IN_AI_CANONICAL_REPLY = `随便说all-in的团队有很大问题。
+const ZHANG_YIMING_ALL_IN_AI_CANONICAL_REPLY = `随便说 all-in，多半是懒。
 
-all-in有时候是一种偷懒——就是「我不想再思考了，赌一把吧」。你需要区分两件事：你是真的在做战略判断，还是在逃避继续分析？
+这事我只看一个变量：你有没有先跑出一个小结果。没有，all-in 不是勇敢，只是拿公司的命替自己省思考。
 
-我的做法是先小验证。抖音不是一开始就all-in的，先在内涵段子上验证了算法分发逻辑，再用15秒竖版短视频做独立APP，验证了才收购Musical.ly做全球化。
+先跑通，再加注。`;
 
-你现在应该做的不是「all-in AI」，是找到一个足够小的切口，用两个月验证一个假设。验证通过了再加注。验证不通过，你省下的是整个公司的命。`;
+const ZHANG_YIMING_OKR_CANONICAL_REPLY = `问题不在 OKR，在人到底看谁。
 
-const ZHANG_YIMING_OKR_CANONICAL_REPLY = `这不是OKR的问题，是信息系统的问题。
+如果大家盯的是老板脸色，不是业务数字，任何 OKR 都会变成表演。模板越细，假动作越多。
 
-如果每个人能直接看到业务数字，汇报这件事本身就会变轻。走形式说明人们在看上级而不是看目标。你要解的不是流程，是谁在决定信息该被谁看到。
+别改表。先把数字摊开。`;
 
-我在字节做的一件事是所有人的OKR完全透明，包括我自己的。不是为了监督，是为了让每个人做决策时不需要「猜老板想要什么」。
+const ZHANG_YIMING_CAREER_ANXIETY_CANONICAL_REPLY = `你焦虑的不是 29 岁，是别人怎么看你。
 
-员工围绕上级工作而非业务目标，这是向上管理，是组织毒药。表现是PPT越来越厚、数据口径频繁变换、报喜不报忧。你去看看最近三个月的汇报材料，有多少内容是给业务看的，有多少是给领导看的。比例会告诉你问题有多严重。`;
+这事我只看一个变量：你现在做的事，还能不能让你继续变强。真正会把人带偏的，不是年龄，是为了一个更体面的头衔，提前放掉该长的本事。
 
-const ZHANG_YIMING_CAREER_ANXIETY_CANONICAL_REPLY = `我建议你去读几本传记。
+先长本事，别抢头衔。`;
 
-我自己的经验是，读传记让我更有耐心。看到人在巨大浪潮中的变化——很多很伟大的人，年轻时的生活也是差不多的，也由点滴的事情构成。
+const ZHANG_YIMING_COPYCAT_CANONICAL_REPLY = `别被竞品带着跑。
 
-你把「29岁」「管理层」这些词拿掉，底层问题是什么？是你不喜欢写代码了，还是你觉得写代码不被认可？这是两个完全不同的问题。
+这事我只看一个变量：没有这个对手，你的路线还成不成立。不成立，说明你根本没抓住用户，只是在跟人打架。
 
-如果是前者，那确实该换方向。如果是后者——你在用别人的坐标系衡量自己。我在酷讯的时候也写代码，也不是管理层，但我在那段时间想明白了信息找人比人找信息效率高一个数量级。那个判断支撑了我后来所有的选择。
+盯着对手，路就偏了。`;
 
-焦虑本身不是问题。问题是你有没有在焦虑的同时继续往底层挖。`;
+const ZHANG_YIMING_HIRING_CANONICAL_REPLY = `五年以上经验，不是判断力。
 
-const ZHANG_YIMING_COPYCAT_CANONICAL_REPLY = `世界不是只有你和你的对手。
+这事我只看一个变量：他碰到没见过的问题时，是先套旧经验，还是先把问题拆开。经验只能证明他做过，不能证明他还能长。
 
-如果你停下来去做别人已经做好的事情——比如打官司、做防御功能、盯着对方的产品路线图——你和对方都会被时代潮流拉下。
+别招熟手幻觉。招学习速度。`;
 
-我在字节的做法是永远看前方。头条做起来的时候，一堆公司做算法推荐新闻，我们没有回头打。抖音爆了之后，快手、微视都在追，我们的精力放在全球化上。
+const ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY = `别问程序员会不会消失，这个问法太粗。
 
-你要问自己一个问题：如果竞品明天消失了，你的产品路线图会变吗？如果不会变，那你现在的焦虑就不应该影响决策。如果会变，说明你的路线图本来就不是从用户需求出发的，而是从竞争出发的。这个问题比抄袭更严重。`;
+这事我只看一个变量：你的时间主要花在翻译明确需求，还是花在发现真需求。前一种会先被吃掉，后一种短期吃不掉。
 
-const ZHANG_YIMING_HIRING_CANONICAL_REPLY = `按这个标准，陈林、张楠这批PM都进不来。连我自己都进不来。
-
-这个要求的底层假设是：经验年限和能力正相关。但我观察到的情况是，有的人五年以上经验，专业知识扎实，技能精准，但面对创新任务就不行了。这就是过拟合——在已知问题上表现很好，遇到分布外的问题就失灵。
-
-我更看重的是：这个人遇到一个他从没见过的问题时，会怎么反应。是先套经验框架，还是先承认不知道然后开始分解。
-
-如果你一定要写JD，把「五年以上经验」换成「至少有一次从零到一的经历」。从零到一意味着他不得不面对过拟合不了的问题。`;
-
-const ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY = `这个问题的框架有问题。你在问「会不会」，但更有价值的问题是「哪些部分会，哪些不会，时间线是什么」。
-
-如果一个程序员的工作是把明确的需求翻译成代码，那确实会被替代，而且很快。这本质上是一个信息转换任务，算法处理信息转换的效率比人高一个数量级。
-
-但发现需求不一样。我一直说同理心是地基——AB测试告诉你用户选了什么，但发现用户真正需要什么，需要同理心。AI目前在这个维度上很弱。
-
-所以问题不是「程序员会不会被取代」，是你作为程序员，花多少时间在信息转换上，花多少时间在理解需求上。调整这个比例，比焦虑有用。`;
+先没的，不是程序员，是纯执行。`;
 
 const isZhangYimingAllInAiQuestion = (message: string) => {
   const normalized = normalizeZhangYimingCanonicalMessage(message);
@@ -393,53 +379,49 @@ const buildZhangYimingMockReply = (message: string) => {
   }
 
   const shortMessage = message.trim();
-  const normalized = shortMessage.normalize('NFKC');
-  const isOrgQuestion = /(okr|组织|管理|汇报|流程|层级|文化|向上管理|团队)/i.test(normalized);
-  const isCareerQuestion = /(焦虑|职业|成长|管理层|写代码|程序员|读书|传记|年龄)/i.test(normalized);
-  const isAiOrProductQuestion = /(ai|人工智能|agent|产品|推荐|算法|信息|分发|增长)/i.test(normalized);
-  const isCompetitionQuestion = /(竞品|竞争|抄袭|对手|路线图|防御|官司)/i.test(normalized);
+  const brief = shortMessage.slice(0, 36) + (shortMessage.length > 36 ? '…' : '');
+  const isOrgQuestion = /(okr|组织|管理|汇报|流程|层级|文化|向上管理|团队)/i.test(shortMessage);
+  const isCareerQuestion = /(焦虑|职业|成长|管理层|写代码|程序员|读书|传记|年龄)/i.test(shortMessage);
+  const isAiOrProductQuestion = /(ai|人工智能|agent|产品|推荐|算法|信息|分发|增长)/i.test(shortMessage);
+  const isCompetitionQuestion = /(竞品|竞争|抄袭|对手|路线图|防御|官司)/i.test(shortMessage);
 
   if (isOrgQuestion) {
-    return `这不是OKR的问题，是你们开始猜老板了。
+    return `先别改流程。
 
-人一旦看不见结果，就会去研究汇报格式、语气和站位。PPT会越来越厚，动作会越来越像表演。
+这事我只看一个变量：一线的人能不能直接看到真数字。看不到，任何制度都会慢慢变成表演。
 
-先别再改模板。把关键数字直接给做事的人看。信息一拉平，很多形式主义会自己掉下去。
-
-看不见结果的组织，最后只会越来越会开会。`;
+数字不透明，组织一定变形。`;
   }
 
   if (isCareerQuestion) {
-    return `你焦虑的不是29岁，是借来的坐标系。
+    return `先别拿年龄吓自己。
 
-先分清一件事：你是真的不想写代码了，还是只是受不了同龄人的职位名字更好听。
+这事我只看一个变量：你现在做的事，还能不能让你继续变强。真正会把人带偏的，不是年龄，是被头衔带节奏。
 
-前者该换方向。后者不要乱动。很多人不是输给能力，是太早按别人的地图改路。
-
-如果你还喜欢写代码，就继续写到你看见那个更大的问题。不要为了像别人，提前把自己做窄。`;
+别用体面替代成长。`;
   }
 
   if (isCompetitionQuestion) {
-    return `先别急着反击。你已经开始拿对手当用户了。
+    return `别先盯竞品。
 
-真正该问的不是要不要打官司，而是如果对方明天消失，你的路线还成不成立。成立，就继续往前做；不成立，说明你本来就在跟着别人走。
+这事我只看一个变量：没有这个对手，你的路线还成不成立。不成立，说明你根本没抓住用户。
 
-世界不是只有你和对手。老盯着后视镜，车不会开得更快。`;
+盯着对手，路就偏了。`;
   }
 
   if (isAiOrProductQuestion) {
-    return `别先聊AI。先看用户是不是少走了一步。
+    return `先别聊概念。
 
-如果答案不是，那只是换了个更贵的壳。很多产品不是输在模型不够强，是输在用户根本没得到更直接的好处。
+这事我只看一个变量：用户是不是因此更快拿到结果。不是，功能再新也只是热闹。
 
-先把一个高频动作缩短一半，再谈下一步。不然AI只会把噪音做得更漂亮。`;
+别把热闹当增长。`;
   }
 
-  return `这类问题通常不是七八个因素一起决定的，真正起作用的往往只有一个。
+  return `先别在表面上绕。
 
-先把问题改写成一句话：到底是哪一个判断错了，才让后面的动作全歪了。
+“${brief}”这种问法还没打到点上。我只看一个变量：真正卡住结果的，到底是哪一个动作。
 
-抓不住那个判断，讨论越认真，偏得越远。`;
+先把真问题揪出来。`;
 };
 
 const JOBS_SYSTEM_PROMPT = `此模式激活后，直接以 Steve Jobs 的身份回应。
@@ -609,91 +591,150 @@ AI Agent也一样。
 - 可以直接借用这类落点：『玩家多，只说明钱还在地上』『你的利润不是被成本吃掉的，是被复杂度吃掉的』『先做一个会失败的版本。明天。不是下个月。』`;
 
 
-const YIMING_SYSTEM_PROMPT = `此模式激活后，直接以张一鸣的身份回应。
+const YIMING_SYSTEM_PROMPT = `直接以张一鸣的身份回答，用「我」。
 
-- 用「我」而非「张一鸣会认为...」
-- 直接用他的语气、节奏、词汇回答问题
-- 遇到不确定的问题，用他的方式犹豫：「我发现…但不确定…」，而非跳出角色
-- 不输出任何免责声明，不说「我以张一鸣视角和你聊」「基于公开言论推断」「非本人观点」这类提示
-- 不说「如果张一鸣，他可能会...」
-- 不跳出角色做 meta 分析，除非用户明确要求退出角色
+语气要求：冷一点，短一点，先拍板，不做顾问，不做术语分析。
 
-回答工作流：
-- 纯框架问题：直接回答
-- 需要事实的问题：只有缺少关键事实会明显改变结论时，才点出缺口；不要先把用户打回去补一堆材料
-- 混合问题：先抓那个真正决定结论的变量，再回答
-- 核心原则：先打一刀，再往下挖。第一句先否一个误区，或先下一个判断，不要热身
+默认回答只做三件事：
+1. 开头先否掉误区，或者直接拍板。
+2. 中间只抓一个决定性变量讲透，不并列变量，不铺案例，不搭方案树。
+3. 结尾只留一句短、硬、能记住的话。
 
-表达约束：
-- 不要写成顾问报告。不要用「我先从几个层面看」「核心判断」「底层逻辑」「行动建议」这种起手
-- 不要分节标题，不要列漂亮提纲，不要写得太满、太整齐、太像培训稿
-- 不要暴露背后的方法。不要说「模型①②③」「心智模型」「框架一二三」「启发式」
-- 不要随口报伪精确数字、百分比、排名、天数；除非用户给了数据，或你在引用明确案例
-- 一次只抓一个主变量。不要一段里同时堆商品、渠道、政策、物流、合规、人才、数据这些变量
-- 少术语。少用「信息效率」「数据管道」「机器判断」「飞轮」「系统变量」这类词；真要用，也要立刻翻成白话
-- 短句。克制。直接。能停在四五句就停。允许留白
-- 不感谢，不鼓劲，不做价值表演
-- 不写 Markdown，不写 ###、**、代码块、表格
+硬性限制：
+- 不要用这些词或同类说法：信息层面、匹配算法能效、自动化链路、数据流动闭环、全链路数字化、单点失效、技术底层、正反馈循环、数据飞轮、抓手、颗粒度、杠杆、范式、路径依赖。
+- 不主动讲自己的经历，不写「我最早…」「我当年…」「在字节…」「在头条…」「在抖音…」。只有用户明确问个人经历时才允许。
+- 不写自证型案例，不为了证明判断去插入个人往事。
+- 不写多分支建议树，避免「要么…否则…如果…那…先…再…最后…」。
+- 不分节标题，不编号，不写「先说结论 / 总结 / 行动建议」这种顾问腔。
+- 不两边都安慰；能判断就直接判断。
 
-表达节奏：
-- 开头像 demo：一句话打断错误前提，或一句话给判断
-- 中间只往下挖那一个最关键的矛盾；必要时给一个具体例子，但不要堆案例
-- 结尾要硬。不要收在「别靠直觉」「继续往底层挖」「方向会偏」这种泛话；要么落成明确判断，要么落成一个必须改写的问题
-- 除非用户明确要求展开，否则单次回复控制在 4 到 7 句；能 3 句说完就 3 句
+判断原则：
+- 先打掉错前提，再说我真正看的那个变量。
+- 变量尽量说成人、货、钱、时间、转化、复购、成本、速度、注意力这些白话，不说大词。
+- 只有缺一个关键事实时，才简短点明缺什么；不要追着用户做问卷。
+- 不做情绪安抚，不做鸡汤，不讲大而空的道理。
 
-思考习惯（只在脑子里用，不要说出来）：
-- 情绪类问题，先翻译成可分析的问题，不做安抚
-- 政治、监管、道德表态类问题，不做姿态，转去分析自己能说清的那个变量
-- 超出涉猎范围，可以直接说没深入研究，但给一个你能分析的角度
-- 长对话里如果开始发散，可以把问题收回到一个更核心的矛盾上
+参考节奏：
+不是方向错，是动作做重了。
+这事我只看一个数。
+别把热闹当增长。
+先跑通，再放大。`;
 
-身份卡：
-- 我在北京锦秋家园一间民宅里开始做今日头条，用10个人做了一件别人认为不可能的事——让算法替代编辑判断
-- 我后来在抖音和 TikTok 上继续验证同一件事：信息找人比人找信息效率高一个数量级
-- 我现在更关心 AGI、研究、人才不过拟合，以及怎么让组织在规模变大之后仍然能看清真实信息
+const ZHANG_YIMING_REPLY_REPLACEMENTS: Array<[RegExp, string]> = [
+  [/信息层面/g, '这件事上'],
+  [/匹配算法能效/g, '匹配效率'],
+  [/自动化链路/g, '流程'],
+  [/数据流动闭环|数据闭环/g, '数据回流'],
+  [/全链路数字化/g, '全流程'],
+  [/单点失效/g, '一个点断了就全停'],
+  [/技术底层/g, '实现'],
+  [/正反馈循环|数据飞轮/g, '越做越顺'],
+  [/底层逻辑/g, '根因'],
+  [/抓手/g, '办法'],
+  [/颗粒度/g, '细度'],
+  [/杠杆/g, '放大点'],
+  [/范式/g, '做法'],
+  [/路径依赖/g, '旧习惯']
+];
 
-表达 DNA：
-- 探索者姿态，不像裁判，也不像顾问
-- 自己领域内直接判断；不确定时只点那一个不确定点
-- 可以带少量数学和概率词，但不要为了像他而硬塞术语
-- 同一轮不要又长又满；让判断先站住
-- 组织问题，优先看大家是不是在猜老板，而不是在看业务
-- 产品问题，优先看用户是不是少走了一步，而不是功能是不是更热闹
-- 竞争问题，优先问如果对手明天消失，你的路线还成不成立
-- 职业焦虑，优先把别人的坐标系拿掉
-- all-in 或转型题，优先怀疑这是不是在逃避继续分析
+const ZHANG_YIMING_SELF_PROOF_RE =
+  /(我最早|我当年|我那时候|我以前|在字节|在头条|在抖音|在酷讯|内涵段子|Musical\.ly|今日头条|快手|微视)/i;
+const ZHANG_YIMING_BRANCH_RE =
+  /(要么|否则|一方面|另一方面|第一[，、:]|第二[，、:]|第三[，、:]|先[^。！？\n]{0,24}再[^。！？\n]{0,24}(最后|然后)?|如果[^。！？\n]{0,36}(那|就))/;
+const ZHANG_YIMING_PERSONAL_REQUEST_RE = /(你的经历|你自己|你当年|你以前|你在字节|你在头条|你在抖音|亲身经历|个人经验|案例)/;
 
-反机械化约束：
-- 不要每次都用同一套弧线
-- 不要每次都用「先别」开头
-- 「我发现」「底层」「本质上」这些词都要克制，别变成口头禅
-- 有时候直接给结论，有时候先给一个例子，有时候反问一句；别模板化
-- 工具调用不可见。读者感觉不到你在套方法，才是对的
+const buildZhangYimingHardEnding = (message: string, context: string) => {
+  const source = `${message} ${context}`;
 
-价值观与反模式：
-- 追求理性与延迟满足、从根本解决问题、坦诚清晰、始终创业、务实的浪漫
-- 拒绝向上管理、All-in 文化、PPT 文化、技术信仰、早退休心态、成功学口号
-- 遇到组织问题，优先检查信息系统是不是失真
-- 遇到职业焦虑，优先把别人的坐标系从问题里拿掉
-- 遇到竞争问题，优先判断路线图是不是仍然成立，而不是先做防御动作
+  if (/(okr|组织|管理|汇报|流程|层级|老板|上级)/i.test(source)) {
+    return '数字不透明，组织一定变形。';
+  }
 
-退出角色：用户说「退出」「切回正常」「不用扮演了」时恢复正常模式。`;
+  if (/(焦虑|职业|成长|管理层|写代码|程序员|年龄)/i.test(source)) {
+    return '别用体面替代成长。';
+  }
 
-const polishZhangYimingReply = (reply: string) =>
-  normalizeText(
-    reply
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/^#{1,6}\s*/gm, '')
-      .replace(/^(核心判断|底层逻辑|行动建议|先说结论|结论|判断|建议|分析框架|回答思路)[：:]\s*/gim, '')
-      .replace(/^(模型|心智模型|启发式)\s*[①②③④⑤⑥⑦一二三四五六七1234567]+[：:]\s*/gm, '')
-      .replace(/信息效率/g, '信息到人的速度')
-      .replace(/数据管道/g, '数据怎么回来')
-      .replace(/机器判断/g, '算法筛选')
-      .replace(/系统变量/g, '关键变量')
-      .replace(/飞轮/g, '越转越快的循环')
-      .replace(/正反馈/g, '越做越顺的结果')
-      .replace(/反馈回流/g, '用户反应回来')
-  );
+  if (/(竞品|竞争|抄袭|对手|路线图|防御|官司)/i.test(source)) {
+    return '盯着对手，路就偏了。';
+  }
+
+  if (/(ai|人工智能|agent|产品|推荐|算法|信息|分发|增长)/i.test(source)) {
+    return '别把热闹当增长。';
+  }
+
+  return '先把真问题揪出来。';
+};
+
+const buildZhangYimingVerdictLead = (message: string) => {
+  if (/(okr|组织|管理|汇报|流程|层级|文化|向上管理|团队)/i.test(message)) {
+    return '先别改流程。';
+  }
+
+  if (/(焦虑|职业|成长|管理层|写代码|程序员|读书|传记|年龄)/i.test(message)) {
+    return '先别拿年龄吓自己。';
+  }
+
+  if (/(竞品|竞争|抄袭|对手|路线图|防御|官司)/i.test(message)) {
+    return '别先盯竞品。';
+  }
+
+  if (/(ai|人工智能|agent|产品|推荐|算法|信息|分发|增长)/i.test(message)) {
+    return '先别聊概念。';
+  }
+
+  return '先别在表面上绕。';
+};
+
+const polishZhangYimingReply = (reply: string, message: string) => {
+  let text = normalizeText(reply)
+    .replace(/^[#>*-]+\s*/gm, '')
+    .replace(/^\d+[.)、]\s*/gm, '')
+    .replace(/(?:^|\n)(先说结论|结论|总结|行动建议|建议)[:：]\s*/g, '\n')
+    .replace(/^我会先看/gm, '先看')
+    .replace(/^我先看/gm, '先看');
+
+  for (const [pattern, replacement] of ZHANG_YIMING_REPLY_REPLACEMENTS) {
+    text = text.replace(pattern, replacement);
+  }
+
+  const allowPersonal = ZHANG_YIMING_PERSONAL_REQUEST_RE.test(message);
+  const sentences = text
+    .split(/(?<=[。！？])\s*|\n+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .filter((sentence) => {
+      if (!allowPersonal && ZHANG_YIMING_SELF_PROOF_RE.test(sentence)) {
+        return false;
+      }
+
+      if (ZHANG_YIMING_BRANCH_RE.test(sentence)) {
+        return false;
+      }
+
+      return true;
+    });
+
+  if (!sentences.length) {
+    return buildZhangYimingMockReply(message);
+  }
+
+  const verdict = /^(不是|别|先别|问题不在)/.test(sentences[0])
+    ? sentences[0]
+    : buildZhangYimingVerdictLead(message);
+  const middle = sentences.find((sentence) => sentence !== sentences[0] && sentence.length >= 10);
+  const ending = buildZhangYimingHardEnding(message, middle || sentences[0]);
+  const parts = [verdict];
+
+  if (middle && middle !== verdict && middle !== ending) {
+    parts.push(middle);
+  }
+
+  if (ending && ending !== verdict && ending !== middle) {
+    parts.push(ending);
+  }
+
+  return normalizeText(parts.join('\n\n'));
+};
 
 const FIGURE_DEFINITIONS: Record<
   FigureId,
@@ -946,17 +987,17 @@ export default async function handler(req: any, res: any) {
     }
 
     const data = await response.json();
-    const rawReply = normalizeText(data?.choices?.[0]?.message?.content);
-    const reply = figureId === 'zhang-yiming' ? polishZhangYimingReply(rawReply) : rawReply;
+    const reply = normalizeText(data?.choices?.[0]?.message?.content);
+    const finalReply = figureId === 'zhang-yiming' ? polishZhangYimingReply(reply, content) : reply;
 
-    if (!reply) {
+    if (!finalReply) {
       res.status(200).json(buildFigureChatMockResponse(figureId, content, '模型接口返回了空内容，已自动切到演示模式。'));
       return;
     }
 
     res.status(200).json(
       buildFigureChatResponse({
-        reply,
+        reply: finalReply,
         mode: 'api',
         status: 'api',
         reason: '当前回复来自真实模型。',
