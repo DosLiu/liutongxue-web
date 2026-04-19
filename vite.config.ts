@@ -5,15 +5,6 @@ import tailwindcss from '@tailwindcss/vite';
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
-const normalizeBasePath = (value: string) => {
-  if (!value || value === '/') {
-    return '/';
-  }
-
-  const withLeadingSlash = value.startsWith('/') ? value : `/${value}`;
-  return withLeadingSlash.endsWith('/') ? withLeadingSlash : `${withLeadingSlash}/`;
-};
-
 const toCanonicalPath = (filename?: string, pagePath?: string) => {
   if (filename) {
     const relativeFilename = relative(__dirname, filename).replace(/\\/g, '/');
@@ -53,7 +44,6 @@ const buildAbsoluteUrl = (siteUrl: string, pathname: string) => {
 const extractTagContent = (html: string, pattern: RegExp) => html.match(pattern)?.[1]?.trim() || '';
 
 const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || 'https://liutongxue.com.cn');
-const buildBase = normalizeBasePath(process.env.VITE_SITE_BASE_PATH || '/');
 
 export default defineConfig({
   plugins: [
@@ -135,7 +125,7 @@ export default defineConfig({
       }
     }
   ],
-  base: buildBase,
+  base: '/',
   build: {
     rollupOptions: {
       input: {

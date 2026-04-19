@@ -492,14 +492,7 @@ const parseAllowedOrigins = () => {
 
 const isAllowedOrigin = (origin: string | undefined, allowedOrigins: Set<string>) => {
   if (!origin) return false;
-  if (allowedOrigins.has(origin)) return true;
-
-  try {
-    const { hostname } = new URL(origin);
-    return hostname.endsWith('.vercel.app');
-  } catch {
-    return false;
-  }
+  return allowedOrigins.has(origin);
 };
 
 const applyCors = (req: any, res: any) => {

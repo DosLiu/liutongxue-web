@@ -15,7 +15,7 @@ import {
   normalizeUserInput,
   setFigureChatStoredRemaining
 } from './client';
-import { getFigureChatApiUrl, getFigureChatSurface } from './runtime';
+import { getFigureChatApiUrl } from './runtime';
 import {
   type FigureChatApiResponse,
   type FigureChatConfig,
@@ -40,8 +40,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   const [serviceStatus, setServiceStatus] = useState<FigureChatServiceStatus>('checking');
   const [error, setError] = useState('');
   const [statusNotice, setStatusNotice] = useState('');
-  const surface = getFigureChatSurface();
-  const isStaticPreview = surface === 'static-preview';
+  const isStaticPreview = false;
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const normalizedInput = useMemo(() => normalizeUserInput(input), [input]);

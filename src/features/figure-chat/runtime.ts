@@ -1,7 +1,5 @@
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
-const isGitHubPagesHost = (hostname: string) => hostname === 'github.io' || hostname.endsWith('.github.io');
-
 const getExplicitApiUrl = () => {
   const configured = import.meta.env.VITE_CHAT_API_URL?.trim();
 
@@ -27,7 +25,7 @@ export const getFigureChatSurface = () => {
     return 'server' as const;
   }
 
-  return isGitHubPagesHost(window.location.hostname) ? ('static-preview' as const) : ('runtime' as const);
+  return 'runtime' as const;
 };
 
 export const getFigureChatApiUrl = () => {
@@ -48,11 +46,5 @@ export const getFigureChatApiUrl = () => {
     return null;
   }
 
-  const { hostname, origin } = window.location;
-
-  if (isGitHubPagesHost(hostname)) {
-    return null;
-  }
-
-  return `${trimTrailingSlash(origin)}/api/chat`;
+  return `${trimTrailingSlash(window.location.origin)}/api/chat`;
 };
