@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://liutongxue.com.cn/sitemap.xml
-Host: liutongxue.com.cn
+Sitemap: https://www.liutongxue.com.cn/sitemap.xml
+Host: www.liutongxue.com.cn

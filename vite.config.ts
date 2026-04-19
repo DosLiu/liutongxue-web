@@ -43,7 +43,7 @@ const buildAbsoluteUrl = (siteUrl: string, pathname: string) => {
 
 const extractTagContent = (html: string, pattern: RegExp) => html.match(pattern)?.[1]?.trim() || '';
 
-const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || 'https://liutongxue.com.cn');
+const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || 'https://www.liutongxue.com.cn');
 
 export default defineConfig({
   plugins: [
