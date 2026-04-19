@@ -22,6 +22,14 @@
   text-align: center;
 }
 
+.figures-hero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  width: min(100%, 44rem);
+}
+
 .figures-title {
   margin: 0;
   color: var(--text-primary);
@@ -29,6 +37,14 @@
   font-weight: 600;
   line-height: 1.12;
   letter-spacing: -0.045em;
+}
+
+.figures-subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: clamp(0.98rem, 1.5vw, 1.08rem);
+  line-height: 1.7;
+  letter-spacing: 0.01em;
 }
 
 .figures-grid {
@@ -160,6 +176,15 @@
 
   .figures-hero {
     margin-bottom: 2.2rem;
+  }
+
+  .figures-hero__content {
+    gap: 0.72rem;
+  }
+
+  .figures-subtitle {
+    font-size: 0.94rem;
+    line-height: 1.6;
   }
 
   .figures-grid {

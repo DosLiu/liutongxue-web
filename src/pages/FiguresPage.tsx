@@ -80,9 +80,12 @@ export default function FiguresPage() {
 
       <main className="figures-shell">
         <section className="figures-hero" aria-labelledby="figures-title">
-          <h1 id="figures-title" className="figures-title">
-            和不同的顶层思维聊一聊
-          </h1>
+          <div className="figures-hero__content">
+            <h1 id="figures-title" className="figures-title">
+              顶级思维面对面
+            </h1>
+            <p className="figures-subtitle">与行业传奇，展开一场跨时空的深度对话</p>
+          </div>
         </section>
 
         <section className="figures-grid" aria-label="人物入口列表">
