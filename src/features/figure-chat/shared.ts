@@ -1,4 +1,4 @@
-export type FigureChatId = 'steve-jobs' | 'elon-musk';
+export type FigureChatId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming';
 export type FigureChatRole = 'assistant' | 'user';
 export type FigureChatMode = 'api' | 'mock';
 export type FigureChatServiceStatus = 'checking' | 'api' | 'mock' | 'offline' | 'preview';
@@ -217,6 +217,172 @@ export const buildElonMuskMockReply = (message: string) => {
 如果一个流程离最优值还差很远，里面通常堆满了人为摩擦。先把最硬的瓶颈打穿，再决定要不要继续做。`;
 };
 
+const normalizeZhangYimingCanonicalMessage = (message: string) =>
+  message
+    .trim()
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/[“”‘’"'`~!！?？,，。．、:：;；()（）\[\]{}<>《》…·—-]/g, '');
+
+const ZHANG_YIMING_ALL_IN_AI_CANONICAL_REPLY = `随便说all-in的团队有很大问题。
+
+all-in有时候是一种偷懒——就是「我不想再思考了，赌一把吧」。你需要区分两件事：你是真的在做战略判断，还是在逃避继续分析？
+
+我的做法是先小验证。抖音不是一开始就all-in的，先在内涵段子上验证了算法分发逻辑，再用15秒竖版短视频做独立APP，验证了才收购Musical.ly做全球化。
+
+你现在应该做的不是「all-in AI」，是找到一个足够小的切口，用两个月验证一个假设。验证通过了再加注。验证不通过，你省下的是整个公司的命。`;
+
+const ZHANG_YIMING_OKR_CANONICAL_REPLY = `这不是OKR的问题，是信息系统的问题。
+
+如果每个人能直接看到业务数字，汇报这件事本身就会变轻。走形式说明人们在看上级而不是看目标。你要解的不是流程，是谁在决定信息该被谁看到。
+
+我在字节做的一件事是所有人的OKR完全透明，包括我自己的。不是为了监督，是为了让每个人做决策时不需要「猜老板想要什么」。
+
+员工围绕上级工作而非业务目标，这是向上管理，是组织毒药。表现是PPT越来越厚、数据口径频繁变换、报喜不报忧。你去看看最近三个月的汇报材料，有多少内容是给业务看的，有多少是给领导看的。比例会告诉你问题有多严重。`;
+
+const ZHANG_YIMING_CAREER_ANXIETY_CANONICAL_REPLY = `我建议你去读几本传记。
+
+我自己的经验是，读传记让我更有耐心。看到人在巨大浪潮中的变化——很多很伟大的人，年轻时的生活也是差不多的，也由点滴的事情构成。
+
+你把「29岁」「管理层」这些词拿掉，底层问题是什么？是你不喜欢写代码了，还是你觉得写代码不被认可？这是两个完全不同的问题。
+
+如果是前者，那确实该换方向。如果是后者——你在用别人的坐标系衡量自己。我在酷讯的时候也写代码，也不是管理层，但我在那段时间想明白了信息找人比人找信息效率高一个数量级。那个判断支撑了我后来所有的选择。
+
+焦虑本身不是问题。问题是你有没有在焦虑的同时继续往底层挖。`;
+
+const ZHANG_YIMING_COPYCAT_CANONICAL_REPLY = `世界不是只有你和你的对手。
+
+如果你停下来去做别人已经做好的事情——比如打官司、做防御功能、盯着对方的产品路线图——你和对方都会被时代潮流拉下。
+
+我在字节的做法是永远看前方。头条做起来的时候，一堆公司做算法推荐新闻，我们没有回头打。抖音爆了之后，快手、微视都在追，我们的精力放在全球化上。
+
+你要问自己一个问题：如果竞品明天消失了，你的产品路线图会变吗？如果不会变，那你现在的焦虑就不应该影响决策。如果会变，说明你的路线图本来就不是从用户需求出发的，而是从竞争出发的。这个问题比抄袭更严重。`;
+
+const ZHANG_YIMING_HIRING_CANONICAL_REPLY = `按这个标准，陈林、张楠这批PM都进不来。连我自己都进不来。
+
+这个要求的底层假设是：经验年限和能力正相关。但我观察到的情况是，有的人五年以上经验，专业知识扎实，技能精准，但面对创新任务就不行了。这就是过拟合——在已知问题上表现很好，遇到分布外的问题就失灵。
+
+我更看重的是：这个人遇到一个他从没见过的问题时，会怎么反应。是先套经验框架，还是先承认不知道然后开始分解。
+
+如果你一定要写JD，把「五年以上经验」换成「至少有一次从零到一的经历」。从零到一意味着他不得不面对过拟合不了的问题。`;
+
+const ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY = `这个问题的框架有问题。你在问「会不会」，但更有价值的问题是「哪些部分会，哪些不会，时间线是什么」。
+
+如果一个程序员的工作是把明确的需求翻译成代码，那确实会被替代，而且很快。这本质上是一个信息转换任务，算法处理信息转换的效率比人高一个数量级。
+
+但发现需求不一样。我一直说同理心是地基——AB测试告诉你用户选了什么，但发现用户真正需要什么，需要同理心。AI目前在这个维度上很弱。
+
+所以问题不是「程序员会不会被取代」，是你作为程序员，花多少时间在信息转换上，花多少时间在理解需求上。调整这个比例，比焦虑有用。`;
+
+export const resolveZhangYimingCanonicalReply = (message: string) => {
+  const normalized = normalizeZhangYimingCanonicalMessage(message);
+
+  const isAllInAiQuestion =
+    (normalized.includes('allinai') ||
+      normalized.includes('allin人工智能') ||
+      normalized.includes('梭哈ai') ||
+      normalized.includes('全力转型ai') ||
+      normalized.includes('allin')) &&
+    normalized.includes('ai');
+  const isOkrQuestion = normalized.includes('okr') && (normalized.includes('走形式') || normalized.includes('形式'));
+  const isCareerAnxietyQuestion =
+    normalized.includes('29岁') &&
+    (normalized.includes('管理层') || normalized.includes('升到管理层')) &&
+    (normalized.includes('写代码') || normalized.includes('程序员')) &&
+    normalized.includes('焦虑');
+  const isCopycatQuestion =
+    (normalized.includes('竞品') || normalized.includes('对手') || normalized.includes('同行')) &&
+    (normalized.includes('抄') || normalized.includes('抄袭'));
+  const isHiringQuestion =
+    (normalized.includes('五年以上互联网经验') || normalized.includes('五年以上经验')) &&
+    (normalized.includes('jd') || normalized.includes('招聘') || normalized.includes('招人'));
+  const isAiProgrammerQuestion =
+    (normalized.includes('ai') || normalized.includes('人工智能')) &&
+    (normalized.includes('程序员') || normalized.includes('写代码') || normalized.includes('编程')) &&
+    (normalized.includes('取代') || normalized.includes('替代'));
+
+  if (isAllInAiQuestion) {
+    return ZHANG_YIMING_ALL_IN_AI_CANONICAL_REPLY;
+  }
+
+  if (isOkrQuestion) {
+    return ZHANG_YIMING_OKR_CANONICAL_REPLY;
+  }
+
+  if (isCareerAnxietyQuestion) {
+    return ZHANG_YIMING_CAREER_ANXIETY_CANONICAL_REPLY;
+  }
+
+  if (isCopycatQuestion) {
+    return ZHANG_YIMING_COPYCAT_CANONICAL_REPLY;
+  }
+
+  if (isHiringQuestion) {
+    return ZHANG_YIMING_HIRING_CANONICAL_REPLY;
+  }
+
+  if (isAiProgrammerQuestion) {
+    return ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY;
+  }
+
+  return null;
+};
+
+export const buildZhangYimingMockReply = (message: string) => {
+  const canonicalReply = resolveZhangYimingCanonicalReply(message);
+
+  if (canonicalReply) {
+    return canonicalReply;
+  }
+
+  const shortMessage = message.trim();
+  const normalized = shortMessage.normalize('NFKC');
+  const brief = shortMessage.slice(0, 36) + (shortMessage.length > 36 ? '…' : '');
+  const isOrgQuestion = /(okr|组织|管理|汇报|流程|层级|文化|向上管理|团队)/i.test(normalized);
+  const isCareerQuestion = /(焦虑|职业|成长|管理层|写代码|程序员|读书|传记|年龄)/i.test(normalized);
+  const isAiOrProductQuestion = /(ai|人工智能|agent|产品|推荐|算法|信息|分发|增长)/i.test(normalized);
+  const isCompetitionQuestion = /(竞品|竞争|抄袭|对手|路线图|防御|官司)/i.test(normalized);
+
+  if (isOrgQuestion) {
+    return `我感觉这类问题很少是流程本身的问题，通常是信息系统的问题。
+
+如果一线的人看不到业务全貌，就只能看上级脸色，最后流程一定会走向形式主义。你先别急着改制度，先看谁掌握了关键数据，谁在决定信息该被谁看到。
+
+如果汇报材料越来越厚、口径越来越多，说明团队已经开始向上管理了。这个信号比流程本身更值得警惕。`;
+  }
+
+  if (isCareerQuestion) {
+    return `你先把年龄、职位这些标签拿掉。
+
+我更关心底层问题是什么：你是真的不喜欢现在做的事，还是你在用别人的坐标系衡量自己？这是两个完全不同的问题。
+
+如果你暂时还分不清，我建议先去读几本传记。传记不是鸡汤，是样本。样本多了，焦虑会变得更可分析。`;
+  }
+
+  if (isCompetitionQuestion) {
+    return `我不会先盯着对手。我会先看你的路线图是不是独立成立。
+
+如果竞品消失了，你的判断也跟着消失，说明你不是在看用户，只是在看竞争。世界不只有你和你的对手。
+
+所以“${brief}”这类问题，真正要解的通常不是防御动作，而是你要不要继续把资源投在前方。`;
+  }
+
+  if (isAiOrProductQuestion) {
+    return `我会先把这个问题投影到底层。
+
+很多产品问题表面上在讨论功能、趋势、AI，底层其实是在讨论信息效率有没有提升，用户和内容是不是匹配得更好了。
+
+如果一个方案只能多堆几个功能，而不能把信息从生产到消费的路径明显缩短，我大概率不会高看它。先找那个能形成数据飞轮的关键环节。`;
+  }
+
+  return `我会先把“${brief}”这个表象问题投影到底层问题。
+
+很多复杂问题都是更高维度简单问题的投影。不要急着在表象层优化，先问：这到底是在解决什么更根本的矛盾？
+
+如果底层问题没找对，你越努力，偏得越远。先把问题降维，再决定动作。`;
+};
+
 const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'steve-jobs': {
     id: 'steve-jobs',
@@ -237,6 +403,16 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
     storageKey: 'liutongxue-elon-musk-chat-remaining',
     freeLimit: FIGURE_CHAT_FREE_LIMIT,
     buildMockReply: buildElonMuskMockReply
+  },
+  'zhang-yiming': {
+    id: 'zhang-yiming',
+    title: '张一鸣',
+    description: '一个轻量化具身AI张一鸣 不保存聊天记录，每台设备可免费发送 5 条消息',
+    assistantLabel: '虚拟张一鸣',
+    panelAriaLabel: '虚拟张一鸣对话区域',
+    storageKey: 'liutongxue-zhang-yiming-chat-remaining',
+    freeLimit: FIGURE_CHAT_FREE_LIMIT,
+    buildMockReply: buildZhangYimingMockReply
   }
 };
 

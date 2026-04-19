@@ -30,9 +30,15 @@ const figureEntries: FigureEntry[] = [
     href: sitePaths.figuresElonMusk
   },
   {
-    id: 'figure-slot-03',
-    name: '人物 03',
-    avatarLabel: '03'
+    id: 'zhang-yiming',
+    name: '张一鸣',
+    avatarLabel: 'ZY',
+    href: sitePaths.figuresZhangYiming
+  },
+  {
+    id: 'figure-slot-04',
+    name: '人物 04',
+    avatarLabel: '04'
   }
 ];
 

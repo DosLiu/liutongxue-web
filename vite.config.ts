@@ -134,6 +134,7 @@ export default defineConfig({
         figures: resolve(__dirname, 'figures/index.html'),
         figuresSteveJobs: resolve(__dirname, 'figures/steve-jobs/index.html'),
         figuresElonMusk: resolve(__dirname, 'figures/elon-musk/index.html'),
+        figuresZhangYiming: resolve(__dirname, 'figures/zhang-yiming/index.html'),
         scene: resolve(__dirname, 'scene/index.html'),
         sceneDigitalResident: resolve(__dirname, 'scene/digital-resident/index.html'),
         sceneDigitalResident20260321: resolve(__dirname, 'scene/digital-resident/2026-03-21/index.html'),

@@ -7,6 +7,7 @@ export const sitePaths = {
   figures: `${baseUrl}figures/`,
   figuresSteveJobs: `${baseUrl}figures/steve-jobs/`,
   figuresElonMusk: `${baseUrl}figures/elon-musk/`,
+  figuresZhangYiming: `${baseUrl}figures/zhang-yiming/`,
   sceneLogs: {
     digitalResident: `${baseUrl}scene/digital-resident/`,
     blogOps: `${baseUrl}scene/blog-ops/`,
