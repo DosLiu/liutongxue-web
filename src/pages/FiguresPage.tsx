@@ -1,6 +1,7 @@
 import SiteHeader from '../components/SiteHeader';
 import steveJobsAvatar from '../assets/figures/steve-jobs.jpg';
 import elonMuskAvatar from '../assets/figures/elon-musk.jpg';
+import zhangYimingAvatar from '../assets/figures/zhang-yiming.jpg';
 import { sitePaths } from '../site';
 import './FiguresPage.css';
 
@@ -33,6 +34,8 @@ const figureEntries: FigureEntry[] = [
     id: 'zhang-yiming',
     name: '张一鸣',
     avatarLabel: 'ZY',
+    avatarImageSrc: zhangYimingAvatar,
+    avatarImagePosition: 'center 22%',
     href: sitePaths.figuresZhangYiming
   }
 ];
