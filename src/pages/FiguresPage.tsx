@@ -80,7 +80,7 @@ export default function FiguresPage() {
       <main className="figures-shell">
         <section className="figures-hero" aria-labelledby="figures-title">
           <h1 id="figures-title" className="figures-title">
-            和不同的人物聊一聊
+            和不同的顶层思维聊一聊
           </h1>
         </section>
 
