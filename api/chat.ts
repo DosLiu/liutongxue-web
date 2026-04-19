@@ -12,7 +12,7 @@ import {
   resolveFigureChatDirectReply,
   sanitizeFigureChatMessages,
   trimTrailingSlash
-} from '../src/features/figure-chat/core';
+} from '../src/features/figure-chat/core.ts';
 
 const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
 
