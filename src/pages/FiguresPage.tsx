@@ -11,6 +11,7 @@ type FigureEntry = {
   avatarLabel: string;
   avatarImageSrc?: string;
   avatarImagePosition?: string;
+  avatarImageSize?: string;
   href?: string;
 };
 
@@ -35,7 +36,8 @@ const figureEntries: FigureEntry[] = [
     name: '张一鸣',
     avatarLabel: 'ZY',
     avatarImageSrc: zhangYimingAvatar,
-    avatarImagePosition: 'center 22%',
+    avatarImagePosition: 'center 18%',
+    avatarImageSize: '148%',
     href: sitePaths.figuresZhangYiming
   }
 ];
@@ -49,7 +51,8 @@ function FigureEntryItem({ entry }: { entry: FigureEntry }) {
           entry.avatarImageSrc
             ? {
                 backgroundImage: `url(${entry.avatarImageSrc})`,
-                backgroundPosition: entry.avatarImagePosition ?? 'center'
+                backgroundPosition: entry.avatarImagePosition ?? 'center',
+                backgroundSize: entry.avatarImageSize ?? 'cover'
               }
             : undefined
         }
