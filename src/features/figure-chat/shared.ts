@@ -225,41 +225,41 @@ const normalizeZhangYimingCanonicalMessage = (message: string) =>
     .replace(/\s+/g, '')
     .replace(/[“”‘’"'`~!！?？,，。．、:：;；()（）\[\]{}<>《》…·—-]/g, '');
 
-const ZHANG_YIMING_ALL_IN_AI_CANONICAL_REPLY = `all-in AI 这句话，我先当成危险信号。
+const ZHANG_YIMING_ALL_IN_AI_CANONICAL_REPLY = `all-in AI 这种话，通常不是决心，是停止思考。
 
-很多团队一说 all-in，真实情况往往不是看清了机会，而是懒得继续拆问题，想用一个大决定掩盖没想明白。
+当你还没把场景拆清楚，就想用一个大决定盖住所有不确定，组织只会变懒，不会变强。
 
-先拿一个足够小的场景把假设跑通。小闭环都跑不通，就别谈 all-in；那不是决心，是集体偷懒。`;
+先把一个小闭环跑通。跑不通，就别把犹豫包装成魄力。`;
 
-const ZHANG_YIMING_OKR_CANONICAL_REPLY = `这不是 OKR 走形式，是组织开始靠猜老板运转。
+const ZHANG_YIMING_OKR_CANONICAL_REPLY = `这不是 OKR 走形式，是组织已经开始对上负责。
 
-业务数字不能直接到做事的人手里，人就不会盯目标，只会盯表态，因为那才是更短的路径。
+业务信息到不了做事的人，大家自然会去研究表态和站位，因为那条路更短。
 
-你要改的不是模板，是信息怎么到一线。靠猜老板跑的组织，PPT 一定越来越厚。`;
+你要改的不是模板，是信息怎么直达一线。不然 PPT 只会继续变厚。`;
 
-const ZHANG_YIMING_CAREER_ANXIETY_CANONICAL_REPLY = `你焦虑的不是 29 岁，是你在用别人的坐标系给自己定价。
+const ZHANG_YIMING_CAREER_ANXIETY_CANONICAL_REPLY = `你焦虑的不是 29 岁，是你在借别人的晋升表给自己判输赢。
 
-真正要分清的只有一件事：你是不喜欢写代码，还是不喜欢写代码在组织里的位置。
+真正要分清的只有一件事：你是不想写代码了，还是受不了写代码这件事不够体面。
 
-如果只是后者，就别为了一个更好听的职位名改写人生。`;
+如果只是后者，就别拿职位名改写人生。`;
 
-const ZHANG_YIMING_COPYCAT_CANONICAL_REPLY = `对手抄你，不代表你该把精力改成反击。
+const ZHANG_YIMING_COPYCAT_CANONICAL_REPLY = `对手抄你，不说明你该回头应战。
 
-关键变量只有一个：如果对手明天消失，你的路线还成不成立；不成立，说明你做的不是产品，是跟随。
+关键变量只有一个：如果对手明天消失，你的路线还成不成立；不成立，说明你的主线本来就是借来的。
 
-路线从竞争里长出来，比被抄更危险。`;
+路线一旦从竞争里长出来，后面每一步都会更窄。`;
 
-const ZHANG_YIMING_HIRING_CANONICAL_REPLY = `“五年以上经验”通常不是标准，只是偷懒。
+const ZHANG_YIMING_HIRING_CANONICAL_REPLY = `“五年以上经验”不是标准，是筛简历的偷懒。
 
-它假设年限越长，解决新问题的能力越强；可很多人只是把旧题做熟了，一换题就失真。
+它默认做旧题越久，做新题就越强；现实经常相反，很多人只是把旧题做熟了。
 
-年限筛不出创造力，只会先把你真正想要的人挡在外面。`;
+年限越整齐，你越容易错过真正能解新题的人。`;
 
-const ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY = `“程序员会不会被 AI 取代”这个问法太粗了。
+const ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY = `“程序员会不会被 AI 取代”这个问题问得太粗。
 
-会先被替掉的，是把明确需求翻成代码的部分，因为那更像搬运，不像判断。
+先掉价的，是把明确需求翻成代码的人，因为那更像搬运，不像判断。
 
-真正值钱的是把模糊问题澄清成对的问题。只会翻译的人会先掉价。`;
+真正稀缺的，是把模糊问题改写对。只会翻译的人，价格会先被打掉。`;
 
 export const resolveZhangYimingCanonicalReply = (message: string) => {
   const normalized = normalizeZhangYimingCanonicalMessage(message);
@@ -330,42 +330,42 @@ export const buildZhangYimingMockReply = (message: string) => {
   const isCompetitionQuestion = /(竞品|竞争|抄袭|对手|路线图|防御|官司)/i.test(normalized);
 
   if (isOrgQuestion) {
-    return `问题不在 OKR，在于组织开始靠猜老板运转。
+    return `这不是 OKR 问题，是组织已经开始对上负责。
 
-业务结果不能直接到做事的人手里，人就会把精力花在表态上，因为那比理解业务更快。
+业务结果到不了做事的人，大家自然会去优化表态，因为那条路更短。
 
-靠猜老板跑的组织，表格越细，失真越重。`;
+一个组织一旦靠猜老板运转，表格越细，判断越假。`;
   }
 
   if (isCareerQuestion) {
-    return `你焦虑的不是年龄，是你在拿别人的职位表给自己定价。
+    return `你焦虑的不是年龄，是你在拿别人的晋升顺序给自己定价。
 
-真正要分清的只有一件事：你是不喜欢写代码，还是不喜欢写代码看起来不够体面。
+真正要分清的只有一件事：你是不想写代码了，还是受不了它看起来不够体面。
 
-如果只是后者，就别为了一个职位名放弃你真正擅长的东西。`;
+如果只是后者，就别为了一个职位名换赛道。`;
   }
 
   if (isCompetitionQuestion) {
-    return `先别把反击当战略。
+    return `竞品抄你，不等于你该停下来盯着他。
 
-关键变量不是对手抄没抄，是对手消失之后你的路线还成不成立；不成立，说明你根本没站在用户那边。
+关键变量只有一个：对手消失之后，你的路线还成不成立；不成立，说明你的主线本来就是借来的。
 
-路线从竞争里长出来，最后一定越做越窄。`;
+路线从竞争里长出来，最后只会越做越像别人。`;
   }
 
   if (isAiOrProductQuestion) {
-    return `这不是 AI 问题，是步骤有没有真的变短。
+    return `这不是 AI 题，是用户有没有真的少走一步。
 
-用户路径没变，只是外面包了一层模型，那不是升级，只是更贵的包装。
+步骤没变，只是包了一层模型，那不是升级，只是更贵的包装。
 
 步骤没少，AI 就只是噪音。`;
   }
 
-  return `这类问题通常不是很多因素一起决定，而是第一个判断先错了。
+  return `这类问题通常不是因素太多，而是第一个判断先错了。
 
-前提一歪，后面所有动作都会变成放大误差。
+前提一歪，后面所有动作都只是把误差做大。
 
-问题没改写对，执行越好，错得越完整。`;
+问题没改写对，执行越认真，偏得越完整。`;
 };
 
 const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
