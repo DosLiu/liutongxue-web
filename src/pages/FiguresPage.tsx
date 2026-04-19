@@ -34,11 +34,6 @@ const figureEntries: FigureEntry[] = [
     name: '张一鸣',
     avatarLabel: 'ZY',
     href: sitePaths.figuresZhangYiming
-  },
-  {
-    id: 'figure-slot-04',
-    name: '人物 04',
-    avatarLabel: '04'
   }
 ];
 
