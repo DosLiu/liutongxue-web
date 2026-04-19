@@ -490,7 +490,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'zhang-yiming': {
     id: 'zhang-yiming',
     title: '张一鸣',
-    description: '张一鸣的认知操作系统。不是语录合集，是可运行的思维框架。',
+    description: '一个轻量化具身AI张一鸣 不保存聊天记录，每台设备可免费发送 5 条消息',
     assistantLabel: '虚拟张一鸣',
     panelAriaLabel: '虚拟张一鸣对话区域',
     storageKey: 'liutongxue-zhang-yiming-chat-remaining',
