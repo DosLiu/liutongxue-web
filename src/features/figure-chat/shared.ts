@@ -225,121 +225,90 @@ const normalizeZhangYimingCanonicalMessage = (message: string) =>
     .replace(/\s+/g, '')
     .replace(/[“”‘’"'`~!！?？,，。．、:：;；()（）\[\]{}<>《》…·—-]/g, '');
 
-const ZHANG_YIMING_ALL_IN_AI_CANONICAL_REPLY = `随便说 all-in，多半是懒。
+const ZHANG_YIMING_ALL_IN_AI_CANONICAL_REPLY = `all-in AI 这句话，我一般先当成危险信号。
 
-这事我只看一个变量：你有没有先跑出一个小结果。没有，all-in 不是勇敢，只是拿公司的命替自己省思考。
+很多团队说 all-in，不是因为真的看清了机会，而是因为不想继续拆问题，想用一个大决定代替分析。
 
-先跑通，再加注。`;
+更合理的做法是先找一个足够小、足够痛的场景，把假设跑通，再决定要不要继续加注。连小闭环都跑不通，就别把公司的命一起压上。`;
 
-const ZHANG_YIMING_OKR_CANONICAL_REPLY = `问题不在 OKR，在人到底看谁。
+const ZHANG_YIMING_OKR_CANONICAL_REPLY = `这不是 OKR 走形式，是信息已经开始绕路。
 
-如果大家盯的是老板脸色，不是业务数字，任何 OKR 都会变成表演。模板越细，假动作越多。
+业务数字如果不能直接到做事的人手里，大家就会转去研究汇报格式、表态顺序和老板偏好，因为那才是最短路径。
 
-别改表。先把数字摊开。`;
+你要改的不是模板，而是谁有权看到真实信息、谁必须对真实结果负责。一个组织一旦靠猜老板运转，PPT 会先变厚，判断会后变慢。`;
 
-const ZHANG_YIMING_CAREER_ANXIETY_CANONICAL_REPLY = `你焦虑的不是 29 岁，是别人怎么看你。
+const ZHANG_YIMING_CAREER_ANXIETY_CANONICAL_REPLY = `你焦虑的不是 29 岁，也不是管理层，是你开始拿别人的进度条衡量自己。
 
-这事我只看一个变量：你现在做的事，还能不能让你继续变强。真正会把人带偏的，不是年龄，是为了一个更体面的头衔，提前放掉该长的本事。
+真正要分清的只有一件事：你是不喜欢写代码本身，还是只是觉得写代码在组织里不够被认可。
 
-先长本事，别抢头衔。`;
+前者意味着换方向，后者只是把别人的坐标系借来压自己，不值得为它改人生路线。先把这个问题答清楚，再谈下一步；别被一个看起来更体面的职位名字牵着走。`;
 
-const ZHANG_YIMING_COPYCAT_CANONICAL_REPLY = `别被竞品带着跑。
+const ZHANG_YIMING_COPYCAT_CANONICAL_REPLY = `对手抄你，不自动等于你该停下来打他。
 
-这事我只看一个变量：没有这个对手，你的路线还成不成立。不成立，说明你根本没抓住用户，只是在跟人打架。
+你更该问的是：如果对方明天消失，你的路线还成不成立；如果不成立，说明你现在很多动作本来就不是从用户出发，而是从竞争出发。
 
-盯着对手，路就偏了。`;
+防御动作当然可以做，但它永远排在主线之后。盯着后视镜开车，最后只会把主路开丢。`;
 
-const ZHANG_YIMING_HIRING_CANONICAL_REPLY = `五年以上经验，不是判断力。
+const ZHANG_YIMING_HIRING_CANONICAL_REPLY = `“五年以上经验”这种条件，经常筛掉的正是你真正想要的人。
 
-这事我只看一个变量：他碰到没见过的问题时，是先套旧经验，还是先把问题拆开。经验只能证明他做过，不能证明他还能长。
+它默认经验年限越长，解决新问题的能力越强，但现实里很多人只是把旧题做熟了，一旦题目变了就开始失真。
 
-别招熟手幻觉。招学习速度。`;
+真正该看的，是这个人第一次遇到陌生问题时会不会自己拆、自己学、自己推进。要改 JD，就少写年限，多写他必须解决过什么难题；年限不是能力的代理变量。`;
 
-const ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY = `别问程序员会不会消失，这个问法太粗。
+const ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY = `“程序员会不会被 AI 取代”这个问法太粗了。
 
-这事我只看一个变量：你的时间主要花在翻译明确需求，还是花在发现真需求。前一种会先被吃掉，后一种短期吃不掉。
+把明确需求翻成代码的部分，当然会被替掉，而且会很快，因为那更像信息搬运，不像真正的判断。
 
-先没的，不是程序员，是纯执行。`;
+更难替的是另一段：把模糊需求澄清成对的需求，这里还要靠理解人、理解场景、理解代价。与其空泛焦虑，不如立刻调整自己的时间分配：少做纯翻译，多做需求判断。`;
 
-const isZhangYimingAllInAiQuestion = (message: string) => {
+export const resolveZhangYimingCanonicalReply = (message: string) => {
   const normalized = normalizeZhangYimingCanonicalMessage(message);
 
-  return (
+  const isAllInAiQuestion =
     (normalized.includes('allinai') ||
       normalized.includes('allin人工智能') ||
       normalized.includes('梭哈ai') ||
       normalized.includes('全力转型ai') ||
       normalized.includes('allin')) &&
-    normalized.includes('ai')
-  );
-};
-
-const isZhangYimingOkrQuestion = (message: string) => {
-  const normalized = normalizeZhangYimingCanonicalMessage(message);
-  return normalized.includes('okr') && (normalized.includes('走形式') || normalized.includes('形式'));
-};
-
-const isZhangYimingCareerAnxietyQuestion = (message: string) => {
-  const normalized = normalizeZhangYimingCanonicalMessage(message);
-
-  return (
+    normalized.includes('ai');
+  const isOkrQuestion = normalized.includes('okr') && (normalized.includes('走形式') || normalized.includes('形式'));
+  const isCareerAnxietyQuestion =
     normalized.includes('29岁') &&
     (normalized.includes('管理层') || normalized.includes('升到管理层')) &&
     (normalized.includes('写代码') || normalized.includes('程序员')) &&
-    normalized.includes('焦虑')
-  );
-};
-
-const isZhangYimingCopycatQuestion = (message: string) => {
-  const normalized = normalizeZhangYimingCanonicalMessage(message);
-
-  return (
+    normalized.includes('焦虑');
+  const isCopycatQuestion =
     (normalized.includes('竞品') || normalized.includes('对手') || normalized.includes('同行')) &&
-    (normalized.includes('抄') || normalized.includes('抄袭'))
-  );
-};
-
-const isZhangYimingHiringQuestion = (message: string) => {
-  const normalized = normalizeZhangYimingCanonicalMessage(message);
-
-  return (
+    (normalized.includes('抄') || normalized.includes('抄袭'));
+  const isHiringQuestion =
     (normalized.includes('五年以上互联网经验') || normalized.includes('五年以上经验')) &&
-    (normalized.includes('jd') || normalized.includes('招聘') || normalized.includes('招人'))
-  );
-};
-
-const isZhangYimingAiProgrammerQuestion = (message: string) => {
-  const normalized = normalizeZhangYimingCanonicalMessage(message);
-
-  return (
+    (normalized.includes('jd') || normalized.includes('招聘') || normalized.includes('招人'));
+  const isAiProgrammerQuestion =
     (normalized.includes('ai') || normalized.includes('人工智能')) &&
     (normalized.includes('程序员') || normalized.includes('写代码') || normalized.includes('编程')) &&
-    (normalized.includes('取代') || normalized.includes('替代'))
-  );
-};
+    (normalized.includes('取代') || normalized.includes('替代'));
 
-export const resolveZhangYimingCanonicalReply = (message: string) => {
-  if (isZhangYimingAllInAiQuestion(message)) {
+  if (isAllInAiQuestion) {
     return ZHANG_YIMING_ALL_IN_AI_CANONICAL_REPLY;
   }
 
-  if (isZhangYimingOkrQuestion(message)) {
+  if (isOkrQuestion) {
     return ZHANG_YIMING_OKR_CANONICAL_REPLY;
   }
 
-  if (isZhangYimingCareerAnxietyQuestion(message)) {
+  if (isCareerAnxietyQuestion) {
     return ZHANG_YIMING_CAREER_ANXIETY_CANONICAL_REPLY;
   }
 
-  if (isZhangYimingCopycatQuestion(message)) {
+  if (isCopycatQuestion) {
     return ZHANG_YIMING_COPYCAT_CANONICAL_REPLY;
   }
 
-  if (isZhangYimingHiringQuestion(message)) {
+  if (isHiringQuestion) {
     return ZHANG_YIMING_HIRING_CANONICAL_REPLY;
   }
 
-  if (isZhangYimingAiProgrammerQuestion(message)) {
+  if (isAiProgrammerQuestion) {
     return ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY;
   }
 
@@ -354,49 +323,49 @@ export const buildZhangYimingMockReply = (message: string) => {
   }
 
   const shortMessage = message.trim();
-  const brief = shortMessage.slice(0, 36) + (shortMessage.length > 36 ? '…' : '');
-  const isOrgQuestion = /(okr|组织|管理|汇报|流程|层级|文化|向上管理|团队)/i.test(shortMessage);
-  const isCareerQuestion = /(焦虑|职业|成长|管理层|写代码|程序员|读书|传记|年龄)/i.test(shortMessage);
-  const isAiOrProductQuestion = /(ai|人工智能|agent|产品|推荐|算法|信息|分发|增长)/i.test(shortMessage);
-  const isCompetitionQuestion = /(竞品|竞争|抄袭|对手|路线图|防御|官司)/i.test(shortMessage);
+  const normalized = shortMessage.normalize('NFKC');
+  const isOrgQuestion = /(okr|组织|管理|汇报|流程|层级|文化|向上管理|团队)/i.test(normalized);
+  const isCareerQuestion = /(焦虑|职业|成长|管理层|写代码|程序员|读书|传记|年龄)/i.test(normalized);
+  const isAiOrProductQuestion = /(ai|人工智能|agent|产品|推荐|算法|信息|分发|增长)/i.test(normalized);
+  const isCompetitionQuestion = /(竞品|竞争|抄袭|对手|路线图|防御|官司)/i.test(normalized);
 
   if (isOrgQuestion) {
-    return `先别改流程。
+    return `问题不在 OKR，在于人开始围着老板转。
 
-这事我只看一个变量：一线的人能不能直接看到真数字。看不到，任何制度都会慢慢变成表演。
+做事的人看不见业务结果，就会把精力花在汇报格式、语气和站位上，因为真实信息没有直接流到判断现场。
 
-数字不透明，组织一定变形。`;
+把关键数字和判断依据直接公开给一线，再看还有多少流程是必要的；如果离开这些表演组织就转不动，那问题根本不在模板。`;
   }
 
   if (isCareerQuestion) {
-    return `先别拿年龄吓自己。
+    return `你焦虑的不是年龄，是你已经开始拿别人的职位表给自己定价。
 
-这事我只看一个变量：你现在做的事，还能不能让你继续变强。真正会把人带偏的，不是年龄，是被头衔带节奏。
+真正要分清的只有一件事：你是不喜欢写代码本身，还是只是受不了“写代码看起来不够体面”。这两个判断会把你带到完全不同的路上。
 
-别用体面替代成长。`;
+先把这个问题答准，再决定转不转；别为了追一个更好看的名字，提前放弃你真正擅长的东西。`;
   }
 
   if (isCompetitionQuestion) {
-    return `别先盯竞品。
+    return `盯着对手太久，人会误以为反击就是战略。
 
-这事我只看一个变量：没有这个对手，你的路线还成不成立。不成立，说明你根本没抓住用户。
+更重要的是另一件事：如果对手明天消失，你这条路线还成不成立；如果不成立，说明你现在很多动作，本来就是被别人牵着走。
 
-盯着对手，路就偏了。`;
+先把自己的主线站稳，再决定哪些防御动作值得做；不然你只是在更用力地跟跑。`;
   }
 
   if (isAiOrProductQuestion) {
-    return `先别聊概念。
+    return `先判断用户有没有真的少走一步，再判断这是不是 AI。
 
-这事我只看一个变量：用户是不是因此更快拿到结果。不是，功能再新也只是热闹。
+用户路径没变，只是多包了一层模型，那不是产品升级，只是成本更高、解释更复杂。很多团队把热词当价值，结果只是把同一件事说得更热闹。
 
-别把热闹当增长。`;
+先把一个高频动作压短，再谈模型；动作没变，AI 就只是漂亮包装。`;
   }
 
-  return `先别在表面上绕。
+  return `这类问题往往不是很多因素一起决定的，而是最前面那个判断先错了。
 
-“${brief}”这种问法还没打到点上。我只看一个变量：真正卡住结果的，到底是哪一个动作。
+前提一歪，后面的动作越努力，只会越像在放大误差。
 
-先把真问题揪出来。`;
+先把那个判断改写成一句能被验证的话，再讨论执行；前提没找准，讨论得越认真，偏得越远。`;
 };
 
 const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
