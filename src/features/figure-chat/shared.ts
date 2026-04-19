@@ -261,6 +261,37 @@ const ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY = `“程序员会不会被 AI 
 
 真正稀缺的，是把模糊问题改写对。只会翻译的人，价格会先被打掉。`;
 
+const ZHANG_YIMING_SOLO_CROSS_BORDER_CANONICAL_REPLY = `这不是方向，顶多是渠道。
+
+一人公司做跨境电商，关键变量只有一个：你能不能把同一个判断反复放大。能放大的不是发货，也不是盯运营，而是你比别人更早看见需求，然后让内容或产品自己滚起来。
+
+如果每来一单都还要你重新下场，你不是在开公司，你是在给自己加班。
+
+没有这个变量，别做。`;
+
+const ZHANG_YIMING_OPEN_STARTUP_INTENT_RE =
+  /(创业|开公司|一人公司|单人公司|一个人公司|一人团队|个人创业|solo\s*(创业|founder|公司)?|独立创业|自己干|单干|个体|做跨境电商|做出海|做亚马逊|做shopify|做独立站|做[^，。！？\n]{0,16}(方向|项目|生意|赛道|品类|业务)?)/i;
+const ZHANG_YIMING_OPEN_STARTUP_VERDICT_RE =
+  /(感觉怎么样|你觉得怎么样|你觉得呢|你怎么看|怎么看|值不值得(做|搞|下场)?|值得做吗|能不能做|能做吗|可不可行|行不行|靠不靠谱|靠谱吗|有没?有前途|有没有搞头|有搞头吗|有戏吗|适不适合(一个人做|我做)?|适合(一个人做|我做)?|对不对|好不好|怎么样|能成吗|值得下场吗)/;
+const ZHANG_YIMING_CROSS_BORDER_TOPIC_RE = /(跨境电商|出海电商|独立站|shopify|亚马逊|amazon|temu|shopee|etsy)/i;
+
+const isZhangYimingOpenStartupDirectionQuestion = (message: string) =>
+  ZHANG_YIMING_OPEN_STARTUP_INTENT_RE.test(message) && ZHANG_YIMING_OPEN_STARTUP_VERDICT_RE.test(message);
+
+const buildZhangYimingOpenStartupReply = (message: string) => {
+  if (ZHANG_YIMING_CROSS_BORDER_TOPIC_RE.test(message)) {
+    return ZHANG_YIMING_SOLO_CROSS_BORDER_CANONICAL_REPLY;
+  }
+
+  return `先别把它叫方向。
+
+我只看一个变量：这个模式能不能把同一个判断反复放大；放大不了，就只是把你的时间切得更碎。
+
+如果关键结果还要你本人一遍遍盯着，它就不是公司，只是更忙的个体户。
+
+没有单点杠杆，别做。`;
+};
+
 export const resolveZhangYimingCanonicalReply = (message: string) => {
   const normalized = normalizeZhangYimingCanonicalMessage(message);
 
@@ -312,6 +343,29 @@ export const resolveZhangYimingCanonicalReply = (message: string) => {
     return ZHANG_YIMING_AI_PROGRAMMER_CANONICAL_REPLY;
   }
 
+  const isSoloCrossBorderStartupQuestion =
+    isZhangYimingOpenStartupDirectionQuestion(message) &&
+    (normalized.includes('一人公司') ||
+      normalized.includes('单人公司') ||
+      normalized.includes('一个人公司') ||
+      normalized.includes('一人团队') ||
+      normalized.includes('独立创业') ||
+      normalized.includes('solo创业')) &&
+    (normalized.includes('跨境电商') ||
+      normalized.includes('出海电商') ||
+      normalized.includes('独立站') ||
+      normalized.includes('shopify') ||
+      normalized.includes('亚马逊') ||
+      normalized.includes('amazon'));
+
+  if (isSoloCrossBorderStartupQuestion) {
+    return ZHANG_YIMING_SOLO_CROSS_BORDER_CANONICAL_REPLY;
+  }
+
+  if (isZhangYimingOpenStartupDirectionQuestion(message)) {
+    return buildZhangYimingOpenStartupReply(message);
+  }
+
   return null;
 };
 
@@ -326,6 +380,7 @@ export const buildZhangYimingMockReply = (message: string) => {
   const normalized = shortMessage.normalize('NFKC');
   const isOrgQuestion = /(okr|组织|管理|汇报|流程|层级|文化|向上管理|团队)/i.test(normalized);
   const isCareerQuestion = /(焦虑|职业|成长|管理层|写代码|程序员|读书|传记|年龄)/i.test(normalized);
+  const isOpenStartupDirectionQuestion = isZhangYimingOpenStartupDirectionQuestion(shortMessage);
   const isAiOrProductQuestion = /(ai|人工智能|agent|产品|推荐|算法|信息|分发|增长)/i.test(normalized);
   const isCompetitionQuestion = /(竞品|竞争|抄袭|对手|路线图|防御|官司)/i.test(normalized);
 
@@ -351,6 +406,10 @@ export const buildZhangYimingMockReply = (message: string) => {
 关键变量只有一个：对手消失之后，你的路线还成不成立；不成立，说明你的主线本来就是借来的。
 
 路线从竞争里长出来，最后只会越做越像别人。`;
+  }
+
+  if (isOpenStartupDirectionQuestion) {
+    return buildZhangYimingOpenStartupReply(shortMessage);
   }
 
   if (isAiOrProductQuestion) {
