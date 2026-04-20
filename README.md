@@ -29,7 +29,7 @@
 - Vite 5
 - React 19
 - TypeScript 5
-- Tailwind CSS 4（已接入，但当前页面样式仍以手写 CSS 为主）
+- Tailwind CSS 4（项目已接入，但当前站点主要样式仍维护在独立 CSS 文件中）
 - OGL（首页视觉动效组件使用）
 
 ### 运行方式
