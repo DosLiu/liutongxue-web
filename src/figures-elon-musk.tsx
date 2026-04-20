@@ -1,3 +1,4 @@
-import { mountElonMuskChatPage } from './features/elon-musk-chat/mountElonMuskChatPage';
+import { mountFigureChatPage } from './features/figure-chat/mountFigureChatPage';
+import { getFigureChatConfig } from './features/figure-chat/shared';
 
-mountElonMuskChatPage();
+mountFigureChatPage(getFigureChatConfig('elon-musk'));

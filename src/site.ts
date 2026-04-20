@@ -3,7 +3,6 @@ const baseUrl = import.meta.env.BASE_URL;
 export const sitePaths = {
   home: baseUrl,
   scene: `${baseUrl}scene/`,
-  toolsPage: `${baseUrl}tools/`,
   figures: `${baseUrl}figures/`,
   figuresSteveJobs: `${baseUrl}figures/steve-jobs/`,
   figuresElonMusk: `${baseUrl}figures/elon-musk/`,

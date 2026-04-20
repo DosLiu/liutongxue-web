@@ -5,8 +5,8 @@ import {
   isBlockedResult,
   SEARCH_POLICY,
   shouldAllowUnknownHosts
-} from './policy.ts';
-import type { SearchIntent, SearchProvider, SearchResultItem } from './policy.ts';
+} from './policy';
+import type { SearchIntent, SearchProvider, SearchResultItem } from './policy';
 
 type RawSearchResultItem = {
   title: string;

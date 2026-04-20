@@ -6,6 +6,10 @@ import tailwindcss from '@tailwindcss/vite';
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
+const canonicalPathOverrides: Record<string, string> = {
+  '/tools/': '/scene/'
+};
+
 const toCanonicalPath = (filename?: string, pagePath?: string) => {
   if (filename) {
     const relativeFilename = relative(__dirname, filename).replace(/\\/g, '/');
@@ -70,7 +74,8 @@ export default defineConfig({
       name: 'inject-seo-tags',
       transformIndexHtml(html, ctx) {
         const pathname = toCanonicalPath(ctx.filename, ctx.path);
-        const absoluteUrl = buildAbsoluteUrl(siteUrl, pathname);
+        const canonicalPath = canonicalPathOverrides[pathname] ?? pathname;
+        const absoluteUrl = buildAbsoluteUrl(siteUrl, canonicalPath);
         const title = extractTagContent(html, /<title>([\s\S]*?)<\/title>/i) || 'Liutongxue';
         const description = extractTagContent(html, /<meta\s+name=["']description["']\s+content=["']([\s\S]*?)["']\s*\/?>/i);
 

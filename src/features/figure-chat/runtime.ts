@@ -20,14 +20,6 @@ const getExplicitApiBaseUrl = () => {
   return configured === '/' ? '' : trimTrailingSlash(configured);
 };
 
-export const getFigureChatSurface = () => {
-  if (typeof window === 'undefined') {
-    return 'server' as const;
-  }
-
-  return 'runtime' as const;
-};
-
 export const getFigureChatApiUrl = () => {
   const explicitApiUrl = getExplicitApiUrl();
   if (explicitApiUrl) {

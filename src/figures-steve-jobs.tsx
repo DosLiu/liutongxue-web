@@ -1,3 +1,4 @@
-import { mountSteveJobsChatPage } from './features/steve-jobs-chat/mountSteveJobsChatPage';
+import { mountFigureChatPage } from './features/figure-chat/mountFigureChatPage';
+import { getFigureChatConfig } from './features/figure-chat/shared';
 
-mountSteveJobsChatPage();
+mountFigureChatPage(getFigureChatConfig('steve-jobs'));

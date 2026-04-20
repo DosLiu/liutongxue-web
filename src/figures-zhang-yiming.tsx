@@ -1,3 +1,4 @@
-import { mountZhangYimingChatPage } from './features/zhang-yiming-chat/mountZhangYimingChatPage';
+import { mountFigureChatPage } from './features/figure-chat/mountFigureChatPage';
+import { getFigureChatConfig } from './features/figure-chat/shared';
 
-mountZhangYimingChatPage();
+mountFigureChatPage(getFigureChatConfig('zhang-yiming'));

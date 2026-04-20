@@ -5,10 +5,12 @@ export const FIGURE_CHAT_HEALTHCHECK_TIMEOUT_MS = 5000;
 export const FIGURE_CHAT_REQUEST_TIMEOUT_MS = 18000;
 
 const FIGURE_CHAT_DEBUG_PARAM = 'debug-unlimited';
+const FIGURE_CHAT_DEBUG_ALLOWED = import.meta.env.DEV;
 
 const getStorage = () => (typeof window === 'undefined' ? null : window.localStorage);
 
 const getFigureChatDebugKey = (config: FigureChatConfig) => `${config.storageKey}-debug-unlimited`;
+const clampFigureChatRemaining = (config: FigureChatConfig, value: number) => Math.min(config.freeLimit, Math.max(0, value));
 
 const setDeveloperUnlimited = (config: FigureChatConfig, enabled: boolean) => {
   const storage = getStorage();
@@ -23,7 +25,10 @@ const setDeveloperUnlimited = (config: FigureChatConfig, enabled: boolean) => {
 };
 
 export const getFigureChatDeveloperUnlimited = (config: FigureChatConfig) => {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined' || !FIGURE_CHAT_DEBUG_ALLOWED) {
+    setDeveloperUnlimited(config, false);
+    return false;
+  }
 
   const params = new URLSearchParams(window.location.search);
   const debugParam = params.get(FIGURE_CHAT_DEBUG_PARAM);
@@ -52,11 +57,11 @@ const getStoredRemaining = (config: FigureChatConfig) => {
   }
 
   const parsed = Number.parseInt(cached, 10);
-  return Number.isNaN(parsed) ? config.freeLimit : Math.max(0, parsed);
+  return Number.isNaN(parsed) ? config.freeLimit : clampFigureChatRemaining(config, parsed);
 };
 
 export const setFigureChatStoredRemaining = (config: FigureChatConfig, value: number) => {
-  getStorage()?.setItem(config.storageKey, String(value));
+  getStorage()?.setItem(config.storageKey, String(clampFigureChatRemaining(config, value)));
 };
 
 export const getFigureChatInitialRemaining = (config: FigureChatConfig) =>

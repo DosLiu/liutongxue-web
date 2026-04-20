@@ -3,14 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Liutongxue — 现场</title>
-    <meta
-      name="description"
-      content="Liutongxue 现场页兼容入口，延续首页深色背景、标题体系与卡片语言。"
-    />
+    <title>Liutongxue — 页面已迁移</title>
+    <meta name="description" content="Liutongxue 的 /tools/ 入口已合并至 /scene/，当前页面会自动跳转。" />
+    <meta name="robots" content="noindex,follow" />
+    <meta http-equiv="refresh" content="0; url=/scene/" />
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/tools.tsx"></script>
+    <script>
+      window.location.replace('/scene/');
+    </script>
+    <main>
+      <p>页面已迁移，正在跳转到 <a href="/scene/">/scene/</a> …</p>
+    </main>
   </body>
 </html>
