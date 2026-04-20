@@ -1,6 +1,6 @@
 .start-building-section {
   width: 100%;
-  padding: clamp(5rem, 7vw, 6.5rem) 0;
+  padding: 80px 0;
   background: transparent;
   position: relative;
   z-index: 22;
@@ -17,10 +17,12 @@
   max-width: 1200px;
   user-select: none;
   margin: 0 auto;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.96), rgba(24, 47, 255, 0.58));
+  background: linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(24, 47, 255, 0.6));
+  background-size: 200% 200%;
   border-radius: 50px;
   padding: 4rem 3rem;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.5);
+  backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -28,41 +30,21 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.35rem;
+  gap: 1.5rem;
   transform: translateY(-18%);
 }
 
-.start-building-card::before,
-.start-building-card::after {
+.start-building-card::before {
   content: '';
   position: absolute;
   inset: 0;
+  background-image: url('/assets/react-bits-grain.webp');
+  filter: brightness(3);
+  background-size: 500px 500px;
+  mix-blend-mode: lighten;
+  background-repeat: repeat;
+  opacity: 1;
   pointer-events: none;
-}
-
-.start-building-card::before {
-  background:
-    radial-gradient(circle at 10% 18%, rgba(255, 255, 255, 0.95) 0 1.2px, transparent 1.8px),
-    radial-gradient(circle at 18% 72%, rgba(255, 255, 255, 0.72) 0 1px, transparent 1.7px),
-    radial-gradient(circle at 26% 34%, rgba(255, 255, 255, 0.9) 0 1.4px, transparent 2px),
-    radial-gradient(circle at 34% 82%, rgba(255, 255, 255, 0.64) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 48% 14%, rgba(255, 255, 255, 0.82) 0 1.3px, transparent 2px),
-    radial-gradient(circle at 56% 62%, rgba(255, 255, 255, 0.94) 0 1.5px, transparent 2.1px),
-    radial-gradient(circle at 68% 26%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.6px),
-    radial-gradient(circle at 78% 76%, rgba(255, 255, 255, 0.88) 0 1.35px, transparent 2px),
-    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.62) 0 1px, transparent 1.7px),
-    radial-gradient(circle at 92% 58%, rgba(255, 255, 255, 0.84) 0 1.25px, transparent 1.9px),
-    radial-gradient(circle at 44% 46%, rgba(255, 255, 255, 0.55) 0 0.9px, transparent 1.6px),
-    radial-gradient(circle at 62% 48%, rgba(255, 255, 255, 0.5) 0 0.85px, transparent 1.5px);
-  opacity: 0.9;
-  z-index: 1;
-}
-
-.start-building-card::after {
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.18), transparent 58%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 32%, transparent 68%, rgba(255, 255, 255, 0.04));
-  mix-blend-mode: screen;
   z-index: 1;
 }
 
@@ -73,7 +55,7 @@
 
 .start-building-title {
   margin: 0;
-  color: #fff;
+  color: white;
   font-size: clamp(3rem, 2.5rem + 1.5vw, 4rem);
   font-weight: 600;
   line-height: 1;
@@ -81,17 +63,56 @@
 }
 
 .start-building-button {
-  min-width: 7rem;
+  background: white;
+  border: 1px solid white;
+  color: #7c3aed;
   padding: 0.7rem 1.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.92);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.98);
-  color: #6d34ee;
+  min-width: 7rem;
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: -0.02em;
+  border-radius: 999px;
   cursor: default;
   box-shadow: 0 10px 28px rgba(11, 7, 36, 0.18);
+}
+
+.contact-qr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 3rem;
+  width: 100%;
+  margin-top: -4rem;
+  padding: 0 0.5rem;
+}
+
+.contact-qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.contact-qr-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 28px;
+  box-shadow: 0 14px 50px rgba(7, 4, 24, 0.18);
+  object-fit: contain;
+}
+
+.contact-qr-caption {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.84rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-align: center;
 }
 
 @media (max-width: 1280px) {
@@ -103,11 +124,17 @@
   .start-building-card {
     padding: 3rem 2.5rem;
   }
+
+  .contact-qr-grid {
+    gap: 2rem;
+    margin-top: -3.3rem;
+    padding: 0;
+  }
 }
 
 @media (max-width: 768px) {
   .start-building-section {
-    padding: 4.5rem 0;
+    padding: 60px 0;
   }
 
   .start-building-container {
@@ -116,7 +143,7 @@
 
   .start-building-card {
     padding: 3rem 2rem;
-    gap: 1.1rem;
+    gap: 1.25rem;
     transform: translateY(-12%);
   }
 
@@ -124,11 +151,21 @@
     font-size: 2.45rem;
     letter-spacing: -0.04em;
   }
+
+  .contact-qr-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: -1.8rem;
+  }
+
+  .contact-qr-card {
+    max-width: 320px;
+  }
 }
 
 @media (max-width: 480px) {
   .start-building-section {
-    padding: 4rem 0;
+    padding: 40px 0;
   }
 
   .start-building-container {
@@ -151,5 +188,24 @@
     min-width: 6.4rem;
     padding: 0.72rem 1.55rem;
     font-size: 0.96rem;
+  }
+
+  .contact-qr-grid {
+    gap: 1rem;
+    margin-top: -1rem;
+  }
+
+  .contact-qr-card {
+    max-width: 280px;
+  }
+
+  .contact-qr-image {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 22px;
+  }
+
+  .contact-qr-caption {
+    font-size: 0.8rem;
   }
 }
