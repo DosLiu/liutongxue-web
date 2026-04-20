@@ -96,6 +96,11 @@ danglingSceneDirectories.sort();
 
 const failures = [];
 
+const apiChatSource = readFileSync(resolve(repoRoot, 'api/chat.ts'), 'utf8');
+if (/from\s+['"]\.\.\/src\//.test(apiChatSource)) {
+  failures.push("api/chat.ts 不应直接依赖 ../src/*，否则线上 serverless 运行时容易再次加载失败。");
+}
+
 let apiHealthCheckSummary = null;
 
 try {
