@@ -14,6 +14,11 @@ const reservedNavTargets = {
 
 const mobileNavItems = [
   {
+    label: '首页',
+    key: 'home',
+    href: sitePaths.home
+  },
+  {
     label: '案发现场',
     key: 'scene',
     href: sitePaths.scene
@@ -116,10 +121,10 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
             className={`mobile-nav-toggle${isMobileNavOpen ? ' is-open' : ''}`}
             aria-expanded={isMobileNavOpen}
             aria-controls={mobileNavId}
-            aria-label={isMobileNavOpen ? '关闭首页菜单' : '打开首页菜单'}
+            aria-label={isMobileNavOpen ? '关闭主导航' : '打开主导航'}
             onClick={() => setIsMobileNavOpen((current) => !current)}
           >
-            <span className="mobile-nav-toggle__label">首页</span>
+            <span className="mobile-nav-toggle__label">导航</span>
             <span className="mobile-nav-toggle__icon" aria-hidden="true">
               <span />
               <span />
