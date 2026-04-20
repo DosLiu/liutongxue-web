@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "check:smoke": "node tools/smoke-check.mjs",
+    "check": "npm run build && npm run check:smoke",
     "preview": "vite preview"
   },
   "dependencies": {

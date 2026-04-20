@@ -348,9 +348,6 @@ svg {
     linear-gradient(180deg, #050110 0%, #070311 48%, #04010a 100%);
 }
 
-.tools-page--standalone {
-  min-height: 100vh;
-}
 
 .tools-page--embedded {
   scroll-margin-top: calc(var(--header-height) + 1.5rem);
@@ -400,10 +397,6 @@ svg {
   margin: 0 auto;
 }
 
-.tools-page--standalone .tools-shell {
-  padding: calc(var(--header-height) + clamp(2rem, 4vw, 3.5rem)) clamp(1.5rem, 4vw, 4rem)
-    clamp(4rem, 8vw, 6rem);
-}
 
 .tools-page--embedded .tools-shell {
   padding: clamp(4.75rem, 9vw, 7rem) clamp(1.25rem, 4vw, 4rem) clamp(4.5rem, 8vw, 6rem);
@@ -767,9 +760,6 @@ svg {
     align-items: center;
   }
 
-  .tools-page--standalone .tools-shell {
-    padding-top: calc(var(--header-height) + 2rem);
-  }
 
   .tools-page--embedded .tools-shell {
     padding-top: clamp(4rem, 8vw, 5rem);

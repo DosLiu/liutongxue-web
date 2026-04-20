@@ -4,7 +4,6 @@ import './ToolsSection.css';
 
 type ToolsSectionProps = {
   id?: string;
-  standalone?: boolean;
 };
 
 type ToolCardProps = {
@@ -60,8 +59,7 @@ function ToolCard({ tool, index }: ToolCardProps) {
   );
 }
 
-export default function ToolsSection({ id, standalone = false }: ToolsSectionProps) {
-  const Wrapper = standalone ? 'main' : 'section';
+export default function ToolsSection({ id }: ToolsSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [titleVisible, setTitleVisible] = useState(false);
 
@@ -83,20 +81,16 @@ export default function ToolsSection({ id, standalone = false }: ToolsSectionPro
   }, []);
 
   return (
-    <Wrapper
-      id={id}
-      ref={sectionRef}
-      className={`tools-showcase-section ${standalone ? 'tools-showcase-section--standalone' : 'tools-showcase-section--embedded'}`}
-    >
+    <section id={id} ref={sectionRef} className="tools-showcase-section tools-showcase-section--embedded">
       <div className="tools-showcase-container">
-        {!standalone ? <div className="tools-showcase-spacer tools-showcase-spacer--top" aria-hidden="true" /> : null}
+        <div className="tools-showcase-spacer tools-showcase-spacer--top" aria-hidden="true" />
 
         <div className={`tools-showcase-header ${titleVisible ? 'visible' : ''}`}>
           <h2 className="tools-showcase-title">案发现场</h2>
           <p className="tools-showcase-subtitle">多维 Agent 矩阵的实时协作</p>
         </div>
 
-        {!standalone ? <div className="tools-showcase-spacer tools-showcase-spacer--gap" aria-hidden="true" /> : null}
+        <div className="tools-showcase-spacer tools-showcase-spacer--gap" aria-hidden="true" />
 
         <div className="tools-showcase-grid">
           {TOOL_SHOWCASE_ITEMS.map((tool, index) => (
@@ -104,8 +98,8 @@ export default function ToolsSection({ id, standalone = false }: ToolsSectionPro
           ))}
         </div>
 
-        {!standalone ? <div className="tools-showcase-spacer tools-showcase-spacer--bottom" aria-hidden="true" /> : null}
+        <div className="tools-showcase-spacer tools-showcase-spacer--bottom" aria-hidden="true" />
       </div>
-    </Wrapper>
+    </section>
   );
 }

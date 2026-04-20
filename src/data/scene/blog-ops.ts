@@ -15,7 +15,7 @@ export const blogOpsSceneLogCollection: SceneLogCollection = {
         '2026-03-13 这天，先把 boke 在飞书场景里的协调型定位定下来，再把 wenan、kaifa 的协作分工和对外表达里的称呼口径一并敲定，作为博客运营团队后续协作的起点。',
       detailHref: sitePaths.sceneLogDetails.blogOpsFirst,
       detailTitle: '先把分工和位置敲定',
-      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsFirst}cover.png`,
+      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsFirst}cover.webp`,
       detailImageAlt: '博客运营团队分工协同示意图',
       detailContent: [
         '先把 boke 的位置定下来，后面的协作才有起点。这里确认的不是一个单兵往前冲的执行角色，而是一个面向飞书场景的协调型 agent（智能体）。它主要负责接住需求、整理方向、推动协作，再把结果往前带，而不是把所有细节都揽到自己手里。',
@@ -33,7 +33,7 @@ export const blogOpsSceneLogCollection: SceneLogCollection = {
         '2026-03-18 这次记录的重点不是直接修好 Notion，而是先把报错来源和运行路径梳理清楚，判断问题更像是当前环境没有传入 NOTION_API_KEY，为后续恢复相关工作流把修复方向先找准。',
       detailHref: sitePaths.sceneLogDetails.blogOpsSecond,
       detailTitle: '先把报错归因找准',
-      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsSecond}cover.png`,
+      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsSecond}cover.webp`,
       detailImageAlt: '报错归因排查场景图',
       detailImageCaption: '',
       detailContent: [
@@ -52,7 +52,7 @@ export const blogOpsSceneLogCollection: SceneLogCollection = {
         '2026-03-25 这次记录的重点，是在并行事项里把深圳鲲鹏径这条内容线稳稳接住，让十多篇稿子沿着同一条工作流连续成稿，先把持续交付的节奏建立起来。',
       detailHref: sitePaths.sceneLogDetails.blogOpsThird,
       detailTitle: '先把连续成稿稳住',
-      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsThird}cover.png`,
+      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsThird}cover.webp`,
       detailImageAlt: '连续成稿工作流场景图',
       detailContent: [
         '这段时间在维护 OpenClaw 的同时，深圳鲲鹏径系列这条内容线也没有停下来。不是先放一放、回头再补，而是持续往前推，持续往下接。对博客运营团队来说，能在并行事项里把一条内容线稳住，本身就是很实际的进展。',
@@ -70,7 +70,7 @@ export const blogOpsSceneLogCollection: SceneLogCollection = {
         '2026-04-01 这次记录的重点，是给 boke 补上更稳的回忆能力，并重新划清长期记忆与当天记录的边界，让真正需要持续沿用的规则和事实留在该留的位置。',
       detailHref: sitePaths.sceneLogDetails.blogOpsFourth,
       detailTitle: '先把该记住的东西分清',
-      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsFourth}cover.png`,
+      detailImageSrc: `${sitePaths.sceneLogDetails.blogOpsFourth}cover.webp`,
       detailImageAlt: '记忆分层协作场景图',
       detailImageCaption: '',
       detailContent: [
