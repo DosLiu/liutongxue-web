@@ -96,6 +96,47 @@ danglingSceneDirectories.sort();
 
 const failures = [];
 
+let apiHealthCheckSummary = null;
+
+try {
+  const { default: chatHandler } = await import(resolve(repoRoot, 'api/chat.ts'));
+  const apiResponse = { statusCode: 200, headers: {}, payload: null, ended: false };
+  const res = {
+    setHeader(name, value) {
+      apiResponse.headers[name] = value;
+    },
+    status(code) {
+      apiResponse.statusCode = code;
+      return this;
+    },
+    json(payload) {
+      apiResponse.payload = payload;
+    },
+    end() {
+      apiResponse.ended = true;
+    }
+  };
+
+  await chatHandler({ method: 'GET', headers: { origin: siteUrl } }, res);
+
+  const allowOrigin = apiResponse.headers['Access-Control-Allow-Origin'];
+  const payload = apiResponse.payload;
+  const hasValidPayload =
+    payload &&
+    typeof payload === 'object' &&
+    typeof payload.reply === 'string' &&
+    ['api', 'mock'].includes(payload.mode) &&
+    ['api', 'mock'].includes(payload.status);
+
+  if (apiResponse.statusCode !== 200 || allowOrigin !== siteUrl || !hasValidPayload) {
+    failures.push(`api/chat 健康检查异常:\n${JSON.stringify(apiResponse, null, 2)}`);
+  } else {
+    apiHealthCheckSummary = `api/chat health ok (${payload.status})`;
+  }
+} catch (error) {
+  failures.push(`api/chat 模块加载失败:\n${error instanceof Error ? error.stack || error.message : String(error)}`);
+}
+
 if (missingEntries.length) {
   failures.push(`缺少关键入口文件:\n${formatRouteList(missingEntries)}`);
 }
@@ -128,4 +169,5 @@ const sceneDetailCount = [...actualRoutes].filter((route) => /^\/scene\/[^/]+\/\
 console.log(`Smoke check passed: ${totalHtmlRoutes} 个入口路由已校验。`);
 console.log(`- scene 明细页: ${sceneDetailCount}`);
 console.log(`- sitemap URL: ${sitemapRoutes.size}`);
+console.log(`- ${apiHealthCheckSummary}`);
 console.log('- 关键入口文件、src/site.ts 声明路由、sitemap 与实际落地路由一致');

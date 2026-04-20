@@ -13,7 +13,7 @@ import {
   sanitizeFigureChatMessages,
   type FigureChatId,
   type IncomingMessage
-} from '../src/features/figure-chat/core';
+} from '../src/features/figure-chat/core.ts';
 
 type ServerEnv = Record<string, string | undefined>;
 
