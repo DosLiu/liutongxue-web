@@ -48,8 +48,13 @@ export default function ScenePage() {
           </section>
 
           <section className="scene-card-grid" aria-label="BOT 案发现场入口">
-            {sceneCards.map((card) => (
+            {sceneCards.map((card, index) => (
               <a key={card.id} href={card.href} className="scene-card scene-card--link">
+                <div className="scene-card__topline">
+                  <span className="scene-card__eyebrow">Scene {String(index + 1).padStart(2, '0')}</span>
+                  <span className="scene-card__signal" aria-hidden="true" />
+                </div>
+
                 <h2 className="scene-card__title">{card.title}</h2>
                 <p className="scene-card__description">{card.description}</p>
 

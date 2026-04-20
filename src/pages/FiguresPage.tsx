@@ -44,24 +44,30 @@ const figureEntries: FigureEntry[] = [
 
 function FigureEntryItem({ entry }: { entry: FigureEntry }) {
   const content = (
-    <>
-      <div
-        className={`figures-entry__avatar${entry.avatarImageSrc ? ' figures-entry__avatar--image' : ''}`}
-        style={
-          entry.avatarImageSrc
-            ? {
-                backgroundImage: `url(${entry.avatarImageSrc})`,
-                backgroundPosition: entry.avatarImagePosition ?? 'center',
-                backgroundSize: entry.avatarImageSize ?? 'cover'
-              }
-            : undefined
-        }
-        aria-hidden="true"
-      >
-        {!entry.avatarImageSrc ? <span className="figures-entry__avatar-label">{entry.avatarLabel}</span> : null}
+    <div className="figures-entry__card">
+      <div className="figures-entry__avatar-wrap" aria-hidden="true">
+        <div
+          className={`figures-entry__avatar${entry.avatarImageSrc ? ' figures-entry__avatar--image' : ''}`}
+          style={
+            entry.avatarImageSrc
+              ? {
+                  backgroundImage: `url(${entry.avatarImageSrc})`,
+                  backgroundPosition: entry.avatarImagePosition ?? 'center',
+                  backgroundSize: entry.avatarImageSize ?? 'cover'
+                }
+              : undefined
+          }
+        >
+          {!entry.avatarImageSrc ? <span className="figures-entry__avatar-label">{entry.avatarLabel}</span> : null}
+        </div>
       </div>
-      <h2 className="figures-entry__name">{entry.name}</h2>
-    </>
+
+      <div className="figures-entry__body">
+        <span className="figures-entry__eyebrow">{entry.href ? '人物入口' : '暂未开放'}</span>
+        <h2 className="figures-entry__name">{entry.name}</h2>
+        <p className="figures-entry__caption">{entry.href ? '进入深度对话' : '更多人物正在整理中'}</p>
+      </div>
+    </div>
   );
 
   if (!entry.href) {
