@@ -82,7 +82,7 @@ function FigureEntryItem({ entry }: { entry: FigureEntry }) {
 export default function FiguresPage() {
   return (
     <div className="figures-page">
-      <SiteHeader activeKey={null} />
+      <SiteHeader activeKey="figures" />
 
       <main className="figures-shell">
         <section className="figures-hero" aria-labelledby="figures-title">

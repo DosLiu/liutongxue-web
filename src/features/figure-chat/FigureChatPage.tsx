@@ -234,7 +234,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader activeKey="figures" />
 
       <main className="jobs-chat-page">
         <div className="jobs-chat-page__ambient jobs-chat-page__ambient--left" aria-hidden="true" />
