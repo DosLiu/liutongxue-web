@@ -9,10 +9,10 @@
 当前站点主要包含 3 类内容：
 
 - 首页 `/`：站点主视觉、核心模块、联系区
-- 人物页 `/figures/` 及 3 个具体人物对话页
-- Scene 页 `/scene/` 及其 3 个日志集合页、13 个日志详情页
+- 人物页 `/figures/`，以及当前已落地的 3 个具体人物对话页
+- Scene 页 `/scene/`，以及当前已落地的 3 个日志集合页、13 个日志详情页
 
-项目目标不是做复杂后台，而是稳定维护一个可发布的展示型站点，并保留一个可回退到 mock 的人物聊天能力。
+项目以稳定维护和发布展示型站点为主；人物聊天链路同时保留后端模型接口与前端 fallback 演示回复，用于接口异常或未接通时兜底。
 
 ### 当前正式域名
 
@@ -43,7 +43,7 @@
 - 这个项目更接近 **MPA（多页面应用）**，不是典型 SPA
 - 很多 SEO 信息写在各自路由的 `index.html` 里
 - Scene 详情页正文不是 CMS，而是直接写在 `src/data/scene/*.ts`
-- 人物聊天有 **前端 mock / 后端真实模型** 双路径，改动时要注意一致性
+- 人物聊天同时存在“后端模型接口链路”和“前端 fallback 演示链路”；涉及人物设定、回复策略或相关文案时，需要同时检查两条链路是否保持一致
 
 ---
 
@@ -269,11 +269,11 @@ Scene 详情页不是逐个写 JSX，而是：
 - 状态显示
 - 清空会话行为
 
-### 每个人物的标题 / 描述 / 免费次数在哪里改
+### 每个人物的页面文案 / 展示标签 / freeLimit 配置在哪里改
 
 - `src/features/figure-chat/shared.ts`
 
-这里维护每个角色 config，包括：
+这里维护每个角色的前端配置项，包括：
 
 - `title`
 - `description`
@@ -281,6 +281,8 @@ Scene 详情页不是逐个写 JSX，而是：
 - `panelAriaLabel`
 - `storageKey`
 - `freeLimit`
+
+其中 `freeLimit` 为角色配置字段，修改时应结合当前前后端实际限制逻辑一起确认，不应仅按文案字段理解。
 
 ### 人物详情页 head 区在哪里改
 
@@ -293,22 +295,19 @@ Scene 详情页不是逐个写 JSX，而是：
 - `<title>`
 - `<meta name="description">`
 
-### 人物“回复风格 / mock 回复 / 直出规则 / system prompt”在哪里改
+### 人物回复策略相关逻辑在哪里改
 
-前端本地 fallback 逻辑：
+前端 fallback 演示回复逻辑：
 
 - `src/features/figure-chat/core.ts`
 
-后端真实接口逻辑：
+后端模型接口中的人物提示词与回复规则：
 
 - `api/chat.ts`
 
 > 维护原则：  
-> 这两个文件里有一套高度相似的人物逻辑。  
-> 如果你改了人物设定、直出规则、fallback 逻辑，**要检查前后端是否一致**。  
-> 否则会出现：
-> - API 在线时一种回复
-> - API 离线时另一种回复
+> 这两个文件分别承载前端兜底链路与后端接口链路的人物逻辑。  
+> 如果修改人物设定、回复规则或 fallback 行为，需要同时核对两处实现，避免在线接口返回与前端兜底返回出现明显漂移。
 
 ---
 
@@ -418,9 +417,9 @@ Scene 详情页不是逐个写 JSX，而是：
 contact: 'mailto:hello@liutongxue.com'
 ```
 
-但当前首页实际“联系”承接主要是二维码区，不是 mailto 按钮。
+但当前首页联系区的实际用户承接方式是二维码展示；该 mailto 常量当前不是首页主 CTA。
 
-同时，头部导航里的“具身AI”当前在 `src/components/SiteHeader.tsx` 里是**禁用态**，不要误以为它已经接上了可点击正式入口。
+同时，头部导航中的“具身AI”在 `src/components/SiteHeader.tsx` 中仍为禁用态占位项，尚未配置可访问的正式入口。
 
 ---
 
@@ -549,7 +548,7 @@ contact: 'mailto:hello@liutongxue.com'
 - scene 日期目录是否缺 `index.html`
 - `api/chat.ts` 健康检查
 
-> 新增页面不是只建 HTML 就完事，通常要同时补：
+> 新增页面不应仅补 HTML 入口，通常还需要同步检查并补齐以下项：
 > - 路径常量
 > - scene 数据（如有）
 > - sitemap
@@ -590,13 +589,15 @@ contact: 'mailto:hello@liutongxue.com'
 
 ### 前端变量
 
-如果站点与 API 同域部署在 Vercel / 自定义域名下，通常**不需要**额外配置 `VITE_JOBS_CHAT_API_BASE_URL`。
+如果前端页面与 `/api/chat` 同域部署在 Vercel 或自定义域名下，通常**不需要**额外配置 `VITE_JOBS_CHAT_API_BASE_URL`。
 
-只有在前端静态页面单独部署到其他域名时，才需要显式指定 API 地址，例如：
+只有在前端静态页面与聊天接口分域部署时，才需要显式指定 API 基地址，例如：
 
 ```bash
 VITE_JOBS_CHAT_API_BASE_URL=https://www.liutongxue.com.cn
 ```
+
+说明：变量名中的 `JOBS` 为历史命名，当前实际用于人物聊天接口基地址配置。
 
 ### 后端变量
 
@@ -621,7 +622,7 @@ ALLOWED_ORIGINS=https://www.liutongxue.com.cn,https://liutongxue.com.cn,http://l
 
 ## 11. 高风险 / 不要轻易乱动的区域
 
-下面这些地方不是不能改，但如果不是明确需求，**不要顺手重构**：
+以下区域属于高风险变更点；除非需求明确，否则不建议进行顺手重构或结构性调整：
 
 ### 1) `api/chat.ts`
 
