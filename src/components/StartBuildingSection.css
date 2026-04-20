@@ -37,16 +37,26 @@
 .start-building-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('https://raw.githubusercontent.com/DavidHDev/react-bits/main/public/assets/demo/grain.webp');
-  filter: brightness(3);
-  background-size: 500px 500px;
-  mix-blend-mode: lighten;
-  background-repeat: repeat;
-  opacity: 1;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.22), transparent 28%),
+    radial-gradient(circle at 82% 6%, rgba(255, 255, 255, 0.12), transparent 24%),
+    radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.08), transparent 36%);
+  mix-blend-mode: soft-light;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.start-building-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 5px);
+  mix-blend-mode: soft-light;
+  opacity: 0.18;
   pointer-events: none;
   z-index: 1;
 }
@@ -65,23 +75,15 @@
   letter-spacing: -0.045em;
 }
 
-.start-building-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 15rem;
-  max-width: 100%;
-  background: white;
-  border: 1px solid white;
-  color: #7c3aed;
-  padding: 0.6rem 1.1rem;
-  font-size: 1.1rem;
+.start-building-description {
+  max-width: min(100%, 28rem);
+  margin: 0;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: clamp(1rem, 0.96rem + 0.16vw, 1.08rem);
   font-weight: 500;
-  letter-spacing: -0.2px;
+  line-height: 1.7;
   text-align: center;
-  border-radius: 50px;
-  cursor: default;
-  transition: none;
+  text-wrap: balance;
 }
 
 .contact-qr-grid {
@@ -169,11 +171,8 @@
     line-height: 1.12;
   }
 
-  .start-building-button {
-    width: 12rem;
-    max-width: 100%;
-    padding: 0.875rem 1.6rem;
-    font-size: 1rem;
+  .start-building-description {
+    font-size: 0.98rem;
   }
 
   .contact-qr-grid {
@@ -213,11 +212,9 @@
     line-height: 1.14;
   }
 
-  .start-building-button {
-    width: 10rem;
-    max-width: 100%;
-    padding: 0.75rem 1.35rem;
-    font-size: 0.95rem;
+  .start-building-description {
+    font-size: 0.92rem;
+    line-height: 1.65;
   }
 
   .contact-qr-grid {

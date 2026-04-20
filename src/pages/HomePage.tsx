@@ -133,7 +133,12 @@ export default function HomePage() {
       <main>
         <section className="landing-wrapper">
           <div className="mobile-hero-background-container">
-            <img src={heroImage} alt="Liutongxue hero background" className="mobile-hero-background-image" />
+            <img
+              src={heroImage}
+              alt="Liutongxue hero background"
+              className="mobile-hero-background-image"
+              decoding="async"
+            />
           </div>
 
           <PlasmaWave />

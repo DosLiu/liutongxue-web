@@ -43,7 +43,12 @@ export default function SceneLogDetailPage({
           <section className="scene-log-detail__media" aria-label="日志配图预留区">
             {imageSrc ? (
               <>
-                <img src={imageSrc} alt={imageAlt ?? logTitle} className="scene-log-detail__image" />
+                <img
+                  src={imageSrc}
+                  alt={imageAlt ?? logTitle}
+                  className="scene-log-detail__image"
+                  decoding="async"
+                />
                 {imageCaption ? <p className="scene-log-detail__image-caption">{imageCaption}</p> : null}
               </>
             ) : (
