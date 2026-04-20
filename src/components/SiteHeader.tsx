@@ -14,22 +14,15 @@ const reservedNavTargets = {
 
 const mobileNavItems = [
   {
-    label: '首页',
-    key: 'home',
-    href: sitePaths.home,
-    eyebrow: '起点'
-  },
-  {
-    label: '人物页',
-    key: 'figures',
-    href: sitePaths.figures,
-    eyebrow: '人物'
-  },
-  {
     label: '案发现场',
     key: 'scene',
-    href: sitePaths.scene,
-    eyebrow: 'Scene'
+    href: sitePaths.scene
+  },
+  {
+    label: '具身AI（开发中）',
+    key: 'contact',
+    href: reservedNavTargets.contact,
+    disabled: true
   }
 ] as const;
 
@@ -123,10 +116,10 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
             className={`mobile-nav-toggle${isMobileNavOpen ? ' is-open' : ''}`}
             aria-expanded={isMobileNavOpen}
             aria-controls={mobileNavId}
-            aria-label={isMobileNavOpen ? '关闭主导航' : '打开主导航'}
+            aria-label={isMobileNavOpen ? '关闭首页菜单' : '打开首页菜单'}
             onClick={() => setIsMobileNavOpen((current) => !current)}
           >
-            <span className="mobile-nav-toggle__label">导航</span>
+            <span className="mobile-nav-toggle__label">首页</span>
             <span className="mobile-nav-toggle__icon" aria-hidden="true">
               <span />
               <span />
@@ -144,6 +137,21 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
               {mobileNavItems.map((item) => {
                 const isActive = activeKey != null && item.key === activeKey;
 
+                if ('disabled' in item && item.disabled) {
+                  return (
+                    <span
+                      key={item.key}
+                      className="mobile-nav-link mobile-nav-link--disabled"
+                      aria-disabled="true"
+                      data-future-href={item.href}
+                      data-future-page="figures"
+                      title="人物选择入口即将开放"
+                    >
+                      <span className="mobile-nav-link__label">{item.label}</span>
+                    </span>
+                  );
+                }
+
                 return (
                   <a
                     key={item.key}
@@ -151,10 +159,7 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
                     className={`mobile-nav-link${isActive ? ' active-link' : ''}`}
                     onClick={() => setIsMobileNavOpen(false)}
                   >
-                    <span className="mobile-nav-link__copy">
-                      <span className="mobile-nav-link__eyebrow">{item.eyebrow}</span>
-                      <span className="mobile-nav-link__label">{item.label}</span>
-                    </span>
+                    <span className="mobile-nav-link__label">{item.label}</span>
                     <span className="mobile-nav-link__arrow" aria-hidden="true">
                       ↗
                     </span>

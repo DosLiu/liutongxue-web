@@ -327,18 +327,18 @@ svg {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.mobile-nav-link__copy {
-  display: grid;
-  gap: 0.18rem;
-  min-width: 0;
+.mobile-nav-link--disabled {
+  color: rgba(255, 255, 255, 0.52);
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+  cursor: default;
 }
 
-.mobile-nav-link__eyebrow {
-  color: rgba(255, 255, 255, 0.46);
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+.mobile-nav-link--disabled:hover {
+  color: rgba(255, 255, 255, 0.52);
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+  transform: none;
 }
 
 .mobile-nav-link__label {
