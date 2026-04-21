@@ -218,7 +218,7 @@
 
 @media (max-width: 768px) {
   .tools-showcase-section--embedded {
-    --tools-section-min-height: max(calc(var(--hero-viewport-height, 100svh) * 0.8), 35.2rem);
+    --tools-section-min-height: max(calc(var(--hero-viewport-height, 100svh) * 0.6), 26.4rem);
     padding-inline: 1.5rem;
   }
 
@@ -227,8 +227,8 @@
     display: flex;
     flex-direction: column;
     min-height: var(--tools-section-min-height);
-    gap: clamp(2.2rem, 4.8vh, 3.2rem);
-    padding: clamp(3.2rem, 7.2vh, 4.4rem) 0 clamp(2.6rem, 5.6vh, 3.6rem);
+    gap: clamp(1.65rem, 3.6vh, 2.4rem);
+    padding: clamp(2.4rem, 5.4vh, 3.3rem) 0 clamp(1.95rem, 4.2vh, 2.7rem);
   }
 
   .tools-showcase-section--embedded .tools-showcase-spacer {
@@ -271,14 +271,14 @@
 
 @media (max-width: 480px) {
   .tools-showcase-section--embedded {
-    --tools-section-min-height: max(calc(var(--hero-viewport-height, 100svh) * 0.8), 31rem);
+    --tools-section-min-height: max(calc(var(--hero-viewport-height, 100svh) * 0.6), 23.25rem);
     padding-inline: 1rem;
   }
 
 
   .tools-showcase-section--embedded .tools-showcase-container {
-    gap: clamp(1.9rem, 4.4vh, 2.6rem);
-    padding: clamp(2.8rem, 6.4vh, 3.6rem) 0 2.4rem;
+    gap: clamp(1.4rem, 3.3vh, 1.95rem);
+    padding: clamp(2.1rem, 4.8vh, 2.7rem) 0 1.8rem;
   }
 
   .tools-showcase-title {
