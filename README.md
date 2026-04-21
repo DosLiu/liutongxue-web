@@ -309,6 +309,40 @@ Scene 详情页不是逐个写 JSX，而是：
 > 这两个文件分别承载前端兜底链路与后端接口链路的人物逻辑。  
 > 如果修改人物设定、回复规则或 fallback 行为，需要同时核对两处实现，避免在线接口返回与前端兜底返回出现明显漂移。
 
+### 6.2.1 新增聊天人物 SOP
+
+如果不是修改现有 3 个人物，而是并行新增一个新人物，建议按下面顺序做：
+
+1. 先确定人物 slug，例如：`figures/new-person/`
+2. 在 `src/site.ts` 补人物路径常量
+3. 新建人物页 HTML 入口：`figures/<slug>/index.html`
+4. 新建对应入口文件，参考：
+   - `src/figures-steve-jobs.tsx`
+   - `src/figures-elon-musk.tsx`
+   - `src/figures-zhang-yiming.tsx`
+5. 在 `src/pages/FiguresPage.tsx` 补入口卡片、名称、头像、链接
+6. 在 `src/assets/figures/` 补头像资源
+7. 在 `src/features/figure-chat/shared.ts` 补前端配置：
+   - `title`
+   - `description`
+   - `assistantLabel`
+   - `panelAriaLabel`
+   - `storageKey`
+   - `freeLimit`
+8. 如果人物设定、fallback 或 prompt 有变化，同时检查：
+   - `src/features/figure-chat/core.ts`
+   - `api/chat.ts`
+9. 新人物页落地后，同步补：
+   - `public/sitemap.xml`
+   - 对应 `figures/<slug>/index.html` 的 `<title>` / `<meta name="description">`
+10. 最后执行：
+    - `npm run check`
+    - 手动打开新人物页，至少确认 1 次 fallback 链路可用
+
+> 说明：
+> 当前 `vite.config.ts` 会自动收集 `figures/**/index.html` 作为多入口构建输入，
+> 所以新增人物页时通常**不用**手动再改 rollup input；重点是把 HTML 入口、`src/site.ts`、人物配置和 sitemap 对齐。
+
 ---
 
 ## 6.3 Scene 页怎么改
@@ -389,6 +423,60 @@ Scene 详情页不是逐个写 JSX，而是：
 并且数据文件里通过 `detailImageSrc` 指向对应路径。
 
 > 这类图片路径要和路由严格对齐，不能只改图片文件不改数据，或只改数据不改文件。
+
+### 6.3.1 新增 scene 日志 / 详情页 SOP
+
+#### 给已有团队页新增一条“仅列表显示”的日志
+
+1. 找到对应数据文件：
+   - `src/data/scene/digital-resident.ts`
+   - `src/data/scene/blog-ops.ts`
+   - `src/data/scene/site-ops.ts`
+2. 往 `logs` 数组新增一项
+3. 至少补齐：
+   - `id`
+   - `publishedAt`
+   - `title`
+   - `preview`
+   - `summary`
+4. 如果不填 `detailHref`，这条日志只会显示在列表里，不会进入详情页
+
+#### 给已有团队页新增一条“带详情页”的日志
+
+1. 先在对应数据文件里补详情字段：
+   - `detailHref`
+   - `detailTitle`
+   - `detailContent`
+   - `detailImageSrc`
+   - `detailImageAlt`
+   - `detailImageCaption`（可选）
+   - `sourceHref` / `sourceLabel`（可选）
+2. 在 `src/site.ts` 的 `sceneLogDetails` 里补路径常量
+3. 新建详情页 HTML 入口，例如：
+   - `scene/digital-resident/2026-03-28/index.html`
+4. 如果有配图，把图片放到：
+   - `public/scene/<scene-segment>/<date>/cover.webp`
+5. 手动补 `public/sitemap.xml`
+6. 最后执行：
+   - `npm run check`
+   - 手动打开对应团队页和详情页各 1 次
+
+#### 新增一个新的 scene 团队页
+
+除了补日志数据，还要同步补这些位置：
+
+- `src/data/scene/index.ts`
+- `src/data/scene/routes.ts`
+- `src/site.ts`
+- `scene/<new-scene>/index.html`
+- `src/pages/ScenePage.tsx`
+- 首页 `src/constants/toolsShowcase.ts`（如果首页要露出这个入口）
+- `public/sitemap.xml`
+
+> 说明：
+> 当前 scene 详情页不是运行时动态生成，而是“数据对象 + 独立 HTML 路由入口”组合。  
+> 但它也不是一条日志对应一个独立 TSX 入口；详情页统一复用 `src/sceneLogDetail.tsx`，
+> 关键是把 `src/site.ts`、数据文件、`scene/**/index.html` 和 sitemap 对齐。
 
 ---
 
@@ -580,43 +668,111 @@ contact: 'mailto:hello@liutongxue.com'
 
 ---
 
-## 10. 人物聊天接入说明
+## 10. 环境变量、聊天接入与部署约定
 
 当前公开访问方式：
 
 - 主站页面：`https://www.liutongxue.com.cn`
 - 真实模型 API：同项目下的 `api/chat.ts`
 
-### 前端变量
+### 10.1 环境变量总表
 
-如果前端页面与 `/api/chat` 同域部署在 Vercel 或自定义域名下，通常**不需要**额外配置 `VITE_JOBS_CHAT_API_BASE_URL`。
+README 中提到的本地开发、构建与 smoke check 已经在第 4 章写明；
+这里补的是“聊天链路 / canonical / 域名迁移”相关的变量说明。
 
-只有在前端静态页面与聊天接口分域部署时，才需要显式指定 API 基地址，例如：
+| 变量名 | 是否必填 | 读取位置 | 用途 | 默认行为 / 备注 |
+| --- | --- | --- | --- | --- |
+| `VITE_JOBS_CHAT_API_BASE_URL` | 否 | `src/features/figure-chat/runtime.ts` | 指定聊天接口基地址 | 前端和 `/api/chat` 不同域时使用；留空时默认走当前域名下的 `/api/chat`。填 `/` 时也会强制走同域。 |
+| `VITE_CHAT_API_URL` | 否 | `src/features/figure-chat/runtime.ts` | 直接指定完整聊天接口地址 | 优先级高于 `VITE_JOBS_CHAT_API_BASE_URL`，通常只用于特殊调试或兼容场景。 |
+| `VITE_SITE_URL` | 生产强烈建议确认 | `vite.config.ts`、`tools/smoke-check.mjs` | canonical / `og:url` / smoke check 所用的正式站点地址 | 当前默认值是 `https://www.liutongxue.com.cn`。如果正式域名迁移，需要同步确认。 |
+| `OPENAI_API_KEY` | 真实模型时必填 | `api/chat.ts` | 调用 OpenAI 兼容接口 | 不填时前端会退回演示回复。 |
+| `OPENAI_MODEL` | 否 | `api/chat.ts` | 指定模型名 | 默认值是 `gpt-4.1-mini`。 |
+| `OPENAI_BASE_URL` | 否 | `api/chat.ts` | 指定 OpenAI 兼容网关地址 | 默认值是 `https://api.openai.com/v1`。 |
+| `ALLOWED_ORIGINS` | 生产强烈建议填写 | `api/chat.ts` | 控制允许跨域访问 API 的前端来源 | 多个域名用英文逗号分隔；本地和已知预览来源要显式纳入。 |
+
+### 10.2 三种常见运行场景
+
+#### 场景 A：前端与 API 同域部署
+
+例如：整站都部署在正式域名下。
+
+- 通常不需要配置 `VITE_JOBS_CHAT_API_BASE_URL`
+- 前端会默认请求当前域名下的 `/api/chat`
+- 重点确认：
+  - `OPENAI_API_KEY`
+  - `OPENAI_MODEL`
+  - `OPENAI_BASE_URL`
+  - `ALLOWED_ORIGINS`
+  - `VITE_SITE_URL`
+
+#### 场景 B：前端与 API 分域部署
+
+例如：前端走静态托管，聊天接口单独挂在另一个域名。
 
 ```bash
-VITE_JOBS_CHAT_API_BASE_URL=https://www.liutongxue.com.cn
+VITE_JOBS_CHAT_API_BASE_URL=https://api.example.com
 ```
 
-说明：变量名中的 `JOBS` 为历史命名，当前实际用于人物聊天接口基地址配置。
+同时后端要把前端域名加入 `ALLOWED_ORIGINS`。
 
-### 后端变量
+#### 场景 C：本地调试
 
-`api/chat.ts` 使用 OpenAI 兼容接口，至少需要：
+- 本地 `npm run dev` 主要启动前端页面
+- 如果本地没有真实 `/api/chat`，聊天页会自动 fallback
+- 如果想连远端接口，通常显式配置 `VITE_JOBS_CHAT_API_BASE_URL` 更稳
+- 本地联调完成后，提交前建议执行：
 
 ```bash
-OPENAI_API_KEY=your_api_key
-OPENAI_MODEL=gpt-4.1-mini
-OPENAI_BASE_URL=https://api.openai.com/v1
-ALLOWED_ORIGINS=https://www.liutongxue.com.cn,https://liutongxue.com.cn,http://localhost:5173
+npm run check
 ```
 
-如需额外放开预览来源，请显式追加到 `ALLOWED_ORIGINS`。
+### 10.3 人物聊天链路的当前约定
 
-### 当前行为
+当前人物聊天链路是：
+
+- 前端接口地址解析：`src/features/figure-chat/runtime.ts`
+- 前端兜底与角色逻辑：`src/features/figure-chat/core.ts`
+- 每个人物的前端配置：`src/features/figure-chat/shared.ts`
+- 真实模型接口：`api/chat.ts`
+
+当前行为：
 
 - 同域访问时，聊天页默认请求当前域名下的 `/api/chat`
 - 如果缺少模型变量或接口不可达，前端会自动回退到演示回复
 - 如果后端函数加载失败，前端会显示未连接或 fallback 状态
+
+### 10.4 部署与域名口径
+
+#### 正式口径
+
+- 当前正式域名：`https://www.liutongxue.com.cn`
+- README、SEO、sitemap、robots、canonical 默认都应以这个 `www` 域名为准
+- 预览域名可以用于测试，但不应写成 README 的默认公开口径
+
+#### 当前已验证的部署形态
+
+当前项目是：
+
+- 多入口静态页面
+- 同项目下的 `api/chat.ts` Serverless 接口
+- 正式域名走 `www.liutongxue.com.cn`
+
+也就是说：
+
+- 静态页面可以部署在任意静态托管平台
+- `api/chat.ts` 需要能运行 Node / Serverless 的平台
+- README 维护时应优先描述“域名口径与部署约束”，不要把某个平台写成唯一前提
+
+#### 正式域名迁移时要同步确认的地方
+
+- `VITE_SITE_URL`
+- `vite.config.ts` 里的默认 `siteUrl`
+- `tools/smoke-check.mjs` 里的默认 `siteUrl`
+- `.env.example`
+- `public/robots.txt`
+- `public/sitemap.xml`
+- README 中的正式域名文案
+- `ALLOWED_ORIGINS`
 
 ---
 
