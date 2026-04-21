@@ -664,7 +664,7 @@ svg {
   :root {
     --header-height: 100px;
     --hero-inline-padding: 1.5rem;
-    --hero-bottom-gap: clamp(0.9rem, 2.8vh, 2.4rem);
+    --hero-bottom-gap: clamp(0.35rem, 1.2vh, 1rem);
   }
 
   .header {
@@ -731,7 +731,7 @@ svg {
   :root {
     --header-height: 90px;
     --hero-inline-padding: 1rem;
-    --hero-bottom-gap: clamp(0.75rem, 2.55vh, 2rem);
+    --hero-bottom-gap: clamp(0.2rem, 0.8vh, 0.75rem);
   }
 
   .header {

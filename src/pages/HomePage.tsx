@@ -13,11 +13,11 @@ const clampNumber = (value: number, min: number, max: number) => Math.min(Math.m
 const HERO_TARGET_CENTER_RATIO = 0.25;
 const getHeroTargetCenterRatio = (viewportWidth: number) => {
   if (viewportWidth <= 480) {
-    return 0.36;
+    return 0.48;
   }
 
   if (viewportWidth <= 768) {
-    return 0.33;
+    return 0.44;
   }
 
   return HERO_TARGET_CENTER_RATIO;
