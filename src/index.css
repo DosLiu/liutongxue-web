@@ -34,6 +34,7 @@
   --hero-viewport-height: 100vh;
   --hero-shell-height: calc(var(--hero-viewport-height) - var(--hero-header-height));
   --hero-copy-shift-y: 0px;
+  --hero-target-center-ratio: 0.25;
   --hero-inline-padding: clamp(1.5rem, 4vw, 4rem);
   --hero-top-gap: clamp(0.75rem, 2.2vh, 2rem);
   --hero-bottom-gap: clamp(1.5rem, 4.6vh, 4rem);
@@ -664,6 +665,7 @@ svg {
   :root {
     --header-height: 100px;
     --hero-inline-padding: 1.5rem;
+    --hero-target-center-ratio: 0.44;
     --hero-bottom-gap: clamp(0.35rem, 1.2vh, 1rem);
   }
 
@@ -731,6 +733,7 @@ svg {
   :root {
     --header-height: 90px;
     --hero-inline-padding: 1rem;
+    --hero-target-center-ratio: 0.48;
     --hero-bottom-gap: clamp(0.2rem, 0.8vh, 0.75rem);
   }
 
