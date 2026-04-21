@@ -11,6 +11,17 @@ import ToolsSection from '../components/ToolsSection';
 const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 const HERO_TARGET_CENTER_RATIO = 0.25;
+const getHeroTargetCenterRatio = (viewportWidth: number) => {
+  if (viewportWidth <= 480) {
+    return 0.36;
+  }
+
+  if (viewportWidth <= 768) {
+    return 0.33;
+  }
+
+  return HERO_TARGET_CENTER_RATIO;
+};
 const subtitleText = '记录每一次灵感碰撞交响，见证数字生命的无限成长';
 const subtitleChars = Array.from(subtitleText);
 const subtitleLeadingChars = subtitleChars.slice(0, 2);
@@ -62,8 +73,19 @@ export default function HomePage() {
           )
         )
       );
+      const viewportWidth = Math.max(
+        1,
+        Math.round(
+          Math.min(
+            ...[viewport?.width, window.innerWidth, document.documentElement.clientWidth].filter(
+              (value): value is number => typeof value === 'number' && value > 0
+            )
+          )
+        )
+      );
       const headerHeight = Math.max(0, Math.round(header.getBoundingClientRect().height));
       const shellHeight = Math.max(0, viewportHeight - headerHeight);
+      const heroTargetCenterRatio = getHeroTargetCenterRatio(viewportWidth);
 
       root.style.setProperty('--hero-viewport-height', `${viewportHeight}px`);
       root.style.setProperty('--hero-header-height', `${headerHeight}px`);
@@ -80,7 +102,7 @@ export default function HomePage() {
       const minCenterY = paddingTop + heroHeight / 2;
       const maxCenterY = shellHeight - paddingBottom - heroHeight / 2;
       const desiredCenterY = clampNumber(
-        shellHeight * HERO_TARGET_CENTER_RATIO,
+        shellHeight * heroTargetCenterRatio,
         minCenterY,
         Math.max(minCenterY, maxCenterY)
       );
