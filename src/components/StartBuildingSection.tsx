@@ -17,28 +17,24 @@ export default function StartBuildingSection() {
 
         <div className="contact-qr-grid" aria-label="联系二维码">
           <figure className="contact-qr-card">
-            <div className="contact-qr-frame">
-              <img
-                className="contact-qr-image"
-                src={wechatQr}
-                alt="微信二维码"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
+            <img
+              className="contact-qr-image"
+              src={wechatQr}
+              alt="微信二维码"
+              loading="lazy"
+              decoding="async"
+            />
             <figcaption className="contact-qr-caption">微信</figcaption>
           </figure>
 
           <figure className="contact-qr-card">
-            <div className="contact-qr-frame">
-              <img
-                className="contact-qr-image"
-                src={feishuQr}
-                alt="飞书二维码"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
+            <img
+              className="contact-qr-image"
+              src={feishuQr}
+              alt="飞书二维码"
+              loading="lazy"
+              decoding="async"
+            />
             <figcaption className="contact-qr-caption">飞书</figcaption>
           </figure>
         </div>
