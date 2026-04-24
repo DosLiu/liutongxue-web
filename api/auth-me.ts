@@ -1,1 +1,1 @@
-export { default } from './auth/me';
+export { default } from './auth/me.js';

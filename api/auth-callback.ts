@@ -1,1 +1,1 @@
-export { default } from './auth/callback';
+export { default } from './auth/callback.js';

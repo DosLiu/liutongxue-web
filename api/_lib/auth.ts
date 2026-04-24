@@ -1,4 +1,4 @@
-import { buildSetCookie, getCookieHeader, isSecureRequest, parseCookies } from './http';
+import { buildSetCookie, getCookieHeader, isSecureRequest, parseCookies } from './http.js';
 
 type ApiRequest = {
   headers?: Record<string, string | string[] | undefined>;

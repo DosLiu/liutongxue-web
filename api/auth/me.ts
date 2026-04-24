@@ -1,5 +1,5 @@
-import { buildConfigErrorMessage, getAuthConfig, readSessionFromRequest, type AuthStatus } from '../_lib/auth';
-import { applyCors, handleOptionsRequest, json, methodNotAllowed } from '../_lib/http';
+import { buildConfigErrorMessage, getAuthConfig, readSessionFromRequest, type AuthStatus } from '../_lib/auth.js';
+import { applyCors, handleOptionsRequest, json, methodNotAllowed } from '../_lib/http.js';
 
 type ApiRequest = {
   headers?: Record<string, string | string[] | undefined>;

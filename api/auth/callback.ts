@@ -8,8 +8,8 @@ import {
   getAuthConfig,
   getCallbackQuery,
   readStateFromRequest
-} from '../_lib/auth';
-import { applyCors, handleOptionsRequest, json, methodNotAllowed, redirect } from '../_lib/http';
+} from '../_lib/auth.js';
+import { applyCors, handleOptionsRequest, json, methodNotAllowed, redirect } from '../_lib/http.js';
 
 type ApiRequest = {
   headers?: Record<string, string | string[] | undefined>;
