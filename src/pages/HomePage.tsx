@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import heroImage from '../assets/hero.webp';
 import FeatureCardsSection from '../components/FeatureCardsSection';
+import AuthEntryCard from '../features/auth/AuthEntryCard';
 import PlasmaWave from '../components/PlasmaWave';
 import SiteFooter from '../components/SiteFooter';
 import SiteHeader from '../components/SiteHeader';
@@ -175,6 +176,8 @@ export default function HomePage() {
                   ))}
                 </span>
               </p>
+
+              <AuthEntryCard />
             </div>
           </div>
         </section>
