@@ -9,19 +9,23 @@ type ApiRequest = {
 export type AuthStatus = 'disabled' | 'signed_out' | 'authenticated';
 
 export type AuthSession = {
+  avatarUrl?: string;
   displayName?: string;
   expiresAt: string;
   issuedAt: string;
+  loginType: string;
   provider: 'daen';
-  storage: 'cookie-placeholder';
+  socialUid: string;
+  storage: 'cookie' | 'kv';
   subject: string;
 };
 
 type SignedStatePayload = {
   expiresAt: string;
   issuedAt: string;
+  loginType: string;
+  nonce: string;
   returnTo?: string;
-  state: string;
 };
 
 type EnvField = {
@@ -29,15 +33,37 @@ type EnvField = {
   value: string;
 };
 
+type DaenLoginResult = {
+  code: number;
+  msg: string;
+  qrcode?: string;
+  type?: string;
+  url?: string;
+};
+
+type DaenCallbackResult = {
+  access_token?: string;
+  code: number;
+  faceimg?: string;
+  gender?: string;
+  ip?: string;
+  location?: string;
+  msg: string;
+  nickname?: string;
+  social_uid?: string;
+  type?: string;
+};
+
 const env = ((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {});
 const textEncoder = new TextEncoder();
-const bufferCtor = (globalThis as { Buffer?: { from: (value: string, encoding?: string) => { toString: (encoding?: string) => string } } }).Buffer;
+const bufferCtor = (globalThis as {
+  Buffer?: { from: (value: string, encoding?: string) => { toString: (encoding?: string) => string } };
+}).Buffer;
 
 const normalizeEnvValue = (value: string | undefined) => value?.trim() ?? '';
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
-const ensureLeadingSlash = (value: string) => (value.startsWith('/') ? value : `/${value}`);
-const now = () => new Date();
 const toIsoString = (date: Date) => date.toISOString();
+const now = () => new Date();
 
 const encodeBase64Url = (value: string) => {
   const base64 = bufferCtor
@@ -49,11 +75,8 @@ const encodeBase64Url = (value: string) => {
 
 const decodeBase64Url = (value: string) => {
   const base64 = value.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(value.length / 4) * 4, '=');
-
   return bufferCtor ? bufferCtor.from(base64, 'base64').toString('utf8') : decodeURIComponent(escape(atob(base64)));
 };
-
-const joinUrl = (baseUrl: string, path: string) => `${trimTrailingSlash(baseUrl)}${ensureLeadingSlash(path)}`;
 
 const toInt = (value: string, fallback: number) => {
   const parsed = Number.parseInt(value, 10);
@@ -163,47 +186,59 @@ const sanitizeReturnTo = (value: string | undefined) => {
   return trimmed;
 };
 
+const parseEnabledTypes = (value: string) =>
+  value
+    .split(',')
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+
+const readJson = async <T>(response: Response) => {
+  const text = await response.text();
+  if (!text) {
+    throw new Error('empty_response');
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error('invalid_json_response');
+  }
+};
+
 export const getAuthConfig = () => {
-  const authBaseUrl = normalizeEnvValue(env.DAEN_AUTH_BASE_URL);
-  const authorizePath = normalizeEnvValue(env.DAEN_AUTH_AUTHORIZE_PATH) || '/oauth/authorize';
-  const tokenUrl = normalizeEnvValue(env.DAEN_AUTH_TOKEN_URL);
-  const userInfoUrl = normalizeEnvValue(env.DAEN_AUTH_USERINFO_URL);
+  const connectUrl = normalizeEnvValue(env.DAEN_CONNECT_URL) || 'https://u.daenwl.com/connect.php';
   const appId = normalizeEnvValue(env.DAEN_APP_ID);
   const appKey = normalizeEnvValue(env.DAEN_APP_KEY);
-  const scope = normalizeEnvValue(env.DAEN_AUTH_SCOPE) || 'openid profile';
   const callbackUrl = normalizeEnvValue(env.DAEN_AUTH_CALLBACK_URL);
-  const loginSuccessUrl = normalizeEnvValue(env.AUTH_LOGIN_SUCCESS_URL) || '/';
-  const logoutRedirectUrl = normalizeEnvValue(env.AUTH_LOGOUT_REDIRECT_URL) || '/';
+  const enabledTypes = parseEnabledTypes(normalizeEnvValue(env.DAEN_ENABLED_TYPES) || 'qq,baidu');
+  const loginSuccessUrl = normalizeEnvValue(env.AUTH_LOGIN_SUCCESS_URL) || '/figures/';
+  const logoutRedirectUrl = normalizeEnvValue(env.AUTH_LOGOUT_REDIRECT_URL) || '/figures/';
   const sessionCookieName = normalizeEnvValue(env.AUTH_SESSION_COOKIE_NAME) || 'liutongxue_session';
   const stateCookieName = normalizeEnvValue(env.AUTH_STATE_COOKIE_NAME) || 'liutongxue_auth_state';
   const sessionSecret = normalizeEnvValue(env.AUTH_SESSION_SECRET);
   const sessionTtlSeconds = toInt(normalizeEnvValue(env.AUTH_SESSION_TTL_SECONDS), 60 * 60 * 24 * 7);
+  const dailyLimit = toInt(normalizeEnvValue(env.AUTH_DAILY_LIMIT), 10);
   const kvEnabled = normalizeEnvValue(env.AUTH_KV_ENABLED).toLowerCase() === 'true';
   const kvRestApiUrl = normalizeEnvValue(env.KV_REST_API_URL);
   const kvRestApiToken = normalizeEnvValue(env.KV_REST_API_TOKEN);
   const kvUrl = normalizeEnvValue(env.KV_URL);
 
   const missingLoginEnv = collectMissingEnv([
-    { key: 'DAEN_AUTH_BASE_URL', value: authBaseUrl },
+    { key: 'DAEN_CONNECT_URL', value: connectUrl },
     { key: 'DAEN_APP_ID', value: appId },
-    { key: 'DAEN_AUTH_CALLBACK_URL', value: callbackUrl },
-    { key: 'AUTH_SESSION_SECRET', value: sessionSecret }
-  ]);
-
-  const missingCallbackEnv = collectMissingEnv([
     { key: 'DAEN_APP_KEY', value: appKey },
-    { key: 'DAEN_AUTH_TOKEN_URL', value: tokenUrl },
-    { key: 'DAEN_AUTH_USERINFO_URL', value: userInfoUrl },
+    { key: 'DAEN_AUTH_CALLBACK_URL', value: callbackUrl },
     { key: 'AUTH_SESSION_SECRET', value: sessionSecret }
   ]);
 
   return {
     appId,
     appKey,
-    authBaseUrl,
-    authorizePath,
     callbackUrl,
-    isCallbackReady: missingCallbackEnv.length === 0,
+    connectUrl,
+    dailyLimit,
+    enabledTypes,
+    isCallbackReady: missingLoginEnv.length === 0,
     isKvConfigured: Boolean(kvRestApiUrl && kvRestApiToken),
     isLoginReady: missingLoginEnv.length === 0,
     kv: {
@@ -215,43 +250,154 @@ export const getAuthConfig = () => {
     },
     loginSuccessUrl,
     logoutRedirectUrl,
-    missingCallbackEnv,
     missingLoginEnv,
-    scope,
     sessionCookieName,
     sessionSecret,
     sessionTtlSeconds,
-    stateCookieName,
-    tokenUrl,
-    userInfoUrl
+    stateCookieName
   };
 };
 
 export const buildConfigErrorMessage = (missingEnv: string[]) =>
   missingEnv.length ? `缺少环境变量：${missingEnv.join(', ')}` : '认证配置未完成。';
 
-export const buildDaenAuthorizeUrl = (returnTo?: string) => {
+export const resolveLoginType = (req: ApiRequest) => {
+  const rawType = getQueryValue(req, 'type')?.trim().toLowerCase();
+  const config = getAuthConfig();
+
+  if (!rawType) {
+    return {
+      allowedTypes: config.enabledTypes,
+      isSupported: false,
+      loginType: '',
+      reason: '缺少登录方式 type 参数。'
+    };
+  }
+
+  if (!config.enabledTypes.includes(rawType)) {
+    return {
+      allowedTypes: config.enabledTypes,
+      isSupported: false,
+      loginType: rawType,
+      reason: `当前只开放：${config.enabledTypes.join('、')}`
+    };
+  }
+
+  return {
+    allowedTypes: config.enabledTypes,
+    isSupported: true,
+    loginType: rawType,
+    reason: ''
+  };
+};
+
+export const buildDaenLoginRequest = (loginType: string, returnTo?: string) => {
   const config = getAuthConfig();
   if (!config.isLoginReady) {
     throw new Error(buildConfigErrorMessage(config.missingLoginEnv));
   }
 
-  const state = createNonce();
-  const authorizeUrl = new URL(joinUrl(config.authBaseUrl, config.authorizePath));
-  authorizeUrl.searchParams.set('client_id', config.appId);
-  authorizeUrl.searchParams.set('redirect_uri', config.callbackUrl);
-  authorizeUrl.searchParams.set('response_type', 'code');
-  authorizeUrl.searchParams.set('scope', config.scope);
-  authorizeUrl.searchParams.set('state', state);
+  const nonce = createNonce();
+  const redirectUrl = new URL(config.callbackUrl);
+  redirectUrl.searchParams.set('lc_state', nonce);
+
+  const safeReturnTo = sanitizeReturnTo(returnTo);
+  if (safeReturnTo) {
+    redirectUrl.searchParams.set('return_to', safeReturnTo);
+  }
+
+  const requestUrl = new URL(config.connectUrl);
+  requestUrl.searchParams.set('act', 'login');
+  requestUrl.searchParams.set('appid', config.appId);
+  requestUrl.searchParams.set('appkey', config.appKey);
+  requestUrl.searchParams.set('type', loginType);
+  requestUrl.searchParams.set('redirect_uri', redirectUrl.toString());
 
   return {
-    authUrl: authorizeUrl.toString(),
+    loginRequestUrl: requestUrl.toString(),
     statePayload: {
       expiresAt: toIsoString(new Date(Date.now() + 10 * 60 * 1000)),
       issuedAt: toIsoString(now()),
-      returnTo: sanitizeReturnTo(returnTo),
-      state
+      loginType,
+      nonce,
+      returnTo: safeReturnTo
     } satisfies SignedStatePayload
+  };
+};
+
+export const requestDaenLoginUrl = async (loginType: string, returnTo?: string) => {
+  const { loginRequestUrl, statePayload } = buildDaenLoginRequest(loginType, returnTo);
+  const response = await fetch(loginRequestUrl, {
+    headers: {
+      Accept: 'application/json'
+    },
+    method: 'GET'
+  });
+
+  if (!response.ok) {
+    throw new Error(`daen_login_http_${response.status}`);
+  }
+
+  const payload = await readJson<DaenLoginResult>(response);
+  if (payload.code !== 0 || !payload.url) {
+    throw new Error(payload.msg || 'daen_login_failed');
+  }
+
+  return {
+    payload,
+    statePayload
+  };
+};
+
+export const exchangeDaenCallback = async (loginType: string, code: string) => {
+  const config = getAuthConfig();
+  if (!config.isCallbackReady) {
+    throw new Error(buildConfigErrorMessage(config.missingLoginEnv));
+  }
+
+  const requestUrl = new URL(config.connectUrl);
+  requestUrl.searchParams.set('act', 'callback');
+  requestUrl.searchParams.set('appid', config.appId);
+  requestUrl.searchParams.set('appkey', config.appKey);
+  requestUrl.searchParams.set('type', loginType);
+  requestUrl.searchParams.set('code', code);
+
+  const response = await fetch(requestUrl.toString(), {
+    headers: {
+      Accept: 'application/json'
+    },
+    method: 'GET'
+  });
+
+  if (!response.ok) {
+    throw new Error(`daen_callback_http_${response.status}`);
+  }
+
+  const payload = await readJson<DaenCallbackResult>(response);
+  if (payload.code !== 0 || !payload.social_uid) {
+    throw new Error(payload.msg || 'daen_callback_failed');
+  }
+
+  return payload;
+};
+
+export const buildSessionFromDaenProfile = (profile: DaenCallbackResult): AuthSession => {
+  const config = getAuthConfig();
+  const issuedAt = now();
+  const expiresAt = new Date(issuedAt.getTime() + config.sessionTtlSeconds * 1000);
+  const loginType = profile.type?.trim().toLowerCase() || 'unknown';
+  const socialUid = profile.social_uid?.trim() || '';
+
+  return {
+    avatarUrl: profile.faceimg,
+    displayName: profile.nickname || socialUid || '已登录用户',
+    expiresAt: toIsoString(expiresAt),
+    issuedAt: toIsoString(issuedAt),
+    loginType,
+    provider: 'daen',
+    socialUid,
+    storage: config.kv.enabled && config.isKvConfigured ? 'kv' : 'cookie',
+    subject: `${loginType}:${socialUid}`
   };
 };
 
@@ -325,7 +471,7 @@ export const readSessionFromRequest = async (req: ApiRequest) => {
   return parseSignedPayload<AuthSession>(cookies[config.sessionCookieName], config.sessionSecret);
 };
 
-export const buildPostAuthRedirectUrl = async (req: ApiRequest, status: 'callback-ready' | 'auth-error') => {
+export const buildPostAuthRedirectUrl = async (req: ApiRequest, status: 'signed-in' | 'auth-error') => {
   const config = getAuthConfig();
   const state = await readStateFromRequest(req);
   const redirectUrl = new URL(state?.returnTo || config.loginSuccessUrl, 'https://liutongxue.local');
@@ -344,5 +490,7 @@ export const getCallbackQuery = (req: ApiRequest) => ({
   code: getQueryValue(req, 'code'),
   error: getQueryValue(req, 'error'),
   errorDescription: getQueryValue(req, 'error_description'),
-  state: getQueryValue(req, 'state')
+  loginType: getQueryValue(req, 'type')?.trim().toLowerCase() ?? '',
+  nonce: getQueryValue(req, 'lc_state') ?? getQueryValue(req, 'state') ?? '',
+  returnTo: sanitizeReturnTo(getQueryValue(req, 'return_to'))
 });

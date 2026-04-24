@@ -2,6 +2,9 @@ import {
   buildClearedStateCookie,
   buildConfigErrorMessage,
   buildPostAuthRedirectUrl,
+  buildSessionCookie,
+  buildSessionFromDaenProfile,
+  exchangeDaenCallback,
   getAuthConfig,
   getCallbackQuery,
   readStateFromRequest
@@ -38,9 +41,9 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   const config = getAuthConfig();
   const callbackQuery = getCallbackQuery(req);
   const clearedStateCookie = buildClearedStateCookie(req);
-  const redirectUrl = await buildPostAuthRedirectUrl(req, callbackQuery.error ? 'auth-error' : 'callback-ready');
+  const redirectUrl = await buildPostAuthRedirectUrl(req, callbackQuery.error ? 'auth-error' : 'signed-in');
 
-  if (!config.isLoginReady) {
+  if (!config.isCallbackReady) {
     json(res, 503, {
       error: 'auth_config_missing',
       message: buildConfigErrorMessage(config.missingLoginEnv),
@@ -55,24 +58,35 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     return;
   }
 
-  if (!callbackQuery.code || !callbackQuery.state) {
+  if (!callbackQuery.code || !callbackQuery.loginType || !callbackQuery.nonce) {
     json(res, 400, {
       error: 'invalid_callback',
-      message: '缺少 code 或 state，回调参数不完整。'
+      message: '缺少 code、type 或 lc_state，回调参数不完整。'
     });
     return;
   }
 
   const statePayload = await readStateFromRequest(req);
-  if (!statePayload || statePayload.state !== callbackQuery.state) {
+  if (!statePayload || statePayload.nonce !== callbackQuery.nonce || statePayload.loginType !== callbackQuery.loginType) {
     json(res, 400, {
       error: 'state_mismatch',
-      message: 'state 校验失败，已拒绝此次回调。'
+      message: '登录回调校验失败，已拒绝此次回调。'
     });
     return;
   }
 
-  // 第二步在这里补 token exchange + userinfo + KV/session 落库。
-  // 当前阶段只确认登录回调链路和 state 校验骨架已就位，不会伪造真实登录态。
-  redirect(res, 302, redirectUrl, [clearedStateCookie]);
+  try {
+    const profile = await exchangeDaenCallback(callbackQuery.loginType, callbackQuery.code);
+    const session = buildSessionFromDaenProfile(profile);
+    const sessionCookie = await buildSessionCookie(session, req);
+    // 下一步在这里补 Vercel KV session / quota 落库与每日 10 次限制。
+    redirect(res, 302, redirectUrl, [clearedStateCookie, sessionCookie]);
+  } catch (error) {
+    redirect(
+      res,
+      302,
+      `${redirectUrl}&provider_error=${encodeURIComponent(error instanceof Error ? error.message : 'callback_failed')}`,
+      [clearedStateCookie]
+    );
+  }
 }

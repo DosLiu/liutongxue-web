@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 
 type AuthPayload = {
   authenticated: boolean;
+  dailyLimit: number;
+  loginProviders: Array<{
+    label: string;
+    type: string;
+    url: string;
+  }>;
   loginReady: boolean;
   loginUrl: string;
   logoutUrl: string;
@@ -10,9 +16,11 @@ type AuthPayload = {
   provider: 'daen';
   status: 'disabled' | 'signed_out' | 'authenticated';
   user: null | {
+    avatarUrl?: string;
     displayName: string;
     expiresAt: string;
     issuedAt: string;
+    loginType: string;
     provider: 'daen';
     storage: string;
     subject: string;
@@ -28,9 +36,9 @@ const getFlashState = (): FlashState => {
   const params = new URLSearchParams(window.location.search);
   const authState = params.get('auth');
 
-  if (authState === 'callback-ready') {
+  if (authState === 'signed-in') {
     return {
-      description: '回调链路已经回站。下一步补 token exchange、userinfo 和 KV session。',
+      description: '登录回调已打通，站内 session 已建立。下一步继续接 Vercel KV 的每日 10 次限制。',
       tone: 'info'
     };
   }
@@ -108,18 +116,16 @@ export default function AuthEntryCard() {
     isLoading ? '检查中' : payload?.status === 'authenticated' ? '已登录' : payload?.status === 'signed_out' ? '未登录' : '待配置';
   const statusTone =
     payload?.status === 'authenticated' ? 'auth-entry-card__status--success' : payload?.status === 'signed_out' ? '' : 'auth-entry-card__status--muted';
-  const primaryActionLabel = payload?.status === 'authenticated' ? '退出登录（预留）' : '大恩登录（预留）';
-  const primaryActionHref = payload?.status === 'authenticated' ? payload.logoutUrl : payload?.loginUrl ?? '/api/auth/login';
   const isPrimaryActionDisabled = isLoading || (!payload?.loginReady && payload?.status !== 'authenticated');
-  const helperText = errorMessage || payload?.message || '预留登录入口与未登录状态结构，第二步再接真实鉴权。';
+  const helperText = errorMessage || payload?.message || '人物页登录入口已接到真实大恩协议，下一步补 Vercel KV 限次。';
 
   return (
     <section className="auth-entry-card" aria-labelledby="auth-entry-title">
       <div className="auth-entry-card__header">
         <div>
-          <p className="auth-entry-card__eyebrow">AUTH STEP 1</p>
+          <p className="auth-entry-card__eyebrow">AUTH STEP 2</p>
           <h2 id="auth-entry-title" className="auth-entry-card__title">
-            登录入口先挂上，真实鉴权下一步接
+            人物页登录已切到大恩真实协议，下一步接每日 10 次
           </h2>
         </div>
         <span className={`auth-entry-card__status ${statusTone}`}>{statusLabel}</span>
@@ -134,34 +140,50 @@ export default function AuthEntryCard() {
       {payload?.status === 'authenticated' && payload.user ? (
         <div className="auth-entry-card__user-block">
           <strong>{payload.user.displayName}</strong>
-          <span>provider：{payload.user.provider}</span>
+          <span>登录方式：{payload.user.loginType}</span>
           <span>session 过期：{formatExpiry(payload.user.expiresAt) || '待补'}</span>
+          <span>当前目标：每日 {payload.dailyLimit} 次（KV 下一步接入）</span>
         </div>
       ) : (
         <div className="auth-entry-card__user-block auth-entry-card__user-block--placeholder">
-          <strong>未登录状态占位已预留</strong>
-          <span>当前只保留最小入口，不提前改大面积 UI。</span>
-          <span>后续接入成功后，可以在这里换成用户卡片 / 工作台入口。</span>
+          <strong>先登录再进入人物对话</strong>
+          <span>建议从这里先用 QQ 或百度登录。</span>
+          <span>登录成功后，这里会继续显示剩余次数与账号状态。</span>
         </div>
       )}
 
       <div className="auth-entry-card__actions">
-        <a
-          href={isPrimaryActionDisabled ? undefined : primaryActionHref}
-          className={`auth-entry-card__button auth-entry-card__button--primary${isPrimaryActionDisabled ? ' is-disabled' : ''}`}
-          aria-disabled={isPrimaryActionDisabled}
-          onClick={(event) => {
-            if (isPrimaryActionDisabled) {
-              event.preventDefault();
-            }
-          }}
-        >
-          {primaryActionLabel}
-        </a>
+        {payload?.status === 'authenticated' ? (
+          <a href={payload.logoutUrl} className="auth-entry-card__button auth-entry-card__button--primary">
+            退出登录
+          </a>
+        ) : (
+          payload?.loginProviders?.map((provider) => {
+            const returnTo = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '/figures/';
+            const href = `${provider.url}&return_to=${encodeURIComponent(returnTo)}`;
+            return (
+              <a
+                key={provider.type}
+                href={isPrimaryActionDisabled ? undefined : href}
+                className={`auth-entry-card__button auth-entry-card__button--primary${isPrimaryActionDisabled ? ' is-disabled' : ''}`}
+                aria-disabled={isPrimaryActionDisabled}
+                onClick={(event) => {
+                  if (isPrimaryActionDisabled) {
+                    event.preventDefault();
+                  }
+                }}
+              >
+                {provider.label}
+              </a>
+            );
+          })
+        )}
         <a href="/api/auth/me" className="auth-entry-card__button auth-entry-card__button--ghost">
           查看 auth/me
         </a>
       </div>
+
+      <p className="auth-entry-card__footnote">正式回调建议固定到 /api/auth/callback，再由系统回跳到人物页。</p>
 
       {payload?.missingEnv?.length ? (
         <p className="auth-entry-card__footnote">缺少配置：{payload.missingEnv.join('、')}</p>

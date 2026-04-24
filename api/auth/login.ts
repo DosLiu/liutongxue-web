@@ -1,4 +1,10 @@
-import { buildConfigErrorMessage, buildDaenAuthorizeUrl, buildStateCookie, getAuthConfig } from '../_lib/auth';
+import {
+  buildConfigErrorMessage,
+  buildStateCookie,
+  getAuthConfig,
+  requestDaenLoginUrl,
+  resolveLoginType
+} from '../_lib/auth';
 import { applyCors, handleOptionsRequest, json, methodNotAllowed, redirect } from '../_lib/http';
 
 type ApiRequest = {
@@ -61,8 +67,27 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     return;
   }
 
-  const { authUrl, statePayload } = buildDaenAuthorizeUrl(getReturnTo(req));
-  const stateCookie = await buildStateCookie(statePayload, req);
+  const loginTypeResult = resolveLoginType(req);
+  if (!loginTypeResult.isSupported) {
+    json(res, 400, {
+      allowedTypes: loginTypeResult.allowedTypes,
+      error: 'unsupported_login_type',
+      message: loginTypeResult.reason,
+      provider: 'daen'
+    });
+    return;
+  }
 
-  redirect(res, 302, authUrl, [stateCookie]);
+  try {
+    const { payload, statePayload } = await requestDaenLoginUrl(loginTypeResult.loginType, getReturnTo(req));
+    const stateCookie = await buildStateCookie(statePayload, req);
+    redirect(res, 302, payload.url!, [stateCookie]);
+  } catch (error) {
+    json(res, 502, {
+      error: 'daen_login_failed',
+      loginType: loginTypeResult.loginType,
+      message: error instanceof Error ? error.message : '大恩登录地址获取失败。',
+      provider: 'daen'
+    });
+  }
 }

@@ -2,6 +2,7 @@ import SiteHeader from '../components/SiteHeader';
 import steveJobsAvatar from '../assets/figures/steve-jobs.jpg';
 import elonMuskAvatar from '../assets/figures/elon-musk.jpg';
 import zhangYimingAvatar from '../assets/figures/zhang-yiming.jpg';
+import AuthEntryCard from '../features/auth/AuthEntryCard';
 import { sitePaths } from '../site';
 import './FiguresPage.css';
 
@@ -93,6 +94,8 @@ export default function FiguresPage() {
             <p className="figures-subtitle">与行业传奇，展开一场跨时空的深度对话</p>
           </div>
         </section>
+
+        <AuthEntryCard />
 
         <section className="figures-grid" aria-label="人物入口列表">
           {figureEntries.map((entry) => (
