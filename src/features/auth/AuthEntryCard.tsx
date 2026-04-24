@@ -76,7 +76,7 @@ export default function AuthEntryCard() {
 
     const loadAuthState = async () => {
       try {
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch('/api/daen?route=me', {
           credentials: 'include',
           headers: {
             Accept: 'application/json'
@@ -95,7 +95,7 @@ export default function AuthEntryCard() {
       } catch (error) {
         if (!aborted) {
           setPayload(null);
-          setErrorMessage('认证骨架已挂上，但当前还没拿到 /api/auth/me 返回。');
+          setErrorMessage('认证骨架已挂上，但当前还没拿到 /api/daen?route=me 返回。');
         }
       } finally {
         if (!aborted) {
@@ -178,12 +178,12 @@ export default function AuthEntryCard() {
             );
           })
         )}
-        <a href="/api/auth/me" className="auth-entry-card__button auth-entry-card__button--ghost">
+        <a href="/api/daen?route=me" className="auth-entry-card__button auth-entry-card__button--ghost">
           查看 auth/me
         </a>
       </div>
 
-      <p className="auth-entry-card__footnote">正式回调建议固定到 /api/auth/callback，再由系统回跳到人物页。</p>
+      <p className="auth-entry-card__footnote">当前统一走 /api/daen 单根路由，回调由 route=callback 处理。</p>
 
       {payload?.missingEnv?.length ? (
         <p className="auth-entry-card__footnote">缺少配置：{payload.missingEnv.join('、')}</p>
