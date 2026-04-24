@@ -1,3 +1,4 @@
+import { request as httpsRequest } from 'node:https';
 import { buildSetCookie, getCookieHeader, isSecureRequest, parseCookies } from './http.js';
 
 type ApiRequest = {
@@ -192,8 +193,7 @@ const parseEnabledTypes = (value: string) =>
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean);
 
-const readJson = async <T>(response: Response) => {
-  const text = await response.text();
+const parseJsonText = <T>(text: string) => {
   if (!text) {
     throw new Error('empty_response');
   }
@@ -204,6 +204,52 @@ const readJson = async <T>(response: Response) => {
     throw new Error('invalid_json_response');
   }
 };
+
+const requestJson = <T>(url: string) =>
+  new Promise<T>((resolve, reject) => {
+    const target = new URL(url);
+    const req = httpsRequest(
+      target,
+      {
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'liutongxue-web/1.0'
+        },
+        method: 'GET'
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+
+        res.on('data', (chunk) => {
+          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        });
+
+        res.on('end', () => {
+          const text = Buffer.concat(chunks).toString('utf8');
+          if ((res.statusCode ?? 500) < 200 || (res.statusCode ?? 500) >= 300) {
+            reject(new Error(`upstream_http_${res.statusCode ?? 500}:${text.slice(0, 200)}`));
+            return;
+          }
+
+          try {
+            resolve(parseJsonText<T>(text));
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+    );
+
+    req.on('error', (error) => {
+      reject(error);
+    });
+
+    req.setTimeout(15000, () => {
+      req.destroy(new Error('upstream_timeout'));
+    });
+
+    req.end();
+  });
 
 export const getAuthConfig = () => {
   const connectUrl = normalizeEnvValue(env.DAEN_CONNECT_URL) || 'https://u.daenwl.com/connect.php';
@@ -327,18 +373,7 @@ export const buildDaenLoginRequest = (loginType: string, returnTo?: string) => {
 
 export const requestDaenLoginUrl = async (loginType: string, returnTo?: string) => {
   const { loginRequestUrl, statePayload } = buildDaenLoginRequest(loginType, returnTo);
-  const response = await fetch(loginRequestUrl, {
-    headers: {
-      Accept: 'application/json'
-    },
-    method: 'GET'
-  });
-
-  if (!response.ok) {
-    throw new Error(`daen_login_http_${response.status}`);
-  }
-
-  const payload = await readJson<DaenLoginResult>(response);
+  const payload = await requestJson<DaenLoginResult>(loginRequestUrl);
   if (payload.code !== 0 || !payload.url) {
     throw new Error(payload.msg || 'daen_login_failed');
   }
@@ -362,18 +397,7 @@ export const exchangeDaenCallback = async (loginType: string, code: string) => {
   requestUrl.searchParams.set('type', loginType);
   requestUrl.searchParams.set('code', code);
 
-  const response = await fetch(requestUrl.toString(), {
-    headers: {
-      Accept: 'application/json'
-    },
-    method: 'GET'
-  });
-
-  if (!response.ok) {
-    throw new Error(`daen_callback_http_${response.status}`);
-  }
-
-  const payload = await readJson<DaenCallbackResult>(response);
+  const payload = await requestJson<DaenCallbackResult>(requestUrl.toString());
   if (payload.code !== 0 || !payload.social_uid) {
     throw new Error(payload.msg || 'daen_callback_failed');
   }
