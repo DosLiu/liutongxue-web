@@ -4,7 +4,6 @@ const env = globalThis.process?.env ?? {};
 const textEncoder = new TextEncoder();
 const bufferCtor = globalThis.Buffer;
 const normalizeEnvValue = (value) => value?.trim() ?? "";
-const trimTrailingSlash = (value) => value.replace(/\/+$/, "");
 const toIsoString = (date) => date.toISOString();
 const now = () => /* @__PURE__ */ new Date();
 const encodeBase64Url = (value) => {
@@ -300,7 +299,7 @@ const buildSessionFromDaenProfile = (profile) => {
     loginType,
     provider: "daen",
     socialUid,
-    storage: config.kv.enabled && config.isKvConfigured ? "kv" : "cookie",
+    storage: "cookie",
     subject: `${loginType}:${socialUid}`
   };
 };

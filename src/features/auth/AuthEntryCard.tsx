@@ -60,11 +60,6 @@ const getFlashState = (): FlashState => {
   return null;
 };
 
-const formatExpiry = (value: string) => {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? '' : date.toLocaleString('zh-CN');
-};
-
 const getStatusLabel = (status?: AuthPayload['status'], isLoading?: boolean) => {
   if (isLoading) {
     return '检查中';
@@ -157,6 +152,7 @@ export default function AuthEntryCard() {
       </div>
 
       {flash ? <p className={`auth-entry-card__flash auth-entry-card__flash--${flash.tone}`}>{flash.description}</p> : null}
+      <p className="auth-entry-card__description">{summaryText || payload?.message || '登录后可使用对话功能。'}</p>
 
       <div className="auth-entry-card__actions">
         {isAuthenticated ? (

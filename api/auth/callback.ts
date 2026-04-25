@@ -79,7 +79,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     const profile = await exchangeDaenCallback(callbackQuery.loginType, callbackQuery.code);
     const session = buildSessionFromDaenProfile(profile);
     const sessionCookie = await buildSessionCookie(session, req);
-    // 下一步在这里补 Vercel KV session / quota 落库与每日 10 次限制。
     redirect(res, 302, redirectUrl, [clearedStateCookie, sessionCookie]);
   } catch (error) {
     redirect(

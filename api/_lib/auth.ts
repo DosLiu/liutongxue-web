@@ -17,7 +17,7 @@ export type AuthSession = {
   loginType: string;
   provider: 'daen';
   socialUid: string;
-  storage: 'cookie' | 'kv';
+  storage: 'cookie';
   subject: string;
 };
 
@@ -62,7 +62,6 @@ const bufferCtor = (globalThis as {
 }).Buffer;
 
 const normalizeEnvValue = (value: string | undefined) => value?.trim() ?? '';
-const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 const toIsoString = (date: Date) => date.toISOString();
 const now = () => new Date();
 
@@ -422,7 +421,7 @@ export const buildSessionFromDaenProfile = (profile: DaenCallbackResult): AuthSe
     loginType,
     provider: 'daen',
     socialUid,
-    storage: config.kv.enabled && config.isKvConfigured ? 'kv' : 'cookie',
+    storage: 'cookie',
     subject: `${loginType}:${socialUid}`
   };
 };

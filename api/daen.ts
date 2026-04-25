@@ -25,7 +25,7 @@ type AuthSession = {
   loginType: string;
   provider: 'daen';
   socialUid: string;
-  storage: 'cookie' | 'kv';
+  storage: 'cookie';
   subject: string;
 };
 
@@ -565,7 +565,7 @@ const buildSessionFromDaenProfile = (req: ApiRequest, profile: DaenCallbackResul
     loginType,
     provider: 'daen',
     socialUid,
-    storage: config.kv.enabled && config.isKvConfigured ? 'kv' : 'cookie',
+    storage: 'cookie',
     subject: `${loginType}:${socialUid}`
   };
 };

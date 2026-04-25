@@ -51,7 +51,6 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isDeveloperUnlimited] = useState(() => getFigureChatDeveloperUnlimited(config));
-  const [authState, setAuthState] = useState<AuthStatePayload | null>(null);
   const [quotaScope, setQuotaScope] = useState<'device' | 'account'>('device');
   const [quotaMode, setQuotaMode] = useState<'device' | 'daily' | 'unavailable'>('device');
   const [quotaLimit, setQuotaLimit] = useState(config.freeLimit);
@@ -102,8 +101,6 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
           return;
         }
 
-        setAuthState(payload);
-
         if (payload.authenticated && payload.user?.subject) {
           const nextLimit = payload.quota?.limit && payload.quota.limit > 0 ? payload.quota.limit : payload.dailyLimit > 0 ? payload.dailyLimit : config.freeLimit;
           setQuotaScope('account');
@@ -121,7 +118,6 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
         setStatusNotice('');
       } catch {
         if (!aborted) {
-          setAuthState(null);
           setQuotaScope('device');
           setQuotaMode('device');
           setQuotaLimit(config.freeLimit);

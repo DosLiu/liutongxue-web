@@ -36,8 +36,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   json(res, 200, {
     ok: true,
     redirectTo: buildLogoutRedirectUrl(),
-    logoutUrl: '/api/auth/logout',
-    // 第二步如启用 KV，这里同步补 session 删除与 provider logout。
+    logoutUrl: '/api/auth/logout'
   });
   res.setHeader('Set-Cookie', clearedCookie);
 }
