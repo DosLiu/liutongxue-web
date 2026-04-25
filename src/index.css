@@ -546,26 +546,27 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 4.15rem;
-  min-height: 1.85rem;
-  padding: 0.2rem 0.68rem;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 0.76rem;
-  font-weight: 600;
+  min-width: 4.5rem;
+  min-height: 1.75rem;
+  padding: 0.16rem 0.62rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.72rem;
+  font-weight: 500;
   white-space: nowrap;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 999px;
 }
 
 .auth-entry-card__status--success {
   color: #dcffe8;
-  background: rgba(74, 222, 128, 0.14);
-  border-color: rgba(74, 222, 128, 0.24);
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.2);
 }
 
 .auth-entry-card__status--default {
-  color: rgba(240, 242, 247, 0.9);
+  color: rgba(221, 226, 237, 0.72);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .auth-entry-card__status--muted {

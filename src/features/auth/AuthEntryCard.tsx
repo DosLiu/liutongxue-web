@@ -75,7 +75,7 @@ const getStatusLabel = (status?: AuthPayload['status'], isLoading?: boolean) => 
   }
 
   if (status === 'signed_out') {
-    return '未登录';
+    return '登录状态';
   }
 
   return '暂不可用';
