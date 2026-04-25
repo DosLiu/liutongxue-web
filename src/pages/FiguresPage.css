@@ -267,6 +267,31 @@
     width: min(100%, 20rem);
     margin: 1.28rem auto 0;
   }
+
+  .figures-mobile-auth .auth-entry-card {
+    padding: 0.72rem 0.78rem;
+  }
+
+  .figures-mobile-auth .auth-entry-card__header,
+  .figures-mobile-auth .auth-entry-card__description,
+  .figures-mobile-auth .auth-entry-card__footer {
+    display: none;
+  }
+
+  .figures-mobile-auth .auth-entry-card__flash {
+    margin-top: 0;
+    padding: 0.42rem 0.52rem;
+    font-size: 0.74rem;
+    line-height: 1.4;
+  }
+
+  .figures-mobile-auth .auth-entry-card__actions {
+    margin-top: 0;
+  }
+
+  .figures-mobile-auth .auth-entry-card__flash + .auth-entry-card__actions {
+    margin-top: 0.56rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
