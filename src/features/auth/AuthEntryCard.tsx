@@ -135,24 +135,24 @@ export default function AuthEntryCard() {
   const summaryText = errorMessage
     ? errorMessage
     : isAuthenticated
-      ? '已登录，当前账号每日可聊 10 次。'
+      ? '当前账号每日可聊 10 次。'
       : payload?.missingEnv?.length
         ? '登录入口暂不可用。'
-        : '未登录可先体验 5 次，登录后每日可聊 10 次。';
+        : '先体验 5 次，登录后每日 10 次。';
 
   return (
     <aside className="auth-entry-card" aria-labelledby="auth-entry-title">
       <div className="auth-entry-card__header">
         <div className="auth-entry-card__header-main">
           <h2 id="auth-entry-title" className="auth-entry-card__title">
-            {isAuthenticated && payload?.user ? payload.user.displayName : '未登录可先体验 5 次'}
+            {isAuthenticated && payload?.user ? payload.user.displayName : '先体验 5 次'}
           </h2>
         </div>
         <span className={`auth-entry-card__status ${statusTone}`}>{statusLabel}</span>
       </div>
 
       {flash ? <p className={`auth-entry-card__flash auth-entry-card__flash--${flash.tone}`}>{flash.description}</p> : null}
-      <p className="auth-entry-card__description">{summaryText || payload?.message || '未登录可先体验 5 次，登录后每日可聊 10 次。'}</p>
+      <p className="auth-entry-card__description">{summaryText || payload?.message || '先体验 5 次，登录后每日 10 次。'}</p>
 
       <div className="auth-entry-card__actions">
         {isAuthenticated ? (

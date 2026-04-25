@@ -176,15 +176,21 @@
     0 12px 30px rgba(0, 0, 0, 0.16);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
   .figures-hero {
     display: grid;
     justify-items: center;
-    gap: 1.4rem;
+    gap: 1.28rem;
   }
 
   .figures-hero__auth {
     position: static;
+    width: min(100%, 18.5rem);
+  }
+}
+
+@media (max-width: 900px) {
+  .figures-hero__auth {
     width: min(100%, 20rem);
   }
 }
