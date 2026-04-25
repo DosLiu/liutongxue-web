@@ -92,6 +92,7 @@ export default function FiguresPage() {
               顶级思维面对面
             </h1>
             <p className="figures-subtitle">与行业传奇，展开一场跨时空的深度对话</p>
+            <p className="figures-auth-hint">先体验 5 次，登录后每日 10 次</p>
           </div>
 
           <div className="figures-hero__auth">
@@ -103,6 +104,10 @@ export default function FiguresPage() {
           {figureEntries.map((entry) => (
             <FigureEntryItem key={entry.id} entry={entry} />
           ))}
+        </section>
+
+        <section className="figures-mobile-auth" aria-label="登录入口">
+          <AuthEntryCard />
         </section>
       </main>
     </div>
