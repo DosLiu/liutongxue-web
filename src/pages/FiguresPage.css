@@ -16,6 +16,7 @@
 }
 
 .figures-hero {
+  position: relative;
   display: flex;
   justify-content: center;
   margin-bottom: clamp(2.65rem, 4.8vw, 4rem);
@@ -28,6 +29,13 @@
   align-items: center;
   gap: 0.9rem;
   width: min(100%, 44rem);
+}
+
+.figures-hero__auth {
+  position: absolute;
+  top: 0.1rem;
+  right: 0;
+  z-index: 2;
 }
 
 .figures-title {
@@ -168,6 +176,19 @@
     0 12px 30px rgba(0, 0, 0, 0.16);
 }
 
+@media (max-width: 900px) {
+  .figures-hero {
+    display: grid;
+    justify-items: center;
+    gap: 1.4rem;
+  }
+
+  .figures-hero__auth {
+    position: static;
+    width: min(100%, 20rem);
+  }
+}
+
 @media (max-width: 640px) {
   .figures-shell {
     padding-top: calc(var(--header-height) + 1.15rem);
@@ -185,6 +206,10 @@
   .figures-subtitle {
     font-size: 0.94rem;
     line-height: 1.6;
+  }
+
+  .figures-hero__auth {
+    width: min(100%, 100%);
   }
 
   .figures-grid {

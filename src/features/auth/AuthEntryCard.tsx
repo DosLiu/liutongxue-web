@@ -38,22 +38,21 @@ const getFlashState = (): FlashState => {
 
   if (authState === 'signed-in') {
     return {
-      description: '登录回调已打通，站内 session 已建立。下一步继续接 Vercel KV 的每日 10 次限制。',
+      description: '登录成功，可以继续对话。',
       tone: 'info'
     };
   }
 
   if (authState === 'auth-error') {
-    const providerError = params.get('provider_error');
     return {
-      description: providerError ? `大恩侧返回错误：${providerError}` : '登录回调返回了错误，请继续补 provider 配置。',
+      description: '登录暂未完成，请稍后重试。',
       tone: 'warning'
     };
   }
 
   if (authState === 'signed-out') {
     return {
-      description: '本地 session 已清理。后续如果启用 KV，会在 logout 一起删掉服务端态。',
+      description: '已退出当前账号。',
       tone: 'info'
     };
   }
@@ -64,6 +63,22 @@ const getFlashState = (): FlashState => {
 const formatExpiry = (value: string) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleString('zh-CN');
+};
+
+const getStatusLabel = (status?: AuthPayload['status'], isLoading?: boolean) => {
+  if (isLoading) {
+    return '检查中';
+  }
+
+  if (status === 'authenticated') {
+    return '已登录';
+  }
+
+  if (status === 'signed_out') {
+    return '未登录';
+  }
+
+  return '暂不可用';
 };
 
 export default function AuthEntryCard() {
@@ -92,10 +107,10 @@ export default function AuthEntryCard() {
           setPayload(data);
           setErrorMessage('');
         }
-      } catch (error) {
+      } catch {
         if (!aborted) {
           setPayload(null);
-          setErrorMessage('认证骨架已挂上，但当前还没拿到 /api/daen?route=me 返回。');
+          setErrorMessage('暂时无法确认登录状态，请稍后刷新重试。');
         }
       } finally {
         if (!aborted) {
@@ -112,55 +127,51 @@ export default function AuthEntryCard() {
   }, []);
 
   const flash = useMemo(() => getFlashState(), []);
-  const statusLabel =
-    isLoading ? '检查中' : payload?.status === 'authenticated' ? '已登录' : payload?.status === 'signed_out' ? '未登录' : '待配置';
+  const statusLabel = getStatusLabel(payload?.status, isLoading);
   const statusTone =
-    payload?.status === 'authenticated' ? 'auth-entry-card__status--success' : payload?.status === 'signed_out' ? '' : 'auth-entry-card__status--muted';
+    payload?.status === 'authenticated'
+      ? 'auth-entry-card__status--success'
+      : payload?.status === 'signed_out'
+        ? 'auth-entry-card__status--default'
+        : 'auth-entry-card__status--muted';
+  const isAuthenticated = payload?.status === 'authenticated' && Boolean(payload.user);
   const isPrimaryActionDisabled = isLoading || (!payload?.loginReady && payload?.status !== 'authenticated');
-  const helperText = errorMessage || payload?.message || '人物页登录入口已接到真实大恩协议，下一步补 Vercel KV 限次。';
+  const providerSummary = payload?.loginProviders?.map((provider) => provider.label).join(' / ') || 'QQ / 百度';
+  const returnTo = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '/figures/';
+  const summaryText = errorMessage
+    ? errorMessage
+    : isAuthenticated
+      ? `${payload?.user?.loginType ?? '当前'}账号可用，每日 ${payload?.dailyLimit ?? 0} 次。`
+      : payload?.missingEnv?.length
+        ? '登录入口暂不可用。'
+        : `支持 ${providerSummary} 登录。`;
+  const detailText = isAuthenticated && payload?.user ? formatExpiry(payload.user.expiresAt) : '';
 
   return (
-    <section className="auth-entry-card" aria-labelledby="auth-entry-title">
+    <aside className="auth-entry-card" aria-labelledby="auth-entry-title">
       <div className="auth-entry-card__header">
-        <div>
-          <p className="auth-entry-card__eyebrow">AUTH STEP 2</p>
+        <div className="auth-entry-card__header-main">
+          <p className="auth-entry-card__eyebrow">账号状态</p>
           <h2 id="auth-entry-title" className="auth-entry-card__title">
-            人物页登录已切到大恩真实协议，下一步接每日 10 次
+            {isAuthenticated && payload?.user ? payload.user.displayName : '登录后继续对话'}
           </h2>
         </div>
         <span className={`auth-entry-card__status ${statusTone}`}>{statusLabel}</span>
       </div>
 
-      <p className="auth-entry-card__description">{helperText}</p>
-
-      {flash ? (
-        <p className={`auth-entry-card__flash auth-entry-card__flash--${flash.tone}`}>{flash.description}</p>
-      ) : null}
-
-      {payload?.status === 'authenticated' && payload.user ? (
-        <div className="auth-entry-card__user-block">
-          <strong>{payload.user.displayName}</strong>
-          <span>登录方式：{payload.user.loginType}</span>
-          <span>session 过期：{formatExpiry(payload.user.expiresAt) || '待补'}</span>
-          <span>当前目标：每日 {payload.dailyLimit} 次（KV 下一步接入）</span>
-        </div>
-      ) : (
-        <div className="auth-entry-card__user-block auth-entry-card__user-block--placeholder">
-          <strong>先登录再进入人物对话</strong>
-          <span>建议从这里先用 QQ 或百度登录。</span>
-          <span>登录成功后，这里会继续显示剩余次数与账号状态。</span>
-        </div>
-      )}
+      <p className="auth-entry-card__description">{summaryText}</p>
+      {detailText ? <p className="auth-entry-card__meta">有效期至 {detailText}</p> : null}
+      {flash ? <p className={`auth-entry-card__flash auth-entry-card__flash--${flash.tone}`}>{flash.description}</p> : null}
 
       <div className="auth-entry-card__actions">
-        {payload?.status === 'authenticated' ? (
-          <a href={payload.logoutUrl} className="auth-entry-card__button auth-entry-card__button--primary">
+        {isAuthenticated ? (
+          <a href={payload?.logoutUrl} className="auth-entry-card__button auth-entry-card__button--primary">
             退出登录
           </a>
         ) : (
           payload?.loginProviders?.map((provider) => {
-            const returnTo = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '/figures/';
             const href = `${provider.url}&return_to=${encodeURIComponent(returnTo)}`;
+
             return (
               <a
                 key={provider.type}
@@ -178,16 +189,14 @@ export default function AuthEntryCard() {
             );
           })
         )}
-        <a href="/api/daen?route=me" className="auth-entry-card__button auth-entry-card__button--ghost">
-          查看 auth/me
-        </a>
       </div>
 
-      <p className="auth-entry-card__footnote">当前统一走 /api/daen 单根路由，回调由 route=callback 处理。</p>
-
-      {payload?.missingEnv?.length ? (
-        <p className="auth-entry-card__footnote">缺少配置：{payload.missingEnv.join('、')}</p>
-      ) : null}
-    </section>
+      <div className="auth-entry-card__footer">
+        {payload?.missingEnv?.length ? <p className="auth-entry-card__footnote">登录服务配置中</p> : null}
+        <a href="/api/daen?route=me" className="auth-entry-card__text-link">
+          查看账号状态详情
+        </a>
+      </div>
+    </aside>
   );
 }

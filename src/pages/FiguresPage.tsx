@@ -93,9 +93,11 @@ export default function FiguresPage() {
             </h1>
             <p className="figures-subtitle">与行业传奇，展开一场跨时空的深度对话</p>
           </div>
-        </section>
 
-        <AuthEntryCard />
+          <div className="figures-hero__auth">
+            <AuthEntryCard />
+          </div>
+        </section>
 
         <section className="figures-grid" aria-label="人物入口列表">
           {figureEntries.map((entry) => (
