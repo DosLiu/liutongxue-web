@@ -1,7 +1,24 @@
+import { readSessionFromRequest } from './_lib/auth.js';
+import { getAccountQuotaSnapshot, reserveAccountQuotaSlot, rollbackAccountQuotaSlot } from './_lib/quota.js';
+
 type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming';
 type FigureChatMode = 'api' | 'mock';
 type FigureChatResolvedStatus = 'api' | 'mock' | 'offline' | 'preview';
+type FigureChatQuotaScope = 'device' | 'account';
+type FigureChatQuotaMode = 'device' | 'daily' | 'unavailable';
+type FigureChatQuota = {
+  scope: FigureChatQuotaScope;
+  mode: FigureChatQuotaMode;
+  limit: number;
+  remaining: number | null;
+  resetAt?: string | null;
+  exhausted?: boolean;
+  enforced?: boolean;
+  reason?: string;
+};
 type FigureChatApiResponse = {
+  error?: string;
+  quota?: FigureChatQuota;
   reply: string;
   mode?: FigureChatMode;
   status?: FigureChatResolvedStatus;
@@ -954,18 +971,24 @@ const FIGURE_DEFINITIONS: Record<
 };
 
 const buildFigureChatResponse = ({
+  error,
+  quota,
   reply,
   mode,
   status,
   reason,
   shouldConsume
 }: {
+  error?: string;
+  quota?: FigureChatQuota;
   reply: string;
   mode: FigureChatMode;
   status: FigureChatResolvedStatus;
   reason: string;
   shouldConsume: boolean;
 }): FigureChatApiResponse => ({
+  error,
+  quota,
   reply,
   mode,
   status,
@@ -977,9 +1000,11 @@ const buildFigureChatMockResponse = (
   figureId: FigureId,
   message: string,
   reason: string,
-  status: FigureChatResolvedStatus = 'mock'
+  status: FigureChatResolvedStatus = 'mock',
+  quota?: FigureChatQuota
 ): FigureChatApiResponse =>
   buildFigureChatResponse({
+    quota,
     reply: FIGURE_DEFINITIONS[figureId].buildMockReply(message),
     mode: 'mock',
     status,
@@ -1118,9 +1143,40 @@ export default async function handler(req: any, res: any) {
   }
 
   const apiKey = env.OPENAI_API_KEY;
+  const hasApiKey = Boolean(apiKey);
   const model = env.OPENAI_MODEL || 'gpt-4.1-mini';
   const baseUrl = trimTrailingSlash(env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
   const figureDefinition = FIGURE_DEFINITIONS[figureId];
+  const session = await readSessionFromRequest(req);
+  const subject = session?.subject;
+  let accountQuota: FigureChatQuota | undefined;
+  let reservedAccountQuota = false;
+
+  if (subject) {
+    if (hasApiKey) {
+      const reservation = await reserveAccountQuotaSlot(subject);
+      accountQuota = reservation.quota;
+      reservedAccountQuota = reservation.reserved;
+
+      if (!reservation.allowed || reservation.quota.exhausted) {
+        res.status(429).json(
+          buildFigureChatResponse({
+            error: 'quota_exhausted',
+            quota: reservation.quota,
+            reply: '',
+            mode: 'api',
+            status: 'api',
+            reason: reservation.quota.reason || '当前账号今日次数已用完。',
+            shouldConsume: false
+          })
+        );
+        return;
+      }
+    } else {
+      accountQuota = await getAccountQuotaSnapshot(subject);
+    }
+  }
+
   const directReply =
     figureId === 'elon-musk'
       ? resolveElonMuskDirectReply(content)
@@ -1129,10 +1185,9 @@ export default async function handler(req: any, res: any) {
         : null;
 
   if (directReply) {
-    const hasApiKey = Boolean(apiKey);
-
     res.status(200).json(
       buildFigureChatResponse({
+        quota: accountQuota,
         reply: figureId === 'zhang-yiming' ? polishZhangYimingReply(directReply.reply, content) : directReply.reply,
         mode: hasApiKey ? 'api' : 'mock',
         status: hasApiKey ? 'api' : 'mock',
@@ -1144,7 +1199,7 @@ export default async function handler(req: any, res: any) {
   }
 
   if (!apiKey) {
-    res.status(200).json(buildFigureChatMockResponse(figureId, content, '当前未配置模型 key，已自动切到演示模式。'));
+    res.status(200).json(buildFigureChatMockResponse(figureId, content, '当前未配置模型 key，已自动切到演示模式。', 'mock', accountQuota));
     return;
   }
 
@@ -1168,11 +1223,14 @@ export default async function handler(req: any, res: any) {
 
     if (!response.ok) {
       const errorText = await response.text();
+      const restoredQuota = reservedAccountQuota && subject ? await rollbackAccountQuotaSlot(subject) : accountQuota;
       res.status(200).json(
         buildFigureChatMockResponse(
           figureId,
           content,
-          `模型接口返回异常，已自动切到演示模式。${errorText ? `（${errorText.slice(0, 120)}）` : ''}`
+          `模型接口返回异常，已自动切到演示模式。${errorText ? `（${errorText.slice(0, 120)}）` : ''}`,
+          'mock',
+          restoredQuota
         )
       );
       return;
@@ -1183,12 +1241,14 @@ export default async function handler(req: any, res: any) {
     const finalReply = figureId === 'zhang-yiming' ? polishZhangYimingReply(reply, content) : reply;
 
     if (!finalReply) {
-      res.status(200).json(buildFigureChatMockResponse(figureId, content, '模型接口返回了空内容，已自动切到演示模式。'));
+      const restoredQuota = reservedAccountQuota && subject ? await rollbackAccountQuotaSlot(subject) : accountQuota;
+      res.status(200).json(buildFigureChatMockResponse(figureId, content, '模型接口返回了空内容，已自动切到演示模式。', 'mock', restoredQuota));
       return;
     }
 
     res.status(200).json(
       buildFigureChatResponse({
+        quota: accountQuota,
         reply: finalReply,
         mode: 'api',
         status: 'api',
@@ -1198,11 +1258,14 @@ export default async function handler(req: any, res: any) {
     );
   } catch (error: any) {
     const isTimeout = error?.name === 'AbortError';
+    const restoredQuota = reservedAccountQuota && subject ? await rollbackAccountQuotaSlot(subject) : accountQuota;
     res.status(200).json(
       buildFigureChatMockResponse(
         figureId,
         content,
-        isTimeout ? '模型接口响应超时，已自动切到演示模式。' : '当前环境未连上模型 API，已自动切到演示模式。'
+        isTimeout ? '模型接口响应超时，已自动切到演示模式。' : '当前环境未连上模型 API，已自动切到演示模式。',
+        'mock',
+        restoredQuota
       )
     );
   } finally {

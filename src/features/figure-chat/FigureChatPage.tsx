@@ -34,6 +34,14 @@ type ChatMessage = {
 type AuthStatePayload = {
   authenticated: boolean;
   dailyLimit: number;
+  quota?: {
+    enforced?: boolean;
+    limit: number;
+    mode: 'daily' | 'unavailable';
+    reason?: string;
+    remaining: number | null;
+    scope: 'account';
+  } | null;
   user: null | {
     subject: string;
   };
@@ -45,8 +53,9 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   const [isDeveloperUnlimited] = useState(() => getFigureChatDeveloperUnlimited(config));
   const [authState, setAuthState] = useState<AuthStatePayload | null>(null);
   const [quotaScope, setQuotaScope] = useState<'device' | 'account'>('device');
+  const [quotaMode, setQuotaMode] = useState<'device' | 'daily' | 'unavailable'>('device');
   const [quotaLimit, setQuotaLimit] = useState(config.freeLimit);
-  const [remaining, setRemaining] = useState(() => getFigureChatInitialRemaining(config));
+  const [remaining, setRemaining] = useState<number | null>(() => getFigureChatInitialRemaining(config));
   const [isSending, setIsSending] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<FigureChatServiceStatus>('checking');
   const [error, setError] = useState('');
@@ -55,12 +64,12 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const normalizedInput = useMemo(() => normalizeUserInput(input), [input]);
-  const isQuotaExhausted = !isDeveloperUnlimited && remaining <= 0;
+  const isQuotaExhausted = !isDeveloperUnlimited && remaining !== null && remaining <= 0;
   const canSend = useMemo(
     () => normalizedInput.length > 0 && !isQuotaExhausted && !isSending,
     [normalizedInput, isQuotaExhausted, isSending]
   );
-  const quotaText = getFigureChatQuotaText(config, isDeveloperUnlimited, remaining, quotaLimit, quotaScope);
+  const quotaText = getFigureChatQuotaText(config, isDeveloperUnlimited, remaining, quotaLimit, quotaScope, quotaMode);
   const statusMeta = getFigureChatStatusMeta(serviceStatus);
   const quotaExhaustedText = quotaScope === 'account' ? '今日对话次数已用完' : '免费体验次数已用完';
 
@@ -96,20 +105,25 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
         setAuthState(payload);
 
         if (payload.authenticated && payload.user?.subject) {
-          const nextLimit = payload.dailyLimit > 0 ? payload.dailyLimit : config.freeLimit;
+          const nextLimit = payload.quota?.limit && payload.quota.limit > 0 ? payload.quota.limit : payload.dailyLimit > 0 ? payload.dailyLimit : config.freeLimit;
           setQuotaScope('account');
+          setQuotaMode(payload.quota?.mode ?? 'unavailable');
           setQuotaLimit(nextLimit);
-          setRemaining(getFigureChatInitialRemaining(config, nextLimit, payload.user.subject));
+          setRemaining(payload.quota?.remaining ?? null);
+          setStatusNotice(payload.quota?.mode === 'unavailable' ? payload.quota.reason || '' : '');
           return;
         }
 
         setQuotaScope('device');
+        setQuotaMode('device');
         setQuotaLimit(config.freeLimit);
         setRemaining(getFigureChatInitialRemaining(config));
+        setStatusNotice('');
       } catch {
         if (!aborted) {
           setAuthState(null);
           setQuotaScope('device');
+          setQuotaMode('device');
           setQuotaLimit(config.freeLimit);
           setRemaining(getFigureChatInitialRemaining(config));
         }
@@ -232,15 +246,34 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
           signal: controller.signal
         });
 
-        if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as FigureChatApiResponse | null;
+
+        if (payload?.quota) {
+          setQuotaScope(payload.quota.scope);
+          setQuotaMode(payload.quota.mode);
+          setQuotaLimit(payload.quota.limit > 0 ? payload.quota.limit : quotaLimit);
+          setRemaining(payload.quota.remaining ?? null);
+        }
+
+        if (response.status === 429 || payload?.error === 'quota_exhausted' || (payload?.quota?.scope === 'account' && payload.quota.exhausted)) {
+          setError(payload?.quota?.reason || '当前账号今日对话次数已用完。');
+          setStatusNotice(payload?.quota?.mode === 'unavailable' ? payload.quota.reason || '' : '');
+          setIsSending(false);
+          return;
+        }
+
+        if (!response.ok || !payload) {
           throw new Error(`Request failed with ${response.status}`);
         }
 
-        const payload = (await response.json()) as FigureChatApiResponse;
         replyText = normalizeAssistantReply(payload.reply || replyText);
         nextStatus = resolveFigureChatServiceStatus(payload.status, payload.mode, 'mock');
         shouldConsume = Boolean(payload.shouldConsume ?? payload.mode === 'api');
-        nextNotice = payload.mode === 'api' ? '' : payload.reason || nextNotice;
+        nextNotice = payload.mode === 'api'
+          ? payload.quota?.scope === 'account' && payload.quota.mode === 'unavailable'
+            ? payload.quota.reason || ''
+            : ''
+          : payload.reason || nextNotice;
       } catch {
         nextStatus = 'offline';
         nextNotice = '当前没连上在线服务，先给你演示回复，不会扣减体验次数。';
@@ -260,15 +293,11 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
       }
     ]);
 
-    if (shouldConsume && !isDeveloperUnlimited) {
+    if (shouldConsume && !isDeveloperUnlimited && quotaScope === 'device') {
       setRemaining((value) => {
-        const next = Math.max(0, value - 1);
-        setFigureChatStoredRemaining(
-          config,
-          next,
-          quotaLimit,
-          quotaScope === 'account' ? authState?.user?.subject : undefined
-        );
+        const current = typeof value === 'number' ? value : quotaLimit;
+        const next = Math.max(0, current - 1);
+        setFigureChatStoredRemaining(config, next, quotaLimit);
         return next;
       });
     }

@@ -72,15 +72,24 @@ export const getFigureChatInitialRemaining = (config: FigureChatConfig, limit = 
 export const getFigureChatQuotaText = (
   config: FigureChatConfig,
   isDeveloperUnlimited: boolean,
-  remaining: number,
+  remaining: number | null,
   limit = config.freeLimit,
-  scope: 'device' | 'account' = 'device'
+  scope: 'device' | 'account' = 'device',
+  mode: 'device' | 'daily' | 'unavailable' = scope === 'account' ? 'daily' : 'device'
 ) => {
   if (isDeveloperUnlimited) {
     return '开发调试：不限次数';
   }
 
-  return scope === 'account' ? `剩余次数：${remaining}/${limit}` : `剩余体验：${remaining}/${limit}`;
+  if (scope === 'account') {
+    if (mode === 'unavailable' || remaining === null) {
+      return `今日次数：待确认/${limit}`;
+    }
+
+    return `今日剩余：${remaining}/${limit}`;
+  }
+
+  return `剩余体验：${remaining ?? limit}/${limit}`;
 };
 
 export const getFigureChatStatusMeta = (status: FigureChatServiceStatus) => {

@@ -1,5 +1,6 @@
 import { buildConfigErrorMessage, getAuthConfig, readSessionFromRequest, type AuthStatus } from '../_lib/auth.js';
 import { applyCors, handleOptionsRequest, json, methodNotAllowed } from '../_lib/http.js';
+import { getAccountQuotaSnapshot } from '../_lib/quota.js';
 
 type ApiRequest = {
   headers?: Record<string, string | string[] | undefined>;
@@ -37,6 +38,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   const config = getAuthConfig();
   const session = await readSessionFromRequest(req);
   const status = getStatus(config.isLoginReady, Boolean(session));
+  const quota = session?.subject ? await getAccountQuotaSnapshot(session.subject) : null;
 
   json(res, 200, {
     authenticated: Boolean(session),
@@ -58,10 +60,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       status === 'disabled'
         ? buildConfigErrorMessage(config.missingLoginEnv)
         : status === 'authenticated'
-          ? '已通过大恩登录回站，本地 session 已建立。下一步继续接 Vercel KV 做每日 10 次限制。'
-          : '当前未登录，先从人物页选择 QQ 或百度登录。',
+          ? quota?.reason || '已登录，可继续对话。'
+          : '当前未登录，可先体验 5 次；登录后每日可聊 10 次。',
     missingEnv: config.missingLoginEnv,
     provider: 'daen',
+    quota,
     status,
     user: session
       ? {

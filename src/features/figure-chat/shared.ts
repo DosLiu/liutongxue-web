@@ -51,7 +51,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'steve-jobs': {
     id: 'steve-jobs',
     title: '乔布斯',
-    description: '一个轻量化具身AI乔布斯 不保存聊天记录，每台设备可免费发送 5 条消息',
+    description: '一个轻量化具身 AI 乔布斯，不保存聊天记录；未登录可体验 5 次，登录后每日可聊 10 次',
     assistantLabel: '虚拟乔布斯',
     panelAriaLabel: '虚拟乔布斯对话区域',
     storageKey: 'liutongxue-jobs-chat-remaining',
@@ -61,7 +61,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'elon-musk': {
     id: 'elon-musk',
     title: '马斯克',
-    description: '一个轻量化具身AI马斯克 不保存聊天记录，每台设备可免费发送 5 条消息',
+    description: '一个轻量化具身 AI 马斯克，不保存聊天记录；未登录可体验 5 次，登录后每日可聊 10 次',
     assistantLabel: '虚拟马斯克',
     panelAriaLabel: '虚拟马斯克对话区域',
     storageKey: 'liutongxue-elon-musk-chat-remaining',
@@ -71,7 +71,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'zhang-yiming': {
     id: 'zhang-yiming',
     title: '张一鸣',
-    description: '一个轻量化具身AI张一鸣 不保存聊天记录，每台设备可免费发送 5 条消息',
+    description: '一个轻量化具身 AI 张一鸣，不保存聊天记录；未登录可体验 5 次，登录后每日可聊 10 次',
     assistantLabel: '虚拟张一鸣',
     panelAriaLabel: '虚拟张一鸣对话区域',
     storageKey: 'liutongxue-zhang-yiming-chat-remaining',

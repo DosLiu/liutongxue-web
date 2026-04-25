@@ -3,8 +3,23 @@ export type FigureChatRole = 'assistant' | 'user';
 export type FigureChatMode = 'api' | 'mock';
 export type FigureChatServiceStatus = 'checking' | 'api' | 'mock' | 'offline' | 'preview';
 export type FigureChatResolvedStatus = Exclude<FigureChatServiceStatus, 'checking'>;
+export type FigureChatQuotaScope = 'device' | 'account';
+export type FigureChatQuotaMode = 'device' | 'daily' | 'unavailable';
+
+export type FigureChatQuota = {
+  scope: FigureChatQuotaScope;
+  mode: FigureChatQuotaMode;
+  limit: number;
+  remaining: number | null;
+  resetAt?: string | null;
+  exhausted?: boolean;
+  enforced?: boolean;
+  reason?: string;
+};
 
 export type FigureChatApiResponse = {
+  error?: string;
+  quota?: FigureChatQuota;
   reply: string;
   mode?: FigureChatMode;
   status?: FigureChatResolvedStatus;
