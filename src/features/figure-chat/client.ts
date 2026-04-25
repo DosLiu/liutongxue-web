@@ -10,7 +10,8 @@ const FIGURE_CHAT_DEBUG_ALLOWED = import.meta.env.DEV;
 const getStorage = () => (typeof window === 'undefined' ? null : window.localStorage);
 
 const getFigureChatDebugKey = (config: FigureChatConfig) => `${config.storageKey}-debug-unlimited`;
-const clampFigureChatRemaining = (config: FigureChatConfig, value: number) => Math.min(config.freeLimit, Math.max(0, value));
+const getFigureChatQuotaKey = (config: FigureChatConfig, subject?: string) => (subject ? `${config.storageKey}-${subject}` : config.storageKey);
+const clampFigureChatRemaining = (limit: number, value: number) => Math.min(limit, Math.max(0, value));
 
 const setDeveloperUnlimited = (config: FigureChatConfig, enabled: boolean) => {
   const storage = getStorage();
@@ -46,29 +47,41 @@ export const getFigureChatDeveloperUnlimited = (config: FigureChatConfig) => {
   return getStorage()?.getItem(getFigureChatDebugKey(config)) === '1';
 };
 
-const getStoredRemaining = (config: FigureChatConfig) => {
+const getStoredRemaining = (config: FigureChatConfig, limit = config.freeLimit, subject?: string) => {
   const storage = getStorage();
-  if (!storage) return config.freeLimit;
+  if (!storage) return limit;
 
-  const cached = storage.getItem(config.storageKey);
+  const storageKey = getFigureChatQuotaKey(config, subject);
+  const cached = storage.getItem(storageKey);
   if (cached === null) {
-    storage.setItem(config.storageKey, String(config.freeLimit));
-    return config.freeLimit;
+    storage.setItem(storageKey, String(limit));
+    return limit;
   }
 
   const parsed = Number.parseInt(cached, 10);
-  return Number.isNaN(parsed) ? config.freeLimit : clampFigureChatRemaining(config, parsed);
+  return Number.isNaN(parsed) ? limit : clampFigureChatRemaining(limit, parsed);
 };
 
-export const setFigureChatStoredRemaining = (config: FigureChatConfig, value: number) => {
-  getStorage()?.setItem(config.storageKey, String(clampFigureChatRemaining(config, value)));
+export const setFigureChatStoredRemaining = (config: FigureChatConfig, value: number, limit = config.freeLimit, subject?: string) => {
+  getStorage()?.setItem(getFigureChatQuotaKey(config, subject), String(clampFigureChatRemaining(limit, value)));
 };
 
-export const getFigureChatInitialRemaining = (config: FigureChatConfig) =>
-  getFigureChatDeveloperUnlimited(config) ? config.freeLimit : getStoredRemaining(config);
+export const getFigureChatInitialRemaining = (config: FigureChatConfig, limit = config.freeLimit, subject?: string) =>
+  getFigureChatDeveloperUnlimited(config) ? limit : getStoredRemaining(config, limit, subject);
 
-export const getFigureChatQuotaText = (config: FigureChatConfig, isDeveloperUnlimited: boolean, remaining: number) =>
-  isDeveloperUnlimited ? '开发调试：不限次数' : `剩余体验：${remaining}/${config.freeLimit}`;
+export const getFigureChatQuotaText = (
+  config: FigureChatConfig,
+  isDeveloperUnlimited: boolean,
+  remaining: number,
+  limit = config.freeLimit,
+  scope: 'device' | 'account' = 'device'
+) => {
+  if (isDeveloperUnlimited) {
+    return '开发调试：不限次数';
+  }
+
+  return scope === 'account' ? `剩余次数：${remaining}/${limit}` : `剩余体验：${remaining}/${limit}`;
+};
 
 export const getFigureChatStatusMeta = (status: FigureChatServiceStatus) => {
   switch (status) {

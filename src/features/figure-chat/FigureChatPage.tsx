@@ -31,10 +31,21 @@ type ChatMessage = {
   content: string;
 };
 
+type AuthStatePayload = {
+  authenticated: boolean;
+  dailyLimit: number;
+  user: null | {
+    subject: string;
+  };
+};
+
 export default function FigureChatPage({ config }: { config: FigureChatConfig }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isDeveloperUnlimited] = useState(() => getFigureChatDeveloperUnlimited(config));
+  const [authState, setAuthState] = useState<AuthStatePayload | null>(null);
+  const [quotaScope, setQuotaScope] = useState<'device' | 'account'>('device');
+  const [quotaLimit, setQuotaLimit] = useState(config.freeLimit);
   const [remaining, setRemaining] = useState(() => getFigureChatInitialRemaining(config));
   const [isSending, setIsSending] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<FigureChatServiceStatus>('checking');
@@ -49,8 +60,9 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
     () => normalizedInput.length > 0 && !isQuotaExhausted && !isSending,
     [normalizedInput, isQuotaExhausted, isSending]
   );
-  const quotaText = getFigureChatQuotaText(config, isDeveloperUnlimited, remaining);
+  const quotaText = getFigureChatQuotaText(config, isDeveloperUnlimited, remaining, quotaLimit, quotaScope);
   const statusMeta = getFigureChatStatusMeta(serviceStatus);
+  const quotaExhaustedText = quotaScope === 'account' ? '今日对话次数已用完' : '免费体验次数已用完';
 
   useEffect(() => {
     textareaRef.current?.focus();
@@ -59,6 +71,57 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages]);
+
+  useEffect(() => {
+    let aborted = false;
+
+    const loadAuthState = async () => {
+      try {
+        const response = await fetch('/api/daen?route=me', {
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`auth_me_${response.status}`);
+        }
+
+        const payload = (await response.json()) as AuthStatePayload;
+        if (aborted) {
+          return;
+        }
+
+        setAuthState(payload);
+
+        if (payload.authenticated && payload.user?.subject) {
+          const nextLimit = payload.dailyLimit > 0 ? payload.dailyLimit : config.freeLimit;
+          setQuotaScope('account');
+          setQuotaLimit(nextLimit);
+          setRemaining(getFigureChatInitialRemaining(config, nextLimit, payload.user.subject));
+          return;
+        }
+
+        setQuotaScope('device');
+        setQuotaLimit(config.freeLimit);
+        setRemaining(getFigureChatInitialRemaining(config));
+      } catch {
+        if (!aborted) {
+          setAuthState(null);
+          setQuotaScope('device');
+          setQuotaLimit(config.freeLimit);
+          setRemaining(getFigureChatInitialRemaining(config));
+        }
+      }
+    };
+
+    void loadAuthState();
+
+    return () => {
+      aborted = true;
+    };
+  }, [config]);
 
   useEffect(() => {
     const apiUrl = getFigureChatApiUrl();
@@ -129,7 +192,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
     }
 
     if (isQuotaExhausted) {
-      setError('本设备的免费体验次数已用完。');
+      setError(quotaScope === 'account' ? '当前账号今日对话次数已用完。' : '本设备的免费体验次数已用完。');
       return;
     }
 
@@ -200,7 +263,12 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
     if (shouldConsume && !isDeveloperUnlimited) {
       setRemaining((value) => {
         const next = Math.max(0, value - 1);
-        setFigureChatStoredRemaining(config, next);
+        setFigureChatStoredRemaining(
+          config,
+          next,
+          quotaLimit,
+          quotaScope === 'account' ? authState?.user?.subject : undefined
+        );
         return next;
       });
     }
@@ -298,7 +366,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
               />
 
               <div className="jobs-chat-form__meta" id="jobs-chat-input-meta">
-                <span>{isQuotaExhausted ? '免费体验次数已用完' : 'Enter 发送，Shift+Enter 换行'}</span>
+                <span>{isQuotaExhausted ? quotaExhaustedText : 'Enter 发送，Shift+Enter 换行'}</span>
                 <span>
                   {input.length}/{FIGURE_CHAT_INPUT_MAX_LENGTH}
                 </span>
