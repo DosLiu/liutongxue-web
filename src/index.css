@@ -514,7 +514,7 @@ svg {
 
 .auth-entry-card__header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
 }
@@ -538,7 +538,7 @@ svg {
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: -0.025em;
-  line-height: 1.25;
+  line-height: 1.15;
 }
 
 .auth-entry-card__status {
