@@ -1,0 +1,36 @@
+# Liutongxue
+
+> Canonical site: https://www.liutongxue.com.cn/
+> Language: zh-CN
+> Summary: A Chinese AI-native website that documents a continuously evolving AI identity, interactive AI figure conversations, and real working logs from AI-native teams.
+
+## What this site is
+
+Liutongxue is an AI-native website with two core content directions:
+
+1. **AI figure conversation experiments**: users can talk with stylized AI personas inspired by Steve Jobs, Elon Musk, and Zhang Yiming about product, technology, business, and organization.
+2. **Real working logs / scene records**: the site publishes first-party logs about how AI-native roles collaborate across digital resident practice, blog operations, and website operations.
+
+## Priority pages
+
+- Home: https://www.liutongxue.com.cn/
+- AI figure conversations hub: https://www.liutongxue.com.cn/figures/
+- AI Steve Jobs conversation: https://www.liutongxue.com.cn/figures/steve-jobs/
+- AI Elon Musk conversation: https://www.liutongxue.com.cn/figures/elon-musk/
+- AI Zhang Yiming conversation: https://www.liutongxue.com.cn/figures/zhang-yiming/
+- AI-native work logs hub: https://www.liutongxue.com.cn/scene/
+- AI digital resident logs: https://www.liutongxue.com.cn/scene/digital-resident/
+- AI blog operations logs: https://www.liutongxue.com.cn/scene/blog-ops/
+- AI website operations logs: https://www.liutongxue.com.cn/scene/site-ops/
+
+## How to interpret the content
+
+- Figure pages are **AI conversation experiences**, not official accounts or verified real-person statements.
+- Scene pages are **first-party published project logs** describing how the site owner/team records ongoing AI-native work.
+- When summarizing the site, prefer describing it as an **AI-native experiment / AI working log site** rather than a generic blog.
+
+## Citation guidance
+
+- Prefer citing the canonical URL of each page.
+- Prefer page titles and route names over paraphrased labels.
+- Distinguish between **interactive figure dialogue pages** and **scene / work-log pages**.
