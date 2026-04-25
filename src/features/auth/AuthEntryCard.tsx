@@ -136,31 +136,28 @@ export default function AuthEntryCard() {
         : 'auth-entry-card__status--muted';
   const isAuthenticated = payload?.status === 'authenticated' && Boolean(payload.user);
   const isPrimaryActionDisabled = isLoading || (!payload?.loginReady && payload?.status !== 'authenticated');
-  const providerSummary = payload?.loginProviders?.map((provider) => provider.label).join(' / ') || 'QQ / 百度';
   const returnTo = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '/figures/';
   const summaryText = errorMessage
     ? errorMessage
     : isAuthenticated
-      ? `${payload?.user?.loginType ?? '当前'}账号可用，每日 ${payload?.dailyLimit ?? 0} 次。`
+      ? '已登录，可继续使用对话功能。'
       : payload?.missingEnv?.length
         ? '登录入口暂不可用。'
-        : `支持 ${providerSummary} 登录。`;
-  const detailText = isAuthenticated && payload?.user ? formatExpiry(payload.user.expiresAt) : '';
+        : '登录后可使用对话功能。';
 
   return (
     <aside className="auth-entry-card" aria-labelledby="auth-entry-title">
       <div className="auth-entry-card__header">
         <div className="auth-entry-card__header-main">
-          <p className="auth-entry-card__eyebrow">账号状态</p>
+          <p className="auth-entry-card__eyebrow">对话功能</p>
           <h2 id="auth-entry-title" className="auth-entry-card__title">
-            {isAuthenticated && payload?.user ? payload.user.displayName : '登录后继续对话'}
+            {isAuthenticated && payload?.user ? payload.user.displayName : '登录后可使用对话'}
           </h2>
         </div>
         <span className={`auth-entry-card__status ${statusTone}`}>{statusLabel}</span>
       </div>
 
       <p className="auth-entry-card__description">{summaryText}</p>
-      {detailText ? <p className="auth-entry-card__meta">有效期至 {detailText}</p> : null}
       {flash ? <p className={`auth-entry-card__flash auth-entry-card__flash--${flash.tone}`}>{flash.description}</p> : null}
 
       <div className="auth-entry-card__actions">
@@ -171,6 +168,7 @@ export default function AuthEntryCard() {
         ) : (
           payload?.loginProviders?.map((provider) => {
             const href = `${provider.url}&return_to=${encodeURIComponent(returnTo)}`;
+            const actionLabel = provider.type === 'qq' ? 'QQ登录' : provider.type === 'baidu' ? '百度登录' : provider.label.replace(/\s+/g, '');
 
             return (
               <a
@@ -184,19 +182,18 @@ export default function AuthEntryCard() {
                   }
                 }}
               >
-                {provider.label}
+                {actionLabel}
               </a>
             );
           })
         )}
       </div>
 
-      <div className="auth-entry-card__footer">
-        {payload?.missingEnv?.length ? <p className="auth-entry-card__footnote">登录服务配置中</p> : null}
-        <a href="/api/daen?route=me" className="auth-entry-card__text-link">
-          查看账号状态详情
-        </a>
-      </div>
+      {payload?.missingEnv?.length ? (
+        <div className="auth-entry-card__footer">
+          <p className="auth-entry-card__footnote">登录服务配置中</p>
+        </div>
+      ) : null}
     </aside>
   );
 }

@@ -34,7 +34,7 @@
 .figures-hero__auth {
   position: absolute;
   top: 0.1rem;
-  right: 0;
+  right: calc(((100vw - min(1120px, 100vw)) / -2) - var(--page-gutter));
   z-index: 2;
 }
 
