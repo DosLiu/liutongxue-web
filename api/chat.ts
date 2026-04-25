@@ -1147,13 +1147,19 @@ export default async function handler(req: any, res: any) {
   const model = env.OPENAI_MODEL || 'gpt-4.1-mini';
   const baseUrl = trimTrailingSlash(env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
   const figureDefinition = FIGURE_DEFINITIONS[figureId];
+  const directReply =
+    figureId === 'elon-musk'
+      ? resolveElonMuskDirectReply(content)
+      : figureId === 'zhang-yiming'
+        ? resolveZhangYimingDirectReply(content)
+        : null;
   const session = await readSessionFromRequest(req);
   const subject = session?.subject;
   let accountQuota: FigureChatQuota | undefined;
   let reservedAccountQuota = false;
 
   if (subject) {
-    if (hasApiKey) {
+    if (hasApiKey || directReply) {
       const reservation = await reserveAccountQuotaSlot(subject);
       accountQuota = reservation.quota;
       reservedAccountQuota = reservation.reserved;
@@ -1164,8 +1170,8 @@ export default async function handler(req: any, res: any) {
             error: 'quota_exhausted',
             quota: reservation.quota,
             reply: '',
-            mode: 'api',
-            status: 'api',
+            mode: hasApiKey ? 'api' : 'mock',
+            status: hasApiKey ? 'api' : 'mock',
             reason: reservation.quota.reason || '当前账号今日次数已用完。',
             shouldConsume: false
           })
@@ -1174,15 +1180,23 @@ export default async function handler(req: any, res: any) {
       }
     } else {
       accountQuota = await getAccountQuotaSnapshot(subject);
+
+      if (accountQuota.exhausted) {
+        res.status(429).json(
+          buildFigureChatResponse({
+            error: 'quota_exhausted',
+            quota: accountQuota,
+            reply: '',
+            mode: 'mock',
+            status: 'mock',
+            reason: accountQuota.reason || '当前账号今日次数已用完。',
+            shouldConsume: false
+          })
+        );
+        return;
+      }
     }
   }
-
-  const directReply =
-    figureId === 'elon-musk'
-      ? resolveElonMuskDirectReply(content)
-      : figureId === 'zhang-yiming'
-        ? resolveZhangYimingDirectReply(content)
-        : null;
 
   if (directReply) {
     res.status(200).json(
@@ -1192,7 +1206,7 @@ export default async function handler(req: any, res: any) {
         mode: hasApiKey ? 'api' : 'mock',
         status: hasApiKey ? 'api' : 'mock',
         reason: directReply.reason,
-        shouldConsume: hasApiKey
+        shouldConsume: hasApiKey || reservedAccountQuota
       })
     );
     return;

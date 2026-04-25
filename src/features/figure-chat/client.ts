@@ -89,7 +89,7 @@ export const getFigureChatQuotaText = (
     return `今日剩余：${remaining}/${limit}`;
   }
 
-  return `剩余体验：${remaining ?? limit}/${limit}`;
+  return `体验次数：${remaining ?? limit}/${limit}`;
 };
 
 export const getFigureChatStatusMeta = (status: FigureChatServiceStatus) => {
@@ -153,9 +153,9 @@ export const createFigureChatLocalFallback = ({
   replyText: normalizeAssistantReply(config.buildMockReply(content)),
   nextStatus: apiUrl ? 'mock' : isStaticPreview ? 'preview' : 'offline',
   nextNotice: apiUrl
-    ? '当前返回的是演示回复，不会扣减体验次数。'
+    ? '当前返回的是演示回复，不会扣减次数。'
     : isStaticPreview
-      ? '当前是静态预览，最新功能与正式结果以 Vercel 为准，不会扣减体验次数。'
-      : '当前未连接服务，先给你演示回复，不会扣减体验次数。',
+      ? '当前是静态预览，最新功能与正式结果以 Vercel 为准，不会扣减次数。'
+      : '当前未连接服务，先给你演示回复，不会扣减次数。',
   shouldConsume: false
 });

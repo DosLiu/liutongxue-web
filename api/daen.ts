@@ -412,6 +412,8 @@ const getAuthConfig = (req?: ApiRequest) => {
   const kvRestApiUrl = normalizeEnvValue(env.KV_REST_API_URL);
   const kvRestApiToken = normalizeEnvValue(env.KV_REST_API_TOKEN);
   const kvUrl = normalizeEnvValue(env.KV_URL);
+  const isKvConfigured = Boolean(kvRestApiUrl && kvRestApiToken);
+  const kvMode = kvEnabled ? (isKvConfigured ? 'enforced' : 'degraded') : 'disabled';
 
   const callbackOrigin = configuredCallbackUrl
     ? new URL(configuredCallbackUrl).origin
@@ -433,14 +435,14 @@ const getAuthConfig = (req?: ApiRequest) => {
     dailyLimit,
     enabledTypes,
     isCallbackReady: missingLoginEnv.length === 0,
-    isKvConfigured: Boolean(kvRestApiUrl && kvRestApiToken),
+    isKvConfigured,
     isLoginReady: missingLoginEnv.length === 0,
     kv: {
       enabled: kvEnabled,
       kvRestApiToken,
       kvRestApiUrl,
       kvUrl,
-      mode: kvEnabled ? 'reserved' : 'disabled'
+      mode: kvMode
     },
     loginSuccessUrl,
     logoutRedirectUrl,

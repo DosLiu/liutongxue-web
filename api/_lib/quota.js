@@ -48,14 +48,14 @@ const parseUsageCount = (value) => {
 
 const buildQuotaReason = (mode) => {
   if (mode === 'degraded') {
-    return '已登录，但今日次数暂不可核验。';
+    return '已登录，今日次数暂时无法确认，本次不会误扣。';
   }
 
   if (mode === 'disabled') {
-    return '当前环境未启用账号日限额校验。';
+    return '已登录，今日次数暂未接通校验，可先继续体验。';
   }
 
-  return '已登录账号按日限额生效。';
+  return '已登录账号按今日次数生效。';
 };
 
 const buildUnavailableAccountQuota = (runtime) => ({
@@ -83,7 +83,7 @@ const buildAccountQuotaSnapshotFromUsed = (runtime, used, resetAt) => {
     resetAt,
     exhausted: remaining <= 0,
     enforced: true,
-    reason: remaining <= 0 ? '当前账号今日次数已用完。' : '已登录账号按日限额生效。'
+    reason: remaining <= 0 ? '当前账号今日次数已用完。' : '已登录账号按今日次数生效。'
   };
 };
 

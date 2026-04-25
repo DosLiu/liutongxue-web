@@ -231,6 +231,8 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
       isStaticPreview,
       config
     });
+    let nextQuotaScope = quotaScope;
+    let nextQuotaLimit = quotaLimit;
 
     if (apiUrl) {
       const controller = new AbortController();
@@ -249,9 +251,11 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
         const payload = (await response.json().catch(() => null)) as FigureChatApiResponse | null;
 
         if (payload?.quota) {
+          nextQuotaScope = payload.quota.scope;
+          nextQuotaLimit = payload.quota.limit > 0 ? payload.quota.limit : quotaLimit;
           setQuotaScope(payload.quota.scope);
           setQuotaMode(payload.quota.mode);
-          setQuotaLimit(payload.quota.limit > 0 ? payload.quota.limit : quotaLimit);
+          setQuotaLimit(nextQuotaLimit);
           setRemaining(payload.quota.remaining ?? null);
         }
 
@@ -276,7 +280,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
           : payload.reason || nextNotice;
       } catch {
         nextStatus = 'offline';
-        nextNotice = '当前没连上在线服务，先给你演示回复，不会扣减体验次数。';
+        nextNotice = '当前没连上在线服务，先给你演示回复，不会扣减次数。';
       } finally {
         window.clearTimeout(timeoutId);
       }
@@ -293,11 +297,11 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
       }
     ]);
 
-    if (shouldConsume && !isDeveloperUnlimited && quotaScope === 'device') {
+    if (shouldConsume && !isDeveloperUnlimited && nextQuotaScope === 'device') {
       setRemaining((value) => {
-        const current = typeof value === 'number' ? value : quotaLimit;
+        const current = typeof value === 'number' ? value : nextQuotaLimit;
         const next = Math.max(0, current - 1);
-        setFigureChatStoredRemaining(config, next, quotaLimit);
+        setFigureChatStoredRemaining(config, next, nextQuotaLimit);
         return next;
       });
     }
