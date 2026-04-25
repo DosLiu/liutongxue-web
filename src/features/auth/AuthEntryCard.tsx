@@ -149,7 +149,6 @@ export default function AuthEntryCard() {
     <aside className="auth-entry-card" aria-labelledby="auth-entry-title">
       <div className="auth-entry-card__header">
         <div className="auth-entry-card__header-main">
-          <p className="auth-entry-card__eyebrow">对话功能</p>
           <h2 id="auth-entry-title" className="auth-entry-card__title">
             {isAuthenticated && payload?.user ? payload.user.displayName : '登录后可使用对话'}
           </h2>
@@ -157,7 +156,7 @@ export default function AuthEntryCard() {
         <span className={`auth-entry-card__status ${statusTone}`}>{statusLabel}</span>
       </div>
 
-      <p className="auth-entry-card__description">{summaryText}</p>
+      {isAuthenticated ? <p className="auth-entry-card__description">{summaryText}</p> : null}
       {flash ? <p className={`auth-entry-card__flash auth-entry-card__flash--${flash.tone}`}>{flash.description}</p> : null}
 
       <div className="auth-entry-card__actions">
