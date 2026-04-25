@@ -38,7 +38,7 @@ const getFlashState = (): FlashState => {
 
   if (authState === 'signed-in') {
     return {
-      description: '登录成功，可以继续对话。',
+      description: '登录成功，可以继续对话',
       tone: 'info'
     };
   }
@@ -156,7 +156,6 @@ export default function AuthEntryCard() {
         <span className={`auth-entry-card__status ${statusTone}`}>{statusLabel}</span>
       </div>
 
-      {isAuthenticated ? <p className="auth-entry-card__description">{summaryText}</p> : null}
       {flash ? <p className={`auth-entry-card__flash auth-entry-card__flash--${flash.tone}`}>{flash.description}</p> : null}
 
       <div className="auth-entry-card__actions">
