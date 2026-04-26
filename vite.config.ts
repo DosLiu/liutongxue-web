@@ -47,6 +47,100 @@ const buildAbsoluteUrl = (siteUrl: string, pathname: string) => {
 };
 
 const extractTagContent = (html: string, pattern: RegExp) => html.match(pattern)?.[1]?.trim() || '';
+const stripSitePrefix = (title: string) => title.replace(/^Liutongxue\s*·\s*/, '').trim();
+
+const sceneCollectionStructuredData: Record<
+  string,
+  {
+    collectionPath: string;
+    collectionTitle: string;
+    siteLabel: string;
+  }
+> = {
+  'digital-resident': {
+    collectionPath: '/scene/digital-resident/',
+    collectionTitle: 'AI原生数字居民工作日志',
+    siteLabel: 'AI原生数字居民'
+  },
+  'blog-ops': {
+    collectionPath: '/scene/blog-ops/',
+    collectionTitle: 'AI原生博客运营团队工作日志',
+    siteLabel: 'AI原生博客运营团队'
+  },
+  'site-ops': {
+    collectionPath: '/scene/site-ops/',
+    collectionTitle: 'AI原生建站运营团队工作日志',
+    siteLabel: 'AI原生建站运营团队'
+  }
+};
+
+const createSceneDetailStructuredData = (pathname: string, absoluteUrl: string, title: string, description: string) => {
+  const match = pathname.match(/^\/scene\/([^/]+)\/(\d{4}-\d{2}-\d{2})\/$/);
+  const collectionMeta = match ? sceneCollectionStructuredData[match[1]] : null;
+
+  if (!match || !collectionMeta || !title || !description) {
+    return null;
+  }
+
+  const collectionUrl = buildAbsoluteUrl(siteUrl, collectionMeta.collectionPath);
+  const headline = stripSitePrefix(title) || title;
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BlogPosting',
+        '@id': `${absoluteUrl}#log`,
+        url: absoluteUrl,
+        headline,
+        description,
+        datePublished: match[2],
+        dateModified: match[2],
+        genre: '工作日志',
+        articleSection: collectionMeta.collectionTitle,
+        mainEntityOfPage: {
+          '@id': `${absoluteUrl}#webpage`
+        },
+        isPartOf: {
+          '@type': 'CollectionPage',
+          '@id': `${collectionUrl}#webpage`,
+          url: collectionUrl,
+          name: collectionMeta.collectionTitle
+        },
+        about: [
+          {
+            '@type': 'Thing',
+            name: '日志详情'
+          },
+          {
+            '@type': 'Thing',
+            name: collectionMeta.siteLabel
+          }
+        ],
+        publisher: {
+          '@type': 'Organization',
+          name: 'Liutongxue',
+          url: `${siteUrl}/`
+        },
+        inLanguage: 'zh-CN'
+      },
+      {
+        '@type': 'WebPage',
+        '@id': `${absoluteUrl}#webpage`,
+        url: absoluteUrl,
+        name: title,
+        description,
+        isPartOf: {
+          '@id': `${siteUrl}/#website`
+        },
+        about: {
+          '@id': `${absoluteUrl}#log`
+        },
+        inLanguage: 'zh-CN'
+      }
+    ]
+  };
+};
 
 const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || 'https://www.liutongxue.com.cn');
 
@@ -78,6 +172,7 @@ export default defineConfig({
         const absoluteUrl = buildAbsoluteUrl(siteUrl, canonicalPath);
         const title = extractTagContent(html, /<title>([\s\S]*?)<\/title>/i) || 'Liutongxue';
         const description = extractTagContent(html, /<meta\s+name=["']description["']\s+content=["']([\s\S]*?)["']\s*\/?>/i);
+        const sceneDetailStructuredData = createSceneDetailStructuredData(canonicalPath, absoluteUrl, title, description);
 
         return {
           html,
@@ -141,7 +236,19 @@ export default defineConfig({
                 content: absoluteUrl
               },
               injectTo: 'head'
-            }
+            },
+            ...(sceneDetailStructuredData
+              ? [
+                  {
+                    tag: 'script',
+                    attrs: {
+                      type: 'application/ld+json'
+                    },
+                    children: JSON.stringify(sceneDetailStructuredData, null, 2),
+                    injectTo: 'head' as const
+                  }
+                ]
+              : [])
           ]
         };
       }
