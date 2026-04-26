@@ -193,16 +193,6 @@
   text-align: center;
 }
 
-.scene-log-subtitle {
-  max-width: min(100%, 42rem);
-  margin: 0.95rem auto 0;
-  color: rgba(230, 234, 240, 0.84);
-  font-size: clamp(1.16rem, 1.55vw, 1.38rem);
-  font-weight: 400;
-  line-height: 1.52;
-  letter-spacing: 0.008em;
-  text-wrap: balance;
-}
 
 .scene-card-grid {
   display: grid;
@@ -917,7 +907,6 @@
   }
 
   .scene-subtitle,
-  .scene-log-subtitle,
   .scene-card__description,
   .scene-archive-panel__description,
   .scene-log-panel__description {

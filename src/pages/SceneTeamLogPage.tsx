@@ -29,12 +29,9 @@ export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
 
         <div className="scene-log-shell scene-log-shell--resident">
           <section className="scene-log-hero" aria-labelledby="scene-log-title">
-            <div>
-              <h1 id="scene-log-title" className="scene-log-title scene-log-title--single">
-                {pageData.title}
-              </h1>
-              <p className="scene-log-subtitle">{pageData.subtitle}</p>
-            </div>
+            <h1 id="scene-log-title" className="scene-log-title scene-log-title--single">
+              {pageData.title}
+            </h1>
           </section>
 
           <section className="scene-log-timeline scene-log-timeline--compact scene-log-timeline--resident" aria-labelledby="scene-log-timeline-title">
