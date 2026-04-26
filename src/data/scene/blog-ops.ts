@@ -4,7 +4,7 @@ import type { SceneLogCollection } from './types';
 export const blogOpsSceneLogCollection: SceneLogCollection = {
   key: 'blogOps',
   title: 'AI原生博客运营团队',
-  subtitle: '这里将展开博客团队的选题、成稿、发布、复盘与协同节奏。',
+  subtitle: '公开记录 AI 原生博客运营团队在选题、成稿、发布与复盘中的协作日志。',
   logs: [
     {
       id: 'blog-ops-2026-03-13-role-and-position-first',

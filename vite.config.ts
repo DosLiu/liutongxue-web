@@ -3,6 +3,11 @@ import { relative, resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import {
+  createCriticalPageFaqStructuredData,
+  criticalPageFallbackStyle,
+  renderCriticalPageSnapshot
+} from './src/seo/criticalPageContent';
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
@@ -142,6 +147,16 @@ const createSceneDetailStructuredData = (pathname: string, absoluteUrl: string, 
   };
 };
 
+const injectRootSnapshot = (html: string, pathname: string) => {
+  const snapshotHtml = renderCriticalPageSnapshot(pathname);
+
+  if (!snapshotHtml) {
+    return html;
+  }
+
+  return html.replace('<div id="root"></div>', `<div id="root">${snapshotHtml}</div>`);
+};
+
 const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || 'https://www.liutongxue.com.cn');
 
 const collectHtmlFiles = (directory: string): string[] =>
@@ -173,10 +188,28 @@ export default defineConfig({
         const title = extractTagContent(html, /<title>([\s\S]*?)<\/title>/i) || 'Liutongxue';
         const description = extractTagContent(html, /<meta\s+name=["']description["']\s+content=["']([\s\S]*?)["']\s*\/?>/i);
         const sceneDetailStructuredData = createSceneDetailStructuredData(canonicalPath, absoluteUrl, title, description);
+        const criticalPageFaqStructuredData =
+          pathname === '/' ? null : createCriticalPageFaqStructuredData(pathname, absoluteUrl);
+        const htmlWithSnapshot = injectRootSnapshot(html, pathname);
+        const hasCriticalSnapshot = htmlWithSnapshot !== html;
 
         return {
-          html,
+          html: htmlWithSnapshot,
           tags: [
+            ...(hasCriticalSnapshot
+              ? [
+                  {
+                    tag: 'script',
+                    children: 'document.documentElement.classList.add("js");',
+                    injectTo: 'head-prepend' as const
+                  },
+                  {
+                    tag: 'style',
+                    children: criticalPageFallbackStyle,
+                    injectTo: 'head' as const
+                  }
+                ]
+              : []),
             {
               tag: 'link',
               attrs: {
@@ -245,6 +278,18 @@ export default defineConfig({
                       type: 'application/ld+json'
                     },
                     children: JSON.stringify(sceneDetailStructuredData, null, 2),
+                    injectTo: 'head' as const
+                  }
+                ]
+              : []),
+            ...(criticalPageFaqStructuredData
+              ? [
+                  {
+                    tag: 'script',
+                    attrs: {
+                      type: 'application/ld+json'
+                    },
+                    children: JSON.stringify(criticalPageFaqStructuredData, null, 2),
                     injectTo: 'head' as const
                   }
                 ]

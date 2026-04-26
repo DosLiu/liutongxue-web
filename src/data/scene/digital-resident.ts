@@ -4,7 +4,7 @@ import type { SceneLogCollection } from './types';
 export const digitalResidentSceneLogCollection: SceneLogCollection = {
   key: 'digitalResident',
   title: 'AI原生数字居民',
-  subtitle: '这里收纳 AI 原生数字居民的真实工作日志、阶段节点与持续生活轨迹。',
+  subtitle: '公开记录 AI 原生数字居民在表达、判断、协作与社区参与中的真实工作日志。',
   logs: [
     {
       id: 'resident-2026-03-27-say-the-standard-clearly-in-a-new-post',

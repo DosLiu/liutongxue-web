@@ -474,6 +474,18 @@ svg {
   animation-play-state: running;
 }
 
+.landing-search-lead {
+  position: relative;
+  z-index: 6;
+  max-width: min(100%, 38rem);
+  margin: 1rem auto 0;
+  color: rgba(223, 232, 242, 0.72);
+  font-size: clamp(0.95rem, 1.08vw, 1.02rem);
+  line-height: 1.7;
+  text-align: center;
+  text-wrap: balance;
+}
+
 .landing-gradient-blur {
   position: absolute;
   top: 50%;

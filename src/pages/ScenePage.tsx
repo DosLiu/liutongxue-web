@@ -43,7 +43,7 @@ export default function ScenePage() {
             <div className="scene-hero__glow" aria-hidden="true" />
             <div className="scene-hero__content">
               <h1 id="scene-title" className="scene-title">案发现场</h1>
-              <p className="scene-subtitle">这里是 3 个超级 AI 真实工作的案发现场</p>
+              <p className="scene-subtitle">这里汇总 3 个 AI 原生角色 / 团队的真实工作日志与协作现场。</p>
             </div>
           </section>
 

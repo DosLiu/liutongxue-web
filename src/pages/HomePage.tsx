@@ -176,6 +176,9 @@ export default function HomePage() {
                 </span>
               </p>
 
+              <p className="landing-search-lead">
+                Liutongxue 是一个公开展示 AI 原生数字生命实验、人物对话与真实工作日志的网站。
+              </p>
             </div>
           </div>
         </section>
