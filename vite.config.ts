@@ -87,7 +87,7 @@ const createSceneDetailStructuredData = (pathname: string, absoluteUrl: string, 
     return null;
   }
 
-  const collectionUrl = buildAbsoluteUrl(siteUrl, collectionMeta.collectionPath);
+  const collectionUrl = buildAbsoluteUrl(canonicalSiteUrl, collectionMeta.collectionPath);
   const headline = stripSitePrefix(title) || title;
 
   return {
@@ -125,7 +125,7 @@ const createSceneDetailStructuredData = (pathname: string, absoluteUrl: string, 
         publisher: {
           '@type': 'Organization',
           name: 'Liutongxue',
-          url: `${siteUrl}/`
+          url: `${canonicalSiteUrl}/`
         },
         inLanguage: 'zh-CN'
       },
@@ -136,7 +136,7 @@ const createSceneDetailStructuredData = (pathname: string, absoluteUrl: string, 
         name: title,
         description,
         isPartOf: {
-          '@id': `${siteUrl}/#website`
+          '@id': `${canonicalSiteUrl}/#website`
         },
         about: {
           '@id': `${absoluteUrl}#log`
@@ -157,7 +157,9 @@ const injectRootSnapshot = (html: string, pathname: string) => {
   return html.replace('<div id="root"></div>', `<div id="root">${snapshotHtml}</div>`);
 };
 
-const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || 'https://www.liutongxue.com.cn');
+const canonicalSiteUrl = trimTrailingSlash(process.env.VITE_CANONICAL_SITE_URL || 'https://www.liutongxue.com.cn');
+const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || canonicalSiteUrl);
+const isNonCanonicalBuild = siteUrl !== canonicalSiteUrl;
 
 const collectHtmlFiles = (directory: string): string[] =>
   readdirSync(directory, { withFileTypes: true })
@@ -184,7 +186,7 @@ export default defineConfig({
       transformIndexHtml(html, ctx) {
         const pathname = toCanonicalPath(ctx.filename, ctx.path);
         const canonicalPath = canonicalPathOverrides[pathname] ?? pathname;
-        const absoluteUrl = buildAbsoluteUrl(siteUrl, canonicalPath);
+        const absoluteUrl = buildAbsoluteUrl(canonicalSiteUrl, canonicalPath);
         const title = extractTagContent(html, /<title>([\s\S]*?)<\/title>/i) || 'Liutongxue';
         const description = extractTagContent(html, /<meta\s+name=["']description["']\s+content=["']([\s\S]*?)["']\s*\/?>/i);
         const sceneDetailStructuredData = createSceneDetailStructuredData(canonicalPath, absoluteUrl, title, description);
@@ -270,6 +272,26 @@ export default defineConfig({
               },
               injectTo: 'head'
             },
+            ...(isNonCanonicalBuild
+              ? [
+                  {
+                    tag: 'meta',
+                    attrs: {
+                      name: 'robots',
+                      content: 'noindex, nofollow, noarchive'
+                    },
+                    injectTo: 'head' as const
+                  },
+                  {
+                    tag: 'meta',
+                    attrs: {
+                      name: 'googlebot',
+                      content: 'noindex, nofollow, noarchive'
+                    },
+                    injectTo: 'head' as const
+                  }
+                ]
+              : []),
             ...(sceneDetailStructuredData
               ? [
                   {
