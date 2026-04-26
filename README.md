@@ -54,6 +54,7 @@
 ├─ api/
 │  └─ chat.ts                         # 人物聊天接口（Serverless）
 ├─ public/
+│  ├─ llms.txt
 │  ├─ robots.txt
 │  ├─ sitemap.xml
 │  └─ scene/.../cover.webp            # Scene 详情页配图
@@ -574,11 +575,19 @@ contact: 'mailto:hello@liutongxue.com'
 - `og:title`
 - `og:description`
 - `og:url`
+- 非 canonical 构建（如 TEST）时的 `robots=noindex,nofollow,noarchive`
 
 注入所依赖的数据来源：
 
 - 当前 HTML 文件里的 `<title>`
 - 当前 HTML 文件里的 `<meta name="description">`
+- `VITE_CANONICAL_SITE_URL`（正式 canonical 域名）
+- `VITE_SITE_URL`（当前构建实际部署域名 / 预览域名）
+
+> 当前约定是：
+> - 正式构建：`VITE_SITE_URL` 与 `VITE_CANONICAL_SITE_URL` 都指向 `https://www.liutongxue.com.cn`
+> - TEST 构建：`VITE_SITE_URL` 指向 TEST 域名，但 `VITE_CANONICAL_SITE_URL` 仍指向正式域名
+> - 因此 TEST 页面会自动带 `noindex`，同时 `canonical` / `og:url` 继续指向正式域名
 
 ### `/tools/` 的 canonical 特殊逻辑
 
@@ -607,6 +616,16 @@ contact: 'mailto:hello@liutongxue.com'
 ### robots
 
 - `public/robots.txt`
+
+### llms / GEO 文本口径
+
+- `public/llms.txt`
+
+当前用途：
+
+- 提供给模型 / 检索系统的站点定义文本
+- 明确正式 canonical 域名口径
+- 约束不要把 TEST 域名当成可引用来源
 
 ### 全站路径常量
 
@@ -684,7 +703,8 @@ README 中提到的本地开发、构建与 smoke check 已经在第 4 章写明
 | --- | --- | --- | --- | --- |
 | `VITE_JOBS_CHAT_API_BASE_URL` | 否 | `src/features/figure-chat/runtime.ts` | 指定聊天接口基地址 | 前端和 `/api/chat` 不同域时使用；留空时默认走当前域名下的 `/api/chat`。填 `/` 时也会强制走同域。 |
 | `VITE_CHAT_API_URL` | 否 | `src/features/figure-chat/runtime.ts` | 直接指定完整聊天接口地址 | 优先级高于 `VITE_JOBS_CHAT_API_BASE_URL`，通常只用于特殊调试或兼容场景。 |
-| `VITE_SITE_URL` | 生产强烈建议确认 | `vite.config.ts`、`tools/smoke-check.mjs` | canonical / `og:url` / smoke check 所用的正式站点地址 | 当前默认值是 `https://www.liutongxue.com.cn`。如果正式域名迁移，需要同步确认。 |
+| `VITE_SITE_URL` | 生产强烈建议确认 | `vite.config.ts`、`tools/smoke-check.mjs` | 当前构建实际部署域名；也作为 smoke check 默认站点地址 | 正式构建时通常等于 `https://www.liutongxue.com.cn`；TEST / 预览构建时可以指向 TEST 域名。 |
+| `VITE_CANONICAL_SITE_URL` | canonical 构建强烈建议确认 | `vite.config.ts` | `canonical` / `og:url` / 结构化数据中使用的正式 canonical 域名 | 默认值是 `https://www.liutongxue.com.cn`。TEST 构建时通常保持正式域名不变。 |
 | `OPENAI_API_KEY` | 真实模型时必填 | `api/chat.ts` | 调用 OpenAI 兼容接口 | 不填时前端会退回演示回复。 |
 | `OPENAI_MODEL` | 否 | `api/chat.ts` | 指定模型名 | 默认值是 `gpt-4.1-mini`。 |
 | `OPENAI_BASE_URL` | 否 | `api/chat.ts` | 指定 OpenAI 兼容网关地址 | 默认值是 `https://api.openai.com/v1`。 |
@@ -715,7 +735,23 @@ VITE_JOBS_CHAT_API_BASE_URL=https://api.example.com
 
 同时后端要把前端域名加入 `ALLOWED_ORIGINS`。
 
-#### 场景 C：本地调试
+#### 场景 C：TEST / 预览部署
+
+推荐配置：
+
+```bash
+VITE_SITE_URL=https://test.liutongxue.com.cn
+VITE_CANONICAL_SITE_URL=https://www.liutongxue.com.cn
+```
+
+当前行为：
+
+- 页面实际部署在 TEST 域名
+- `canonical` / `og:url` / 结构化数据继续指向正式域名
+- 页面会自动注入 `noindex, nofollow, noarchive`
+- TEST 仅用于验收，不作为对外 canonical source
+
+#### 场景 D：本地调试
 
 - 本地 `npm run dev` 主要启动前端页面
 - 如果本地没有真实 `/api/chat`，聊天页会自动 fallback
@@ -746,8 +782,24 @@ npm run check
 #### 正式口径
 
 - 当前正式域名：`https://www.liutongxue.com.cn`
-- README、SEO、sitemap、robots、canonical 默认都应以这个 `www` 域名为准
-- 预览域名可以用于测试，但不应写成 README 的默认公开口径
+- README、SEO、sitemap、robots、canonical、`llms.txt` 默认都应以这个 `www` 域名为准
+- TEST / 预览域名只用于验收，不应作为默认公开口径，也不应作为 canonical source
+
+#### TEST-first 发布流程
+
+当前默认发布顺序是：
+
+1. 本地改动
+2. 本地验证（至少 `npm run check`）
+3. 同步到 `test`
+4. 在 TEST 域名验收
+5. 验收通过后再同步到 `main`
+
+补充约束：
+
+- 不要把 TEST 当成正式索引入口
+- 不要在用户未确认 TEST 之前直接把同轮改动同步到 `main`
+- 如果 TEST 构建存在分支漂移，先修 TEST，再谈正式同步
 
 #### 当前已验证的部署形态
 
@@ -766,11 +818,13 @@ npm run check
 #### 正式域名迁移时要同步确认的地方
 
 - `VITE_SITE_URL`
-- `vite.config.ts` 里的默认 `siteUrl`
+- `VITE_CANONICAL_SITE_URL`
+- `vite.config.ts` 里的默认 `canonicalSiteUrl` / `siteUrl`
 - `tools/smoke-check.mjs` 里的默认 `siteUrl`
 - `.env.example`
 - `public/robots.txt`
 - `public/sitemap.xml`
+- `public/llms.txt`
 - README 中的正式域名文案
 - `ALLOWED_ORIGINS`
 
