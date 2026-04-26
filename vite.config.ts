@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import {
   createCriticalPageFaqStructuredData,
+  criticalPageContent,
   criticalPageFallbackStyle,
   renderCriticalPageSnapshot
 } from './src/seo/criticalPageContent';
@@ -77,6 +78,66 @@ const sceneCollectionStructuredData: Record<
     collectionTitle: 'AI原生建站运营团队工作日志',
     siteLabel: 'AI原生建站运营团队'
   }
+};
+
+const createSceneCollectionItemListStructuredData = (pathname: string) => {
+  const match = pathname.match(/^\/scene\/([^/]+)\/$/);
+  const collectionMeta = match ? sceneCollectionStructuredData[match[1]] : null;
+  const page = criticalPageContent[pathname];
+  const items = page?.sections.flatMap((section) => section.items ?? []).slice(0, 5) ?? [];
+
+  if (!match || !collectionMeta || !page || !items.length) {
+    return null;
+  }
+
+  const collectionUrl = buildAbsoluteUrl(canonicalSiteUrl, collectionMeta.collectionPath);
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${collectionUrl}#collection`,
+        url: collectionUrl,
+        name: collectionMeta.collectionTitle,
+        description: page.lead,
+        isPartOf: {
+          '@id': `${canonicalSiteUrl}/#website`
+        },
+        mainEntity: {
+          '@id': `${collectionUrl}#itemlist`
+        },
+        inLanguage: 'zh-CN'
+      },
+      {
+        '@type': 'ItemList',
+        '@id': `${collectionUrl}#itemlist`,
+        name: `${collectionMeta.siteLabel} 最新公开日志`,
+        numberOfItems: items.length,
+        itemListOrder: 'https://schema.org/ItemListOrderDescending',
+        itemListElement: items.map((item, index) => {
+          const logUrl = buildAbsoluteUrl(canonicalSiteUrl, item.href);
+          return {
+            '@type': 'ListItem',
+            position: index + 1,
+            url: logUrl,
+            name: item.title,
+            item: {
+              '@type': 'BlogPosting',
+              '@id': `${logUrl}#log`,
+              url: logUrl,
+              headline: item.title,
+              description: item.description,
+              datePublished: item.meta,
+              dateModified: item.meta,
+              articleSection: collectionMeta.collectionTitle,
+              inLanguage: 'zh-CN'
+            }
+          };
+        })
+      }
+    ]
+  };
 };
 
 const createSceneDetailStructuredData = (pathname: string, absoluteUrl: string, title: string, description: string) => {
@@ -190,6 +251,7 @@ export default defineConfig({
         const title = extractTagContent(html, /<title>([\s\S]*?)<\/title>/i) || 'Liutongxue';
         const description = extractTagContent(html, /<meta\s+name=["']description["']\s+content=["']([\s\S]*?)["']\s*\/?>/i);
         const sceneDetailStructuredData = createSceneDetailStructuredData(canonicalPath, absoluteUrl, title, description);
+        const sceneCollectionItemListStructuredData = createSceneCollectionItemListStructuredData(canonicalPath);
         const criticalPageFaqStructuredData =
           pathname === '/' ? null : createCriticalPageFaqStructuredData(pathname, absoluteUrl);
         const htmlWithSnapshot = injectRootSnapshot(html, pathname);
@@ -300,6 +362,18 @@ export default defineConfig({
                       type: 'application/ld+json'
                     },
                     children: JSON.stringify(sceneDetailStructuredData, null, 2),
+                    injectTo: 'head' as const
+                  }
+                ]
+              : []),
+            ...(sceneCollectionItemListStructuredData
+              ? [
+                  {
+                    tag: 'script',
+                    attrs: {
+                      type: 'application/ld+json'
+                    },
+                    children: JSON.stringify(sceneCollectionItemListStructuredData, null, 2),
                     injectTo: 'head' as const
                   }
                 ]
