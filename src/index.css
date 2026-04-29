@@ -601,6 +601,7 @@ svg {
   padding: 0.52rem 0.68rem;
   color: rgba(243, 245, 250, 0.86);
   border-radius: 0.85rem;
+  text-align: center;
 }
 
 .auth-entry-card__flash--info {
