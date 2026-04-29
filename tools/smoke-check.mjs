@@ -102,9 +102,10 @@ if (/from\s+['"]\.\.\/src\//.test(apiChatSource)) {
 }
 
 let apiHealthCheckSummary = null;
+let apiDirectReplySummary = null;
+let authCallbackSummary = null;
 
-try {
-  const { default: chatHandler } = await import(resolve(repoRoot, 'api/chat.ts'));
+const createMockApiResponse = () => {
   const apiResponse = { statusCode: 200, headers: {}, payload: null, ended: false };
   const res = {
     setHeader(name, value) {
@@ -122,21 +123,100 @@ try {
     }
   };
 
-  await chatHandler({ method: 'GET', headers: { origin: siteUrl } }, res);
+  return { apiResponse, res };
+};
 
-  const allowOrigin = apiResponse.headers['Access-Control-Allow-Origin'];
-  const payload = apiResponse.payload;
-  const hasValidPayload =
-    payload &&
-    typeof payload === 'object' &&
-    typeof payload.reply === 'string' &&
-    ['api', 'mock'].includes(payload.mode) &&
-    ['api', 'mock'].includes(payload.status);
+try {
+  const { default: chatHandler } = await import(resolve(repoRoot, 'api/chat.ts'));
+  const { getAuthConfig } = await import(resolve(repoRoot, 'api/_lib/auth.js'));
 
-  if (apiResponse.statusCode !== 200 || allowOrigin !== siteUrl || !hasValidPayload) {
-    failures.push(`api/chat 健康检查异常:\n${JSON.stringify(apiResponse, null, 2)}`);
-  } else {
-    apiHealthCheckSummary = `api/chat health ok (${payload.status})`;
+  {
+    const { apiResponse, res } = createMockApiResponse();
+    await chatHandler({ method: 'GET', headers: { origin: siteUrl } }, res);
+
+    const allowOrigin = apiResponse.headers['Access-Control-Allow-Origin'];
+    const payload = apiResponse.payload;
+    const hasValidPayload =
+      payload &&
+      typeof payload === 'object' &&
+      typeof payload.reply === 'string' &&
+      ['api', 'mock'].includes(payload.mode) &&
+      ['api', 'mock'].includes(payload.status);
+
+    if (apiResponse.statusCode !== 200 || allowOrigin !== siteUrl || !hasValidPayload) {
+      failures.push(`api/chat 健康检查异常:\n${JSON.stringify(apiResponse, null, 2)}`);
+    } else {
+      apiHealthCheckSummary = `api/chat health ok (${payload.status})`;
+    }
+  }
+
+  {
+    const previousOpenAiApiKey = process.env.OPENAI_API_KEY;
+
+    try {
+      process.env.OPENAI_API_KEY = 'smoke-test-key';
+      const { apiResponse, res } = createMockApiResponse();
+
+      await chatHandler(
+        {
+          method: 'POST',
+          headers: { origin: siteUrl },
+          body: JSON.stringify({
+            figureId: 'elon-musk',
+            messages: [{ role: 'user', content: 'AI Agent赛道这么热，谁会赢？' }]
+          })
+        },
+        res
+      );
+
+      const payload = apiResponse.payload;
+      const isDirectReplyAligned =
+        apiResponse.statusCode === 200 &&
+        payload &&
+        typeof payload.reply === 'string' &&
+        payload.reply.length > 0 &&
+        payload.mode === 'mock' &&
+        payload.status === 'mock' &&
+        payload.shouldConsume === false;
+
+      if (!isDirectReplyAligned) {
+        failures.push(`api/chat 直出规则口径异常:\n${JSON.stringify(apiResponse, null, 2)}`);
+      } else {
+        apiDirectReplySummary = 'api/chat direct reply ok (mode/status/mock + no consume)';
+      }
+    } finally {
+      if (previousOpenAiApiKey === undefined) {
+        delete process.env.OPENAI_API_KEY;
+      } else {
+        process.env.OPENAI_API_KEY = previousOpenAiApiKey;
+      }
+    }
+  }
+
+  {
+    const envExampleSource = readFileSync(resolve(repoRoot, '.env.example'), 'utf8');
+    const previousCallbackUrl = process.env.DAEN_AUTH_CALLBACK_URL;
+
+    try {
+      process.env.DAEN_AUTH_CALLBACK_URL = 'https://www.liutongxue.com.cn/api/daen?route=callback';
+      const callbackUrl = getAuthConfig().callbackUrl;
+      const usesCanonicalPathInExample =
+        envExampleSource.includes('/api/auth/callback') && !envExampleSource.includes('/api/daen?route=callback');
+
+      if (callbackUrl !== 'https://www.liutongxue.com.cn/api/auth/callback' || !usesCanonicalPathInExample) {
+        failures.push(
+          `auth callback 归一化异常:\n${JSON.stringify({ callbackUrl, usesCanonicalPathInExample }, null, 2)}`
+        );
+      } else {
+        authCallbackSummary = 'auth callback ok (/api/auth/callback locked)';
+      }
+    } finally {
+      if (previousCallbackUrl === undefined) {
+        delete process.env.DAEN_AUTH_CALLBACK_URL;
+      } else {
+        process.env.DAEN_AUTH_CALLBACK_URL = previousCallbackUrl;
+      }
+    }
   }
 } catch (error) {
   failures.push(`api/chat 模块加载失败:\n${error instanceof Error ? error.stack || error.message : String(error)}`);
@@ -175,4 +255,6 @@ console.log(`Smoke check passed: ${totalHtmlRoutes} 个入口路由已校验。`
 console.log(`- scene 明细页: ${sceneDetailCount}`);
 console.log(`- sitemap URL: ${sitemapRoutes.size}`);
 console.log(`- ${apiHealthCheckSummary}`);
+console.log(`- ${apiDirectReplySummary}`);
+console.log(`- ${authCallbackSummary}`);
 console.log('- 关键入口文件、src/site.ts 声明路由、sitemap 与实际落地路由一致');

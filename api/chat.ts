@@ -55,13 +55,15 @@ export default async function handler(req: any, res: any) {
   const baseUrl = trimTrailingSlash(env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
   const figureDefinition = getFigureChatModelDefinition(figureId);
   const directReply = resolveFigureChatDirectReply(figureId, content);
+  const shouldUseDirectReply = Boolean(directReply);
+  const shouldCallModel = hasApiKey && !shouldUseDirectReply;
   const session = await readSessionFromRequest(req);
   const subject = session?.subject;
   let accountQuota: FigureChatQuota | undefined;
   let reservedAccountQuota = false;
 
   if (subject) {
-    if (hasApiKey || directReply) {
+    if (shouldCallModel) {
       const reservation = await reserveAccountQuotaSlot(subject);
       accountQuota = reservation.quota;
       reservedAccountQuota = reservation.reserved;
@@ -72,8 +74,8 @@ export default async function handler(req: any, res: any) {
             error: 'quota_exhausted',
             quota: reservation.quota,
             reply: '',
-            mode: hasApiKey ? 'api' : 'mock',
-            status: hasApiKey ? 'api' : 'mock',
+            mode: 'api',
+            status: 'api',
             reason: reservation.quota.reason || '当前账号今日次数已用完。',
             shouldConsume: false
           })
@@ -105,10 +107,10 @@ export default async function handler(req: any, res: any) {
       buildFigureChatResponse({
         quota: accountQuota,
         reply: figureId === 'zhang-yiming' ? polishZhangYimingReply(directReply.reply, content) : directReply.reply,
-        mode: hasApiKey ? 'api' : 'mock',
-        status: hasApiKey ? 'api' : 'mock',
+        mode: 'mock',
+        status: 'mock',
         reason: directReply.reason,
-        shouldConsume: hasApiKey || reservedAccountQuota
+        shouldConsume: false
       })
     );
     return;

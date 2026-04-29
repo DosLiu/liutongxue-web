@@ -6,6 +6,21 @@ const bufferCtor = globalThis.Buffer;
 const normalizeEnvValue = (value) => value?.trim() ?? "";
 const toIsoString = (date) => date.toISOString();
 const now = () => /* @__PURE__ */ new Date();
+const AUTH_CALLBACK_PATH = "/api/auth/callback";
+const normalizeAuthCallbackUrl = (value) => {
+  if (!value) {
+    return "";
+  }
+  try {
+    const url = new URL(value);
+    url.pathname = AUTH_CALLBACK_PATH;
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return "";
+  }
+};
 const encodeBase64Url = (value) => {
   const base64 = bufferCtor ? bufferCtor.from(value, "utf8").toString("base64") : btoa(unescape(encodeURIComponent(value)));
   return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -153,7 +168,7 @@ const getAuthConfig = () => {
   const connectUrl = normalizeEnvValue(env.DAEN_CONNECT_URL) || "https://u.daenwl.com/connect.php";
   const appId = normalizeEnvValue(env.DAEN_APP_ID);
   const appKey = normalizeEnvValue(env.DAEN_APP_KEY);
-  const callbackUrl = normalizeEnvValue(env.DAEN_AUTH_CALLBACK_URL);
+  const callbackUrl = normalizeAuthCallbackUrl(normalizeEnvValue(env.DAEN_AUTH_CALLBACK_URL));
   const enabledTypes = parseEnabledTypes(normalizeEnvValue(env.DAEN_ENABLED_TYPES) || "qq,baidu");
   const loginSuccessUrl = normalizeEnvValue(env.AUTH_LOGIN_SUCCESS_URL) || "/figures/";
   const logoutRedirectUrl = normalizeEnvValue(env.AUTH_LOGOUT_REDIRECT_URL) || "/figures/";
