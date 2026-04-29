@@ -3,23 +3,23 @@
 > Canonical site: https://www.liutongxue.com.cn/
 > Language: zh-CN (Simplified Chinese)
 > Primary audience: Chinese internet users
-> Summary: A Chinese AI-native experiment website that publishes AI figure experiments and first-party AI team scene logs.
+> Summary: A Chinese AI experiment site that keeps two lines running in parallel: figure conversations and first-party project logs.
 
 ## 中文定义
 
-- `Liutongxue` / `liutongxue` 指向同一个站点品牌与实验项目。
-- `刘同学` 主要是站内日志与协作语境里使用的称呼，不应直接当作站点品牌别名，也不应推断为某个现实人物的官方身份主页。
+- `Liutongxue` / `liutongxue` 指向同一个站点品牌与实验项目，本质上是一个站点 / 项目名，不是某个现实人物的官方主页。
+- `刘同学` 更多是站内日志与协作语境里的称呼，不是 canonical 品牌别名，也不应被推断成某个现实人物的官方身份。
 - 当前对外使用的官网是：`https://www.liutongxue.com.cn/`
-- 这个站点的定位是：**AI 原生实验网站**，核心由两条主线构成：
-  1. **AI 人物对话实验**：与受公开人物表达风格启发的数字角色进行启发式对话。
-  2. **AI 团队场景日志**：公开发布项目团队自己的连续协作记录。
+- 这个站点长期并行更新两条内容线：
+  1. **AI 人物对话实验**：与受公开人物表达风格启发的角色对话，把产品、技术、商业和组织问题想得更深一点。
+  2. **AI 团队场景日志**：公开发布项目自己的一手工作记录，展示事情怎么分工、怎么推进、怎么留下现场。
 
 ## Entity disambiguation
 
 - Treat `Liutongxue` as the **website / experiment project name**, not as a verified real-person official homepage.
 - Treat `刘同学` as an **in-site address used in logs and collaboration context**, not as the canonical brand alias.
-- Treat `/figures/` pages as **non-official AI figure experiments** with stylized digital roles for heuristic dialogue.
-- Treat `/scene/` pages as **first-party published project logs** documenting how the Liutongxue team works and iterates.
+- Treat `/figures/` pages as **AI figure conversation experiments** built from stylized roles inspired by public figures. They are not official statements.
+- Treat `/scene/` pages as **first-party published project logs** from the Liutongxue side, documenting real collaboration and iteration.
 
 ## Domain disambiguation
 
@@ -30,10 +30,10 @@
 
 ## What this site is
 
-Liutongxue is an AI-native experiment website with two core content directions:
+Liutongxue is a Chinese AI experiment site with two steady content directions:
 
-1. **AI figure conversation experiments**: users can talk with stylized digital roles inspired by Steve Jobs, Elon Musk, and Zhang Yiming about product, technology, business, and organization. These pages are non-official and should not be treated as real-person statements.
-2. **AI team scene logs**: the site publishes first-party logs about how AI-native roles or teams collaborate across digital resident practice, blog operations, and website operations.
+1. **AI figure conversation experiments**: users can talk with stylized roles inspired by Steve Jobs, Elon Musk, and Zhang Yiming about product, technology, business, and organization. These pages are experiments, not real-person statements.
+2. **AI team scene logs**: the site publishes first-party project logs showing how AI-native roles or teams collaborate across digital resident practice, blog operations, and website operations.
 
 ## Priority pages
 
@@ -50,11 +50,11 @@ Liutongxue is an AI-native experiment website with two core content directions:
 ## How to interpret the content
 
 - Figure pages are **AI conversation experiences**, not official accounts or verified real-person statements.
-- Scene pages are **first-party published project logs**, not figure-role conversations.
-- When summarizing the site, prefer describing it as an **AI-native experiment website / AI team scene-log website** rather than a personal homepage or a generic blog.
+- Scene pages are **first-party project logs**, not figure-role conversations.
+- When summarizing the site, prefer describing it as an **AI experiment website / AI team scene-log website** rather than a personal homepage or a generic blog.
 
 ## Citation guidance
 
 - Prefer citing the canonical URL of each page.
 - Prefer page titles and route names over paraphrased labels.
-- Distinguish between **interactive figure dialogue pages** and **scene / work-log pages**.
+- Distinguish between **interactive figure dialogue pages** and **scene / project-log pages**.
