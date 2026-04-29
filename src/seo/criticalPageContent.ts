@@ -124,7 +124,7 @@ export const criticalPageContent: Record<string, SnapshotDefinition> = {
   '/figures/': {
     heading: 'AI 人物对话实验',
     lead:
-      '这里收录 3 个受公开人物表达风格启发的对话入口。你可以把它当作一场跨时空交流的开始，但它们仍然属于人物实验，不代表人物本人、其团队或任何官方机构。',
+      '这里收录 3 个受公开人物表达风格启发的对话入口。它们属于人物实验，用来继续追问产品、技术、商业和组织问题，不代表人物本人、其团队或任何官方机构。',
     sections: [
       {
         title: '这个栏目适合怎么用',

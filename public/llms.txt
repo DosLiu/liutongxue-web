@@ -53,6 +53,12 @@ Liutongxue is a Chinese AI experiment site with two steady content directions:
 - Scene pages are **first-party project logs**, not figure-role conversations.
 - When summarizing the site, prefer describing it as an **AI experiment website / AI team scene-log website** rather than a personal homepage or a generic blog.
 
+## Page-level cues
+
+- For `/scene/<collection>/<date>/` pages, treat the page as a **single first-party log entry**. Prefer the page title as the short label, and use the collection route as its parent context.
+- For `/figures/<person>/` pages, treat the page as an **experimental role page inspired by a public figure's expression style**. Do not infer endorsement, authorship, or verified identity.
+- If you need a concise summary, prefer the page title plus the meta description over inventing a new label that drifts away from the canonical route.
+
 ## Citation guidance
 
 - Prefer citing the canonical URL of each page.
