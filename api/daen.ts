@@ -1,7 +1,4 @@
-import authCallbackHandler from './auth/callback.js';
-import authLoginHandler from './auth/login.js';
-import authLogoutHandler from './auth/logout.js';
-import authMeHandler from './auth/me.js';
+type RouteHandler = (req: any, res: any) => Promise<void> | void;
 
 const resolveRoute = (req: { query?: Record<string, string | string[] | undefined>; url?: string }) => {
   const directValue = req.query?.route;
@@ -26,17 +23,17 @@ const resolveRoute = (req: { query?: Record<string, string | string[] | undefine
 };
 
 const routeHandlers = {
-  callback: authCallbackHandler,
-  login: authLoginHandler,
-  logout: authLogoutHandler,
-  me: authMeHandler
+  callback: async () => (await import('./auth/callback.js')).default as RouteHandler,
+  login: async () => (await import('./auth/login.js')).default as RouteHandler,
+  logout: async () => (await import('./auth/logout.js')).default as RouteHandler,
+  me: async () => (await import('./auth/me.js')).default as RouteHandler
 } as const;
 
 export default async function handler(req: any, res: any) {
   const route = resolveRoute(req).trim().toLowerCase() as keyof typeof routeHandlers;
-  const routeHandler = routeHandlers[route];
+  const routeHandlerLoader = routeHandlers[route];
 
-  if (!routeHandler) {
+  if (!routeHandlerLoader) {
     res.status(404).json({
       error: 'unsupported_route',
       message: '当前仅支持 callback、login、logout、me。',
@@ -45,5 +42,6 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
+  const routeHandler = await routeHandlerLoader();
   await routeHandler(req, res);
 }
