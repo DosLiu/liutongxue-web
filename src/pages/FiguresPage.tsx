@@ -89,9 +89,9 @@ export default function FiguresPage() {
         <section className="figures-hero" aria-labelledby="figures-title">
           <div className="figures-hero__content">
             <h1 id="figures-title" className="figures-title">
-              AI 人物对话实验
+              顶级思维面对面
             </h1>
-            <p className="figures-subtitle">与 3 个受公开人物表达风格启发的数字角色展开启发式对话；非官方，仅用于产品、技术、商业与组织判断练习。</p>
+            <p className="figures-subtitle">与行业传奇，展开一场跨时空的深度对话</p>
             <p className="figures-auth-hint">先体验 5 次，登录后每日 10 次</p>
           </div>
 

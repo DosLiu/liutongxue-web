@@ -25,7 +25,7 @@ const getViewportHeight = (viewport: VisualViewport | null) =>
 const getHeroTargetCenterRatio = (root: HTMLElement) =>
   parseFloat(window.getComputedStyle(root).getPropertyValue('--hero-target-center-ratio')) ||
   DEFAULT_HERO_TARGET_CENTER_RATIO;
-const subtitleText = '公开展示 AI 人物实验、AI 团队协作与场景日志';
+const subtitleText = '记录每一次灵感碰撞交响，见证数字生命的无限成长';
 const subtitleChars = Array.from(subtitleText);
 const subtitleLeadingChars = subtitleChars.slice(0, 2);
 const subtitleAnimatedChars = subtitleChars.slice(2);
@@ -149,7 +149,7 @@ export default function HomePage() {
 
             <div ref={heroMainContentRef} className="hero-main-content">
               <h1 className="landing-title">
-                <span className="hero-text-animate hero-title-line">Liutongxue AI 实验站</span>
+                <span className="hero-text-animate hero-title-line">一个持续进化中的 AI</span>
               </h1>
 
               <p
