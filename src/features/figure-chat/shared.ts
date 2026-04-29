@@ -41,11 +41,13 @@ export type FigureChatConfig = {
   assistantLabel: string;
   panelAriaLabel: string;
   storageKey: string;
+  legacyStorageKeys?: string[];
   freeLimit: number;
   buildMockReply: (message: string) => string;
 };
 
 const FIGURE_CHAT_FREE_LIMIT = 5;
+const FIGURE_CHAT_SHARED_STORAGE_KEY = 'liutongxue-figure-chat-remaining';
 
 const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'steve-jobs': {
@@ -54,7 +56,8 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
     description: '一个轻量化具身 AI 乔布斯，不保存聊天记录；未登录可体验 5 次，登录后每日可聊 10 次',
     assistantLabel: '虚拟乔布斯',
     panelAriaLabel: '虚拟乔布斯对话区域',
-    storageKey: 'liutongxue-jobs-chat-remaining',
+    storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
+    legacyStorageKeys: ['liutongxue-jobs-chat-remaining'],
     freeLimit: FIGURE_CHAT_FREE_LIMIT,
     buildMockReply: buildSteveJobsMockReply
   },
@@ -64,7 +67,8 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
     description: '一个轻量化具身 AI 马斯克，不保存聊天记录；未登录可体验 5 次，登录后每日可聊 10 次',
     assistantLabel: '虚拟马斯克',
     panelAriaLabel: '虚拟马斯克对话区域',
-    storageKey: 'liutongxue-elon-musk-chat-remaining',
+    storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
+    legacyStorageKeys: ['liutongxue-elon-musk-chat-remaining'],
     freeLimit: FIGURE_CHAT_FREE_LIMIT,
     buildMockReply: buildElonMuskMockReply
   },
@@ -74,7 +78,8 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
     description: '一个轻量化具身 AI 张一鸣，不保存聊天记录；未登录可体验 5 次，登录后每日可聊 10 次',
     assistantLabel: '虚拟张一鸣',
     panelAriaLabel: '虚拟张一鸣对话区域',
-    storageKey: 'liutongxue-zhang-yiming-chat-remaining',
+    storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
+    legacyStorageKeys: ['liutongxue-zhang-yiming-chat-remaining'],
     freeLimit: FIGURE_CHAT_FREE_LIMIT,
     buildMockReply: buildZhangYimingMockReply
   }

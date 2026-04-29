@@ -11,6 +11,8 @@ const getStorage = () => (typeof window === 'undefined' ? null : window.localSto
 
 const getFigureChatDebugKey = (config: FigureChatConfig) => `${config.storageKey}-debug-unlimited`;
 const getFigureChatQuotaKey = (config: FigureChatConfig, subject?: string) => (subject ? `${config.storageKey}-${subject}` : config.storageKey);
+const getFigureChatLegacyQuotaKeys = (config: FigureChatConfig, subject?: string) =>
+  (config.legacyStorageKeys ?? []).map((key) => (subject ? `${key}-${subject}` : key));
 const clampFigureChatRemaining = (limit: number, value: number) => Math.min(limit, Math.max(0, value));
 
 const setDeveloperUnlimited = (config: FigureChatConfig, enabled: boolean) => {
@@ -53,13 +55,28 @@ const getStoredRemaining = (config: FigureChatConfig, limit = config.freeLimit, 
 
   const storageKey = getFigureChatQuotaKey(config, subject);
   const cached = storage.getItem(storageKey);
-  if (cached === null) {
-    storage.setItem(storageKey, String(limit));
-    return limit;
+  if (cached !== null) {
+    const parsed = Number.parseInt(cached, 10);
+    return Number.isNaN(parsed) ? limit : clampFigureChatRemaining(limit, parsed);
   }
 
-  const parsed = Number.parseInt(cached, 10);
-  return Number.isNaN(parsed) ? limit : clampFigureChatRemaining(limit, parsed);
+  const legacyValues = getFigureChatLegacyQuotaKeys(config, subject)
+    .map((legacyKey) => {
+      const value = storage.getItem(legacyKey);
+      if (value === null) return null;
+      const parsed = Number.parseInt(value, 10);
+      return Number.isNaN(parsed) ? null : clampFigureChatRemaining(limit, parsed);
+    })
+    .filter((value): value is number => value !== null);
+
+  const nextValue = legacyValues.length ? Math.min(...legacyValues) : limit;
+  storage.setItem(storageKey, String(nextValue));
+
+  for (const legacyKey of getFigureChatLegacyQuotaKeys(config, subject)) {
+    storage.removeItem(legacyKey);
+  }
+
+  return nextValue;
 };
 
 export const setFigureChatStoredRemaining = (config: FigureChatConfig, value: number, limit = config.freeLimit, subject?: string) => {
