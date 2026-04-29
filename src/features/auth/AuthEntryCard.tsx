@@ -86,7 +86,7 @@ export default function AuthEntryCard() {
 
     const loadAuthState = async () => {
       try {
-        const response = await fetch('/api/daen?route=me', {
+        const response = await fetch('/api/auth/me', {
           credentials: 'include',
           headers: {
             Accept: 'application/json'
