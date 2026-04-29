@@ -279,7 +279,15 @@ const requestDaenLoginUrl = async (loginType, returnTo) => {
     throw new Error(payload.msg || "daen_login_failed");
   }
   return {
+    loginUrl: payload.url,
     payload,
+    statePayload
+  };
+};
+const buildDaenLoginRedirect = (loginType, returnTo) => {
+  const { loginRequestUrl, statePayload } = buildDaenLoginRequest(loginType, returnTo);
+  return {
+    loginUrl: loginRequestUrl,
     statePayload
   };
 };
@@ -404,6 +412,7 @@ export {
   buildClearedStateCookie,
   buildConfigErrorMessage,
   buildDaenLoginRequest,
+  buildDaenLoginRedirect,
   buildLogoutRedirectUrl,
   buildPostAuthRedirectUrl,
   buildSessionCookie,

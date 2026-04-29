@@ -397,7 +397,17 @@ export const requestDaenLoginUrl = async (loginType: string, returnTo?: string) 
   }
 
   return {
+    loginUrl: payload.url,
     payload,
+    statePayload
+  };
+};
+
+export const buildDaenLoginRedirect = (loginType: string, returnTo?: string) => {
+  const { loginRequestUrl, statePayload } = buildDaenLoginRequest(loginType, returnTo);
+
+  return {
+    loginUrl: loginRequestUrl,
     statePayload
   };
 };
