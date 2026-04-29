@@ -1,4 +1,3 @@
-import { request as httpsRequest } from "node:https";
 import { buildSetCookie, getCookieHeader, isSecureRequest, parseCookies } from "./http.js";
 const env = globalThis.process?.env ?? {};
 const textEncoder = new TextEncoder();
@@ -126,44 +125,34 @@ const parseJsonText = (text) => {
     throw new Error("invalid_json_response");
   }
 };
-const requestJson = (url) => new Promise((resolve, reject) => {
-  const target = new URL(url);
-  const req = httpsRequest(
-    target,
-    {
+const requestJson = async (url) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3e4);
+  try {
+    const response = await fetch(url, {
+      method: "GET",
       headers: {
         Accept: "application/json",
         "User-Agent": "liutongxue-web/1.0"
       },
-      method: "GET"
-    },
-    (res) => {
-      const chunks = [];
-      res.on("data", (chunk) => {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-      });
-      res.on("end", () => {
-        const text = Buffer.concat(chunks).toString("utf8");
-        if ((res.statusCode ?? 500) < 200 || (res.statusCode ?? 500) >= 300) {
-          reject(new Error(`upstream_http_${res.statusCode ?? 500}:${text.slice(0, 200)}`));
-          return;
-        }
-        try {
-          resolve(parseJsonText(text));
-        } catch (error) {
-          reject(error);
-        }
-      });
+      cache: "no-store",
+      redirect: "follow",
+      signal: controller.signal
+    });
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(`upstream_http_${response.status}:${text.slice(0, 200)}`);
     }
-  );
-  req.on("error", (error) => {
-    reject(error);
-  });
-  req.setTimeout(15e3, () => {
-    req.destroy(new Error("upstream_timeout"));
-  });
-  req.end();
-});
+    return parseJsonText(text);
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("upstream_timeout");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
 const getAuthConfig = () => {
   const connectUrl = normalizeEnvValue(env.DAEN_CONNECT_URL) || "https://u.daenwl.com/connect.php";
   const appId = normalizeEnvValue(env.DAEN_APP_ID);

@@ -1,4 +1,4 @@
-import { buildConfigErrorMessage, buildDaenLoginRedirect, buildStateCookie, getAuthConfig, resolveLoginType } from '../_lib/auth.js';
+import { buildConfigErrorMessage, buildStateCookie, getAuthConfig, requestDaenLoginUrl, resolveLoginType } from '../_lib/auth.js';
 import { applyCors, handleOptionsRequest, json, methodNotAllowed, redirect } from '../_lib/http.js';
 const getReturnTo = (req) => {
     const directValue = req.query?.return_to;
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
         return;
     }
     try {
-        const { loginUrl, statePayload } = buildDaenLoginRedirect(loginTypeResult.loginType, getReturnTo(req));
+        const { loginUrl, statePayload } = await requestDaenLoginUrl(loginTypeResult.loginType, getReturnTo(req));
         const stateCookie = await buildStateCookie(statePayload, req);
         redirect(res, 302, loginUrl, [stateCookie]);
     }
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
         json(res, 502, {
             error: 'daen_login_failed',
             loginType: loginTypeResult.loginType,
-            message: error instanceof Error ? error.message : '大恩登录地址构建失败。',
+            message: error instanceof Error ? error.message : '大恩登录地址获取失败。',
             provider: 'daen'
         });
     }
