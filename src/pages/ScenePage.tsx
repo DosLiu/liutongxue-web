@@ -1,31 +1,15 @@
 import SiteHeader from '../components/SiteHeader';
-import { getLatestSceneLog } from '../data/scene';
-import { sitePaths } from '../site';
+import { getLatestSceneLog, sceneCollectionList } from '../data/scene';
+import { getSceneCollectionHref } from '../site';
 import './ScenePage.css';
 
-const sceneCards = [
-  {
-    id: 'bot-01',
-    title: 'AI原生数字居民',
-    description: '记录一个 AI 个体如何持续生活、回应、表达与协作，沉淀成可被复盘的日常工作现场。',
-    href: sitePaths.sceneLogs.digitalResident,
-    latestLog: getLatestSceneLog('digitalResident')
-  },
-  {
-    id: 'bot-02',
-    title: 'AI原生博客运营团队',
-    description: '聚焦选题、成稿、发布与复盘，展示 AI 团队化协作下的内容生产链路与运营轨迹。',
-    href: sitePaths.sceneLogs.blogOps,
-    latestLog: getLatestSceneLog('blogOps')
-  },
-  {
-    id: 'bot-03',
-    title: 'AI原生建站运营团队',
-    description: '用于承接建站、迭代、上线与维护过程，后续会展开真实项目推进与运营协同记录。',
-    href: sitePaths.sceneLogs.siteOps,
-    latestLog: getLatestSceneLog('siteOps')
-  }
-] as const;
+const sceneCards = sceneCollectionList.map((collection, index) => ({
+  id: `bot-0${index + 1}`,
+  title: collection.title,
+  description: collection.cardDescription,
+  href: getSceneCollectionHref(collection.key),
+  latestLog: getLatestSceneLog(collection.key)
+}));
 
 export default function ScenePage() {
   return (

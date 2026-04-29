@@ -1,10 +1,12 @@
-import { sitePaths } from '../../site';
 import type { SceneLogCollection } from './types';
 
-export const siteOpsSceneLogCollection: SceneLogCollection = {
+const siteOpsSceneLogCollection: SceneLogCollection = {
   key: 'siteOps',
   title: 'AI原生建站运营团队',
   subtitle: '公开记录 AI 原生建站运营团队在建站、迭代、上线与维护中的协作日志。',
+  cardDescription: '用于承接建站、迭代、上线与维护过程，后续会展开真实项目推进与运营协同记录。',
+  seoTitle: 'Liutongxue · AI 原生建站运营团队工作日志',
+  seoDescription: '这里记录建站团队怎样把首页、仓库、迭代与上线一步步往前推，也把关键判断和重开节点留在现场。',
   logs: [
     {
       id: 'site-ops-2026-04-04-repo-cleared-home-new-start',
@@ -13,17 +15,9 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
       preview: '旧版本不再硬修，仓库直接清空，首页从一个更适合继续推进的新底板重新接上。',
       summary:
         '2026-04-04 这篇日志记录的重点，是在确认旧版本不值得继续修之后，直接清空 GitHub 仓库、放下旧包袱，并把首页和后续建站推进切换到一个更适合继续往上加内容与功能的新起点。',
-      detailHref: sitePaths.sceneLogDetails.siteOpsFourth,
       detailTitle: '代码仓库清空之后，首页换了一个起点',
-      detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsFourth}cover.webp`,
-      detailImageAlt: '仓库清空后以新首页底板重新起步的配图',
-      detailImageCaption: '',
-      detailContent: [
-        '前一版做到这里，已经判断不值得再继续修了。页面结构、表达方式和后续扩展都不顺，越往后补，成本只会越高。liutongxue 没有让团队继续在旧版本上反复打补丁，而是把话说清楚：旧版本作废，方向重开。',
-        '这一步没有留模糊空间，GitHub 仓库清空。意思也很直接：不再背着旧包袱往前拖，也不给“先凑合做着”的路径继续占资源。对小团队来说，及时止损比勉强往前推更重要，不然时间和人力都会被旧问题慢慢吃掉。',
-        '清空之后，重点不是回头争论哪里做错了，而是尽快找到一个更适合继续推进的底板。这里说的底板，就是后面还能稳定往上加页面、内容和功能的基础版本。新起点一旦找对，后面的开发节奏才有可能重新顺下来。',
-        '后续工作也就从这个新起点重新接上。liutongxue 负责把判断收口，把团队重新拉回同一条线上：先把基础框架站稳，再往里加业务内容和运营动作。对 site-ops 来说，这一步不是单纯推倒重来，而是把方向校正之后，再继续往前。'
-      ]
+      seoTitle: 'Liutongxue · AI原生建站运营团队：旧仓清空与基线重建',
+      seoDescription: '记录 AI 原生建站运营团队清空旧仓库、重置首页起点并重建推进基线的一次更新。'
     },
     {
       id: 'site-ops-2026-04-03-home-reset-stable-baseline',
@@ -32,17 +26,9 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
       preview: '先把旧内容清掉，从零重开首页首屏，再把主预览收回到能稳定打开、能继续往前推的基线。',
       summary:
         '2026-04-03 这次记录的重点，是按“从零重开”的方式把首页重新往前推，先收住方向、稳住首屏重心，再用更稳的 CSS 氛围背景换回一个能正常打开的主预览基线。',
-      detailHref: sitePaths.sceneLogDetails.siteOpsThird,
       detailTitle: '首页重新有了一个能继续往前推的起点',
-      detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsThird}cover.webp`,
-      detailImageAlt: '首页主屏预览图',
-      detailImageCaption: '',
-      detailContent: [
-        '这一轮没有沿着旧版本继续修，而是先把旧预览和旧站内容清掉，按“从零重开”的方式把首页重新往前推。liutongxue 先把方向收住：这一步不急着追求更满、更像，而是先让首页重新回到一个能接着做事的起点上。对 AI原生建站运营团队来说，这比在旧问题上来回补洞更重要。',
-        '在这个前提下，首页先落了一版 composio 首屏 v1，接着又连续两次把左右两侧的氛围扫光往里收。调整的重点不是做更多东西，而是把主画面的重心重新稳住，让人一打开就能看清首页到底想先呈现什么。liutongxue 在这里更像是在带节奏和收边界，先把该留下的画面留下，把容易分散注意力的部分往后退。',
-        '到最后，为了让主预览先稳定可开，又把原先容易出问题的 WebGL 依赖拿掉，改成了更稳的 CSS 氛围背景。这样做的代价也很清楚：两侧动态区没有之前那么“冲”，和原来想追的效果也没那么近了。但换回来的是主预览重新恢复到能打开、能看、首屏能正常渲染的状态，GitHub Pages 主入口也能直接访问。',
-        '这件事值得记下来，不是因为又改完了一版首页，而是因为这轮首页仿站终于从“旧版本作废、方向重开”往前推进到了“先有一个稳定基线”。仓库里也因此留下了从清空重来，到稳定收口的一整条提交链。连协作上的偏好也顺手补记了一条：本地调试如果调用了 Chrome，用完要关闭，避免继续占内存。后面如果还要继续往更像原站的方向细抠，也已经不是在一个随时会炸的版本上硬修，而是在一个已经能正常打开的主预览上继续往前推。'
-      ]
+      seoTitle: 'Liutongxue · AI原生建站运营团队：首页首屏重开',
+      seoDescription: '记录 AI 原生建站运营团队从零重开首页首屏、收回稳定预览基线的一次更新。'
     },
     {
       id: 'site-ops-2026-04-02-home-running-system',
@@ -51,17 +37,9 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
       preview: '先立住首页原型 v1，再把首页重写成“运行中系统展示”，让主结构、模块顺序和后续迭代位置都清楚下来。',
       summary:
         '2026-04-02 这次记录的重点，是先把首页原型 v1 搭出来，再完成一轮面向“运行中系统展示”的整体重写，让 Hero、运行状态区、工作流区、演示卡片和更新中心作为首页主骨架稳定落位。',
-      detailHref: sitePaths.sceneLogDetails.siteOpsSecond,
       detailTitle: '首页开始像一个在运行的系统',
-      detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsSecond}cover.webp`,
-      detailImageAlt: '首页底板搭建场景图',
-      detailImageCaption: '',
-      detailContent: [
-        '这一轮先把首页原型 v1 搭出来，目的不是先追求完整，而是先把首页从空白状态推进到可看、可讲、可继续改的阶段。对 AI 原生建站运营团队来说，首页不能一直停在想法层，先有一个能打开、能演示的原型，后面的判断才有落点。',
-        '在原型 v1 立住之后，liutongxue 又把首页整体重写了一轮。这次重写，不是零碎补样式，而是把首页的节奏重新收了一遍：从普通介绍页，转向“运行中系统展示”——也就是让人一眼看到这个团队现在怎么运转、有哪些部分已经在工作，而不只是看一堆空泛介绍。这里的重点，不只是写页面，更是先把首页该承接什么信息、先后顺序怎么排，重新定清。',
-        '现在首页主结构已经基本立住，核心模块也已经摆出来：Hero（第一页最先看到的主画面）、运行状态区、工作流区、演示卡片和更新中心。这五块内容放进去之后，首页就不再像一张占位稿，而更像一个已经有主骨架的前台。后面无论继续补文案、接真实数据，还是往里加交互，都已经有明确位置，不用再反复重想首页该怎么长。',
-        '这件事值得记下来，是因为这次推进解决的不是一点局部修改，而是把首页第一版骨架和第二轮方向修正一起做完了。liutongxue 在这里更像一个把方向、结构和协作顺序先收住的协调者：先把底板定出来，再让后续内容、数据和开发往这个底板上接。做到这一步，首页已经从“先放一个页面在那里”往前走到了“可以持续迭代的首页底板”。'
-      ]
+      seoTitle: 'Liutongxue · AI原生建站运营团队：首页原型与骨架重写',
+      seoDescription: '记录 AI 原生建站运营团队完成首页原型搭建、并重写首页主骨架的一次更新。'
     },
     {
       id: 'site-ops-2026-04-01-team-roles-and-handoff-chain',
@@ -70,17 +48,11 @@ export const siteOpsSceneLogCollection: SceneLogCollection = {
       preview: '先把开发、文案、视觉、优化、测试这些位置收住，让团队从单点推进走到能互相接力的协作状态。',
       summary:
         '2026-04-01 这篇日志记录的重点，是 AI 原生建站运营团队先把成员位置、职责分工和前后衔接的协作链路定清，让首页、内容、设计、测试这些后续动作有了稳定承接顺序。',
-      detailHref: sitePaths.sceneLogDetails.siteOpsFirst,
       detailTitle: '团队开始接得起来了',
-      detailImageSrc: `${sitePaths.sceneLogDetails.siteOpsFirst}cover.webp`,
-      detailImageAlt: '团队分工协作场景图',
-      detailImageCaption: '',
-      detailContent: [
-        '这一轮真正定下来的，不只是现在这套协作成员都已经到位，而是 AI 原生建站运营团队开始有了完整的工作面。开发、文案、视觉、优化、测试这些位置陆续收拢到同一条线上，团队从原来偏单点推进的状态，往前走到可以互相接力的状态。人齐本身不算完成，能不能开始稳定承接后面的首页、内容和交付，关键还是看这些位置有没有真正落住。',
-        '这次更重要的一步，是把分工定清，把协作链路（前后怎么接、谁接谁）先收住。开发负责实现和落地，文案负责表达和信息说清，视觉负责页面层次和观感，优化负责后续搜索入口，测试负责把问题拦在上线前面。这样分，不是为了把事情拆得更复杂，而是为了让每一段工作都有人接、有人交、有人往下传。链路一旦定下来，后面的修改就不容易反复打架，团队也不需要每推进一步都重新讨论一次“这该谁来做”。',
-        '在这个过程中，liutongxue 的位置也开始明确下来。这里更像一个领导者和协调者，而不是把所有动作都亲自做完的人。先把人收住，把分工收住，把协作顺序收住，再让不同环节各自往前推，这比单次把一件事硬做完更重要。因为首页能不能持续迭代，文案能不能顺着结构接上，设计和测试能不能及时补位，靠的不是某一个人多扛一点，而是有没有一个稳定的推进次序。',
-        '这件事值得记下来，是因为它把团队从“已经有一些人”推进到了“已经有一套能往前走的配合方式”。后面首页 V1 的搭建、页面文案的承接、视觉调整、问题检查，之所以能顺着往下接，基础都在这里先铺好了。对做生意的人来说，这一步很实在：团队真正开始成型，不是从人数变多开始，而是从分工清楚、接力顺畅、事情可以一段一段交出去开始。'
-      ]
+      seoTitle: 'Liutongxue · AI原生建站运营团队：成员位置与协作链路',
+      seoDescription: '记录 AI 原生建站运营团队明确成员位置、职责分工与协作链路的一次更新。'
     }
   ]
 };
+
+export default siteOpsSceneLogCollection;

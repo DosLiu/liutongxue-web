@@ -29,19 +29,27 @@ const stripBaseUrl = (pathname: string, baseUrl: string) => {
   return normalizedPath;
 };
 
-const normalizeRoutePath = (pathname: string, baseUrl = import.meta.env.BASE_URL) => {
+const normalizeRoutePath = (pathname: string, baseUrl = '/') => {
   const stripped = stripBaseUrl(pathname, baseUrl).replace(/\/+$/, '') || '/';
   return stripped === '/' ? '/' : `${stripped}/`;
 };
 
-export const resolveSceneLogCollectionRoute = (pathname: string, baseUrl = import.meta.env.BASE_URL) => {
+export const getSceneCollectionPath = (sceneKey: SceneLogKey) => `/scene/${sceneRouteSegments[sceneKey]}/`;
+
+export const getSceneDetailPath = (sceneKey: SceneLogKey, publishedAt: string) =>
+  `${getSceneCollectionPath(sceneKey)}${publishedAt}/`;
+
+export const getSceneDetailCoverPath = (sceneKey: SceneLogKey, publishedAt: string) =>
+  `${getSceneDetailPath(sceneKey, publishedAt)}cover.webp`;
+
+export const resolveSceneLogCollectionRoute = (pathname: string, baseUrl = '/') => {
   const match = normalizeRoutePath(pathname, baseUrl).match(/^\/scene\/([^/]+)\/$/);
   const sceneKey = match ? sceneRouteSegmentLookup[match[1]] : null;
 
   return sceneKey ? { sceneKey } : null;
 };
 
-export const resolveSceneLogDetailRoute = (pathname: string, baseUrl = import.meta.env.BASE_URL) => {
+export const resolveSceneLogDetailRoute = (pathname: string, baseUrl = '/') => {
   const match = normalizeRoutePath(pathname, baseUrl).match(/^\/scene\/([^/]+)\/(\d{4}-\d{2}-\d{2})\/$/);
   const sceneKey = match ? sceneRouteSegmentLookup[match[1]] : null;
 

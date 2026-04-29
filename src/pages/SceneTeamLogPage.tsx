@@ -1,20 +1,18 @@
 import { useState } from 'react';
 import SiteHeader from '../components/SiteHeader';
-import { getSceneLogs, sceneLogCollections, type SceneLogKey } from '../data/scene';
+import { getSceneDetailPath, type SceneLogCollection } from '../data/scene';
 import './ScenePage.css';
 
 type SceneTeamLogPageProps = {
-  sceneKey: SceneLogKey;
+  collection: SceneLogCollection;
 };
 
 const LOGS_PER_PAGE = 4;
 
-export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
-  const pageData = sceneLogCollections[sceneKey];
-  const logs = getSceneLogs(sceneKey);
-  const totalPages = Math.max(1, Math.ceil(logs.length / LOGS_PER_PAGE));
+export default function SceneTeamLogPage({ collection }: SceneTeamLogPageProps) {
+  const totalPages = Math.max(1, Math.ceil(collection.logs.length / LOGS_PER_PAGE));
   const [currentPage, setCurrentPage] = useState(1);
-  const currentLogs = logs.slice((currentPage - 1) * LOGS_PER_PAGE, currentPage * LOGS_PER_PAGE);
+  const currentLogs = collection.logs.slice((currentPage - 1) * LOGS_PER_PAGE, currentPage * LOGS_PER_PAGE);
 
   return (
     <>
@@ -30,7 +28,7 @@ export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
         <div className="scene-log-shell scene-log-shell--resident">
           <section className="scene-log-hero" aria-labelledby="scene-log-title">
             <h1 id="scene-log-title" className="scene-log-title scene-log-title--single">
-              {pageData.title}
+              {collection.title}
             </h1>
           </section>
 
@@ -46,19 +44,11 @@ export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
             <ol className="scene-log-timeline__list">
               {currentLogs.map((log) => (
                 <li key={log.id} className="scene-log-timeline__item scene-log-timeline__item--plain">
-                  {log.detailHref ? (
-                    <a href={log.detailHref} className="scene-log-timeline__card scene-log-timeline__card--link">
-                      <p className="scene-log-timeline__date">{log.publishedAt}</p>
-                      <h3 className="scene-log-timeline__title">{log.title}</h3>
-                      <p className="scene-log-timeline__text">{log.preview}</p>
-                    </a>
-                  ) : (
-                    <article className="scene-log-timeline__card">
-                      <p className="scene-log-timeline__date">{log.publishedAt}</p>
-                      <h3 className="scene-log-timeline__title">{log.title}</h3>
-                      <p className="scene-log-timeline__text">{log.preview}</p>
-                    </article>
-                  )}
+                  <a href={getSceneDetailPath(collection.key, log.publishedAt)} className="scene-log-timeline__card scene-log-timeline__card--link">
+                    <p className="scene-log-timeline__date">{log.publishedAt}</p>
+                    <h3 className="scene-log-timeline__title">{log.title}</h3>
+                    <p className="scene-log-timeline__text">{log.preview}</p>
+                  </a>
                 </li>
               ))}
             </ol>
