@@ -30,7 +30,7 @@ export default function SceneTeamLogPage({ sceneKey }: SceneTeamLogPageProps) {
         <div className="scene-log-shell scene-log-shell--resident">
           <section className="scene-log-hero" aria-labelledby="scene-log-title">
             <h1 id="scene-log-title" className="scene-log-title scene-log-title--single">
-              {pageData.title}
+              {pageData.title}工作日志
             </h1>
           </section>
 

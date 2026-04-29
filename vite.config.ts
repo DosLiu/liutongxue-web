@@ -55,6 +55,12 @@ const buildAbsoluteUrl = (siteUrl: string, pathname: string) => {
 const extractTagContent = (html: string, pattern: RegExp) => html.match(pattern)?.[1]?.trim() || '';
 const stripSitePrefix = (title: string) => title.replace(/^Liutongxue\s*·\s*/, '').trim();
 
+const figureBreadcrumbTitles: Record<string, string> = {
+  'steve-jobs': 'AI 乔布斯人物对话实验',
+  'elon-musk': 'AI 马斯克人物对话实验',
+  'zhang-yiming': 'AI 张一鸣人物对话实验'
+};
+
 const sceneCollectionStructuredData: Record<
   string,
   {
@@ -208,6 +214,52 @@ const createSceneDetailStructuredData = (pathname: string, absoluteUrl: string, 
   };
 };
 
+const createBreadcrumbStructuredData = (pathname: string, absoluteUrl: string, title: string) => {
+  const items: Array<{ name: string; item: string }> = [{ name: 'Liutongxue 首页', item: `${canonicalSiteUrl}/` }];
+  const figureMatch = pathname.match(/^\/figures\/([^/]+)\/$/);
+  const sceneCollectionMatch = pathname.match(/^\/scene\/([^/]+)\/$/);
+  const sceneDetailMatch = pathname.match(/^\/scene\/([^/]+)\/(\d{4}-\d{2}-\d{2})\/$/);
+
+  if (pathname === '/figures/') {
+    items.push({ name: 'AI 人物对话实验', item: absoluteUrl });
+  } else if (figureMatch) {
+    items.push({ name: 'AI 人物对话实验', item: `${canonicalSiteUrl}/figures/` });
+    items.push({ name: figureBreadcrumbTitles[figureMatch[1]] ?? (stripSitePrefix(title) || title), item: absoluteUrl });
+  } else if (pathname === '/scene/') {
+    items.push({ name: 'AI 团队场景日志', item: absoluteUrl });
+  } else if (sceneDetailMatch) {
+    const collectionMeta = sceneCollectionStructuredData[sceneDetailMatch[1]];
+
+    if (collectionMeta) {
+      items.push({ name: 'AI 团队场景日志', item: `${canonicalSiteUrl}/scene/` });
+      items.push({ name: collectionMeta.collectionTitle, item: buildAbsoluteUrl(canonicalSiteUrl, collectionMeta.collectionPath) });
+      items.push({ name: stripSitePrefix(title) || title, item: absoluteUrl });
+    }
+  } else if (sceneCollectionMatch) {
+    const collectionMeta = sceneCollectionStructuredData[sceneCollectionMatch[1]];
+
+    if (collectionMeta) {
+      items.push({ name: 'AI 团队场景日志', item: `${canonicalSiteUrl}/scene/` });
+      items.push({ name: collectionMeta.collectionTitle, item: absoluteUrl });
+    }
+  }
+
+  if (items.length < 2) {
+    return null;
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.item
+    }))
+  };
+};
+
 const injectRootSnapshot = (html: string, pathname: string) => {
   const snapshotHtml = renderCriticalPageSnapshot(pathname);
 
@@ -252,6 +304,7 @@ export default defineConfig({
         const description = extractTagContent(html, /<meta\s+name=["']description["']\s+content=["']([\s\S]*?)["']\s*\/?>/i);
         const sceneDetailStructuredData = createSceneDetailStructuredData(canonicalPath, absoluteUrl, title, description);
         const sceneCollectionItemListStructuredData = createSceneCollectionItemListStructuredData(canonicalPath);
+        const breadcrumbStructuredData = createBreadcrumbStructuredData(canonicalPath, absoluteUrl, title);
         const criticalPageFaqStructuredData =
           pathname === '/' ? null : createCriticalPageFaqStructuredData(pathname, absoluteUrl);
         const htmlWithSnapshot = injectRootSnapshot(html, pathname);
@@ -374,6 +427,18 @@ export default defineConfig({
                       type: 'application/ld+json'
                     },
                     children: JSON.stringify(sceneCollectionItemListStructuredData, null, 2),
+                    injectTo: 'head' as const
+                  }
+                ]
+              : []),
+            ...(breadcrumbStructuredData
+              ? [
+                  {
+                    tag: 'script',
+                    attrs: {
+                      type: 'application/ld+json'
+                    },
+                    children: JSON.stringify(breadcrumbStructuredData, null, 2),
                     injectTo: 'head' as const
                   }
                 ]

@@ -353,6 +353,8 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
               {config.title}
             </h1>
             <p className="jobs-chat-subtitle">{config.description}</p>
+            <p className="jobs-chat-notice">{config.notice}</p>
+            <p className="jobs-chat-quota-hint">{config.quotaHint}</p>
           </section>
 
           <section className="jobs-chat-panel" aria-label={config.panelAriaLabel}>

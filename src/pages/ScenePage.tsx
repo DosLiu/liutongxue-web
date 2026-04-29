@@ -42,8 +42,9 @@ export default function ScenePage() {
           <section className="scene-hero" aria-labelledby="scene-title">
             <div className="scene-hero__glow" aria-hidden="true" />
             <div className="scene-hero__content">
-              <h1 id="scene-title" className="scene-title">案发现场</h1>
-              <p className="scene-subtitle">这里汇总 3 个 AI 原生角色 / 团队的真实工作日志与协作现场。</p>
+              <p className="scene-kicker">Liutongxue / 第一方公开记录</p>
+              <h1 id="scene-title" className="scene-title">AI 团队场景日志</h1>
+              <p className="scene-subtitle">这里汇总 Liutongxue 公开发布的 3 组 AI 原生角色 / 团队协作记录，方便理解这个实验项目如何持续推进。</p>
             </div>
           </section>
 

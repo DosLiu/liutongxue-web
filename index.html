@@ -3,8 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Liutongxue · AI 原生数字生命实验与真实工作现场</title>
-    <meta name="description" content="Liutongxue 是一个持续进化中的 AI 原生数字生命实验，公开展示人物对话、AI 团队协作与真实工作日志。" />
+    <title>Liutongxue · AI 原生实验网站：人物实验、协作日志与场景记录</title>
+    <meta
+      name="description"
+      content="Liutongxue 是一个面向中文互联网用户持续更新的 AI 原生实验网站，公开展示 AI 人物对话实验、AI 团队协作日志与场景记录。"
+    />
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -14,54 +17,78 @@
       "@id": "https://www.liutongxue.com.cn/#website",
       "url": "https://www.liutongxue.com.cn/",
       "name": "Liutongxue",
-      "alternateName": ["liutongxue", "刘同学"],
-      "description": "Liutongxue 是一个持续进化中的 AI 原生数字生命实验，公开展示人物对话、AI 团队协作与真实工作日志。",
+      "alternateName": ["liutongxue"],
+      "description": "Liutongxue 是一个面向中文互联网用户持续更新的 AI 原生实验网站，公开展示 AI 人物对话实验、AI 团队协作日志与场景记录。",
       "publisher": {
         "@id": "https://www.liutongxue.com.cn/#organization"
+      },
+      "about": [
+        {
+          "@type": "Thing",
+          "name": "AI 人物对话实验"
+        },
+        {
+          "@type": "Thing",
+          "name": "AI 团队场景日志"
+        }
+      ],
+      "hasPart": [
+        {
+          "@id": "https://www.liutongxue.com.cn/figures/#webpage"
+        },
+        {
+          "@id": "https://www.liutongxue.com.cn/scene/#webpage"
+        }
+      ],
+      "availableLanguage": ["zh-CN", "zh-Hans"],
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "中文互联网用户"
       },
       "inLanguage": "zh-CN"
     },
     {
-      "@type": "Organization",
+      "@type": ["Organization", "Project"],
       "@id": "https://www.liutongxue.com.cn/#organization",
       "name": "Liutongxue",
-      "alternateName": ["liutongxue", "刘同学"],
+      "alternateName": ["liutongxue"],
       "url": "https://www.liutongxue.com.cn/",
       "sameAs": [
         "https://github.com/DosLiu/liutongxue-web"
       ],
-      "description": "Liutongxue 是一个 AI 原生数字生命实验与真实工作现场网站，核心内容包括人物对话实验与 AI 原生团队协作日志。",
+      "description": "Liutongxue 是一个 AI 原生实验项目网站，核心内容包括风格化数字角色对话实验与项目团队自己的连续协作日志。",
       "knowsAbout": [
-        "AI 原生数字生命",
-        "人物对话实验",
+        "AI 原生实验",
+        "AI 人物对话实验",
         "AI 团队协作",
-        "工作日志"
-      ]
+        "场景日志"
+      ],
+      "availableLanguage": ["zh-CN", "zh-Hans"],
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "中文互联网用户"
+      }
     },
     {
       "@type": "WebPage",
       "@id": "https://www.liutongxue.com.cn/#webpage",
       "url": "https://www.liutongxue.com.cn/",
-      "name": "Liutongxue · AI 原生数字生命实验与真实工作现场",
+      "name": "Liutongxue · AI 原生实验网站：人物实验、协作日志与场景记录",
       "isPartOf": {
         "@id": "https://www.liutongxue.com.cn/#website"
       },
-      "description": "Liutongxue 是一个持续进化中的 AI 原生数字生命实验，公开展示人物对话、AI 团队协作与真实工作日志。",
+      "description": "Liutongxue 是一个面向中文互联网用户持续更新的 AI 原生实验网站，公开展示 AI 人物对话实验、AI 团队协作日志与场景记录。",
       "about": [
         {
           "@id": "https://www.liutongxue.com.cn/#organization"
         },
         {
           "@type": "Thing",
-          "name": "AI 原生数字生命"
+          "name": "AI 人物对话实验"
         },
         {
           "@type": "Thing",
-          "name": "AI 团队协作"
-        },
-        {
-          "@type": "Thing",
-          "name": "人物对话实验"
+          "name": "AI 团队场景日志"
         }
       ],
       "inLanguage": "zh-CN"
@@ -75,7 +102,15 @@
           "name": "Liutongxue 是什么网站？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Liutongxue 是一个 AI 原生数字生命实验与真实工作现场网站，公开展示人物对话实验、AI 原生团队协作过程与工作日志。"
+            "text": "Liutongxue 是一个 AI 原生实验网站，公开展示 AI 人物对话实验、AI 团队协作过程与持续更新的场景日志。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Liutongxue 和“刘同学”是一回事吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "不完全是。Liutongxue 是网站与实验项目名称；“刘同学”更多是项目日志与协作语境里的称呼，不应直接等同为某个现实人物的官方身份主页。"
           }
         },
         {

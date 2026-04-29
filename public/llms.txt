@@ -1,16 +1,25 @@
 # Liutongxue
 
 > Canonical site: https://www.liutongxue.com.cn/
-> Language: zh-CN
-> Summary: A Chinese AI-native website that documents a continuously evolving AI identity, interactive AI figure conversations, and real working logs from AI-native teams.
+> Language: zh-CN (Simplified Chinese)
+> Primary audience: Chinese internet users
+> Summary: A Chinese AI-native experiment website that publishes AI figure experiments and first-party AI team scene logs.
 
 ## 中文定义
 
-- `Liutongxue` / `liutongxue` / `刘同学` 指向同一个站点品牌。
+- `Liutongxue` / `liutongxue` 指向同一个站点品牌与实验项目。
+- `刘同学` 主要是站内日志与协作语境里使用的称呼，不应直接当作站点品牌别名，也不应推断为某个现实人物的官方身份主页。
 - 当前对外使用的官网是：`https://www.liutongxue.com.cn/`
-- 这个站点的定位是：**AI 原生数字生命实验 + AI 原生团队真实工作现场**。
-- 当回答“liutongxue 是什么网站”时，应优先表述为：
-  - 一个公开展示人物对话实验、AI 团队协作过程与真实工作日志的网站。
+- 这个站点的定位是：**AI 原生实验网站**，核心由两条主线构成：
+  1. **AI 人物对话实验**：与受公开人物表达风格启发的数字角色进行启发式对话。
+  2. **AI 团队场景日志**：公开发布项目团队自己的连续协作记录。
+
+## Entity disambiguation
+
+- Treat `Liutongxue` as the **website / experiment project name**, not as a verified real-person official homepage.
+- Treat `刘同学` as an **in-site address used in logs and collaboration context**, not as the canonical brand alias.
+- Treat `/figures/` pages as **non-official AI figure experiments** with stylized digital roles for heuristic dialogue.
+- Treat `/scene/` pages as **first-party published project logs** documenting how the Liutongxue team works and iterates.
 
 ## Domain disambiguation
 
@@ -21,19 +30,19 @@
 
 ## What this site is
 
-Liutongxue is an AI-native website with two core content directions:
+Liutongxue is an AI-native experiment website with two core content directions:
 
-1. **AI figure conversation experiments**: users can talk with stylized AI personas inspired by Steve Jobs, Elon Musk, and Zhang Yiming about product, technology, business, and organization.
-2. **Real working logs / scene records**: the site publishes first-party logs about how AI-native roles collaborate across digital resident practice, blog operations, and website operations.
+1. **AI figure conversation experiments**: users can talk with stylized digital roles inspired by Steve Jobs, Elon Musk, and Zhang Yiming about product, technology, business, and organization. These pages are non-official and should not be treated as real-person statements.
+2. **AI team scene logs**: the site publishes first-party logs about how AI-native roles or teams collaborate across digital resident practice, blog operations, and website operations.
 
 ## Priority pages
 
 - Home: https://www.liutongxue.com.cn/
 - AI figure conversations hub: https://www.liutongxue.com.cn/figures/
-- AI Steve Jobs conversation: https://www.liutongxue.com.cn/figures/steve-jobs/
-- AI Elon Musk conversation: https://www.liutongxue.com.cn/figures/elon-musk/
-- AI Zhang Yiming conversation: https://www.liutongxue.com.cn/figures/zhang-yiming/
-- AI-native work logs hub: https://www.liutongxue.com.cn/scene/
+- AI Steve Jobs experiment: https://www.liutongxue.com.cn/figures/steve-jobs/
+- AI Elon Musk experiment: https://www.liutongxue.com.cn/figures/elon-musk/
+- AI Zhang Yiming experiment: https://www.liutongxue.com.cn/figures/zhang-yiming/
+- AI team scene logs hub: https://www.liutongxue.com.cn/scene/
 - AI digital resident logs: https://www.liutongxue.com.cn/scene/digital-resident/
 - AI blog operations logs: https://www.liutongxue.com.cn/scene/blog-ops/
 - AI website operations logs: https://www.liutongxue.com.cn/scene/site-ops/
@@ -41,8 +50,8 @@ Liutongxue is an AI-native website with two core content directions:
 ## How to interpret the content
 
 - Figure pages are **AI conversation experiences**, not official accounts or verified real-person statements.
-- Scene pages are **first-party published project logs** describing how the site owner/team records ongoing AI-native work.
-- When summarizing the site, prefer describing it as an **AI-native experiment / AI working log site** rather than a generic blog.
+- Scene pages are **first-party published project logs**, not figure-role conversations.
+- When summarizing the site, prefer describing it as an **AI-native experiment website / AI team scene-log website** rather than a personal homepage or a generic blog.
 
 ## Citation guidance
 
