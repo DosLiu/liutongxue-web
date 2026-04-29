@@ -22,7 +22,7 @@ export type SceneLogDetail = {
 export type SceneLogEntry = SceneLogPreview &
   SceneLogDetail & {
     detailHref: string;
-    detailImageSrc: string;
+    detailImageSrc?: string;
   };
 
 export type SceneLogCollection = {

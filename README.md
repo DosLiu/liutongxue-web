@@ -56,13 +56,13 @@
 ├─ public/
 │  ├─ llms.txt
 │  ├─ robots.txt
-│  ├─ sitemap.xml
-│  └─ scene/.../cover.webp            # Scene 详情页配图
+│  └─ sitemap.xml
 ├─ src/
 │  ├─ assets/
 │  │  ├─ hero.webp
 │  │  ├─ contact/
-│  │  └─ figures/
+│  │  ├─ figures/
+│  │  └─ scene/.../cover.webp         # Scene 详情页配图（走 Vite hash）
 │  ├─ components/                     # 首页/全站通用组件
 │  ├─ constants/                      # 首页文案常量
 │  ├─ data/scene/                     # Scene 列表与详情页数据源
@@ -413,17 +413,17 @@ Scene 详情页不是逐个写 JSX，而是：
 
 当前详情页 cover 图放在：
 
-- `public/scene/**/cover.webp`
+- `src/assets/scene/**/cover.webp`
 
 例如：
 
-- `public/scene/blog-ops/2026-03-13/cover.webp`
-- `public/scene/digital-resident/2026-03-21/cover.webp`
-- `public/scene/site-ops/2026-04-01/cover.webp`
+- `src/assets/scene/blog-ops/2026-03-13/cover.webp`
+- `src/assets/scene/digital-resident/2026-03-21/cover.webp`
+- `src/assets/scene/site-ops/2026-04-01/cover.webp`
 
-并且数据文件里通过 `detailImageSrc` 指向对应路径。
+并且运行时通过 `src/data/scene/assets.ts` 的资源映射层自动解析，不再手工拼 `public` 路径。
 
-> 这类图片路径要和路由严格对齐，不能只改图片文件不改数据，或只改数据不改文件。
+> 这类图片目录仍然要和路由严格对齐，但引用已经收口到映射层，避免手工字符串路径长期漂移。
 
 ### 6.3.1 新增 scene 日志 / 详情页 SOP
 
@@ -448,7 +448,6 @@ Scene 详情页不是逐个写 JSX，而是：
    - `detailHref`
    - `detailTitle`
    - `detailContent`
-   - `detailImageSrc`
    - `detailImageAlt`
    - `detailImageCaption`（可选）
    - `sourceHref` / `sourceLabel`（可选）
@@ -456,9 +455,10 @@ Scene 详情页不是逐个写 JSX，而是：
 3. 新建详情页 HTML 入口，例如：
    - `scene/digital-resident/2026-03-28/index.html`
 4. 如果有配图，把图片放到：
-   - `public/scene/<scene-segment>/<date>/cover.webp`
-5. 手动补 `public/sitemap.xml`
-6. 最后执行：
+   - `src/assets/scene/<scene-segment>/<date>/cover.webp`
+5. 资源映射由 `src/data/scene/assets.ts` 自动收录；目录命名必须和 scene route segment + 日期一致
+6. 手动补 `public/sitemap.xml`
+7. 最后执行：
    - `npm run check`
    - 手动打开对应团队页和详情页各 1 次
 
@@ -675,11 +675,14 @@ contact: 'mailto:hello@liutongxue.com'
 
 ### 保持原 URL 路径的静态资源
 
-适合 scene 详情页封面这类希望按固定 URL 暴露的资源：
+适合 sitemap / robots 这类必须保留固定公开路径的资源：
 
-- `public/scene/**/cover.webp`
 - `public/robots.txt`
 - `public/sitemap.xml`
+
+### Scene 详情页配图资源
+
+Scene cover 图放在 `src/assets/scene/**/cover.webp`，由 `src/data/scene/assets.ts` 统一映射后进入构建，最终走 Vite hash 产物。
 
 ### 构建产物
 

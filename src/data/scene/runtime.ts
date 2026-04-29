@@ -1,4 +1,5 @@
-import { getSceneDetailCoverPath, getSceneDetailPath } from './routes';
+import { getSceneDetailCoverAsset } from './assets';
+import { getSceneDetailPath } from './routes';
 import type { SceneLogCollection, SceneLogDetail, SceneLogEntry, SceneLogKey } from './types';
 
 const collectionLoaders: Record<SceneLogKey, () => Promise<{ default: SceneLogCollection }>> = {
@@ -37,6 +38,6 @@ export async function loadSceneLogDetail(sceneKey: SceneLogKey, publishedAt: str
     ...preview,
     ...detail,
     detailHref: getSceneDetailPath(sceneKey, publishedAt),
-    detailImageSrc: getSceneDetailCoverPath(sceneKey, publishedAt)
+    detailImageSrc: getSceneDetailCoverAsset(sceneKey, publishedAt)
   };
 }

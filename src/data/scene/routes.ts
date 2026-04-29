@@ -39,9 +39,6 @@ export const getSceneCollectionPath = (sceneKey: SceneLogKey) => `/scene/${scene
 export const getSceneDetailPath = (sceneKey: SceneLogKey, publishedAt: string) =>
   `${getSceneCollectionPath(sceneKey)}${publishedAt}/`;
 
-export const getSceneDetailCoverPath = (sceneKey: SceneLogKey, publishedAt: string) =>
-  `${getSceneDetailPath(sceneKey, publishedAt)}cover.webp`;
-
 export const resolveSceneLogCollectionRoute = (pathname: string, baseUrl = '/') => {
   const match = normalizeRoutePath(pathname, baseUrl).match(/^\/scene\/([^/]+)\/$/);
   const sceneKey = match ? sceneRouteSegmentLookup[match[1]] : null;

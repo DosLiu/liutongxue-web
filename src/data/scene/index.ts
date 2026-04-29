@@ -1,4 +1,4 @@
-export { getSceneCollectionPath, getSceneDetailCoverPath, getSceneDetailPath, resolveSceneLogCollectionRoute, resolveSceneLogDetailRoute, sceneRouteSegments } from './routes';
+export { getSceneCollectionPath, getSceneDetailPath, resolveSceneLogCollectionRoute, resolveSceneLogDetailRoute, sceneRouteSegments } from './routes';
 export {
   getLatestSceneLog,
   getSceneCollection,
