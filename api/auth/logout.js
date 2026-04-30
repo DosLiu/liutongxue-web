@@ -15,10 +15,10 @@ export default async function handler(req, res) {
         redirect(res, 302, buildLogoutRedirectUrl(), [clearedCookie]);
         return;
     }
+    res.setHeader('Set-Cookie', clearedCookie);
     json(res, 200, {
         ok: true,
         redirectTo: buildLogoutRedirectUrl(),
         logoutUrl: '/api/auth/logout'
     });
-    res.setHeader('Set-Cookie', clearedCookie);
 }
