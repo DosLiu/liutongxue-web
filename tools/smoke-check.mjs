@@ -5,6 +5,8 @@ import { dirname, relative, resolve } from 'node:path';
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, '..');
 const siteUrl = (process.env.VITE_SITE_URL || 'https://www.liutongxue.com.cn').replace(/\/+$/, '');
+const canonicalSiteUrl = (process.env.VITE_CANONICAL_SITE_URL || 'https://www.liutongxue.com.cn').replace(/\/+$/, '');
+const isNonCanonicalBuild = siteUrl !== canonicalSiteUrl;
 
 const requiredEntries = [
   'index.html',
@@ -46,6 +48,8 @@ const normalizeRoute = (route) => {
 };
 
 const formatRouteList = (routes) => routes.map((route) => `  - ${route}`).join('\n');
+const buildAbsoluteUrl = (route) => (route === '/' ? `${canonicalSiteUrl}/` : `${canonicalSiteUrl}${route}`);
+const readUtf8IfExists = (filePath) => (existsSync(filePath) ? readFileSync(filePath, 'utf8') : '');
 
 const actualRoutes = new Set([
   '/',
@@ -77,6 +81,9 @@ const missingEntries = requiredEntries.filter((entry) => !existsSync(resolve(rep
 const missingDeclaredRoutes = [...declaredRoutes].filter((route) => !actualRoutes.has(route)).sort();
 const missingSitemapRoutes = [...actualRoutes].filter((route) => !sitemapRoutes.has(route)).sort();
 const extraSitemapRoutes = [...sitemapRoutes].filter((route) => !actualRoutes.has(route)).sort();
+const vercelConfig = JSON.parse(readFileSync(resolve(repoRoot, 'vercel.json'), 'utf8'));
+const vercelRedirects = Array.isArray(vercelConfig.redirects) ? vercelConfig.redirects : [];
+const vercelHeaders = Array.isArray(vercelConfig.headers) ? vercelConfig.headers : [];
 
 const danglingSceneDirectories = [];
 for (const collection of readdirSync(resolve(repoRoot, 'scene'), { withFileTypes: true })) {
@@ -95,6 +102,40 @@ for (const collection of readdirSync(resolve(repoRoot, 'scene'), { withFileTypes
 danglingSceneDirectories.sort();
 
 const failures = [];
+
+const hasToolsRedirect = vercelRedirects.some((rule) => {
+  const source = typeof rule?.source === 'string' ? rule.source : '';
+  const destination = typeof rule?.destination === 'string' ? rule.destination : '';
+  const statusCode = rule?.statusCode;
+  const permanent = rule?.permanent;
+
+  return source.startsWith('/tools') && destination === '/scene/' && (permanent === true || statusCode === 308 || statusCode === 301);
+});
+
+if (!hasToolsRedirect) {
+  failures.push('vercel.json 缺少 /tools -> /scene/ 的永久重定向规则。');
+}
+
+const hasTestNoindexHeader = vercelHeaders.some((rule) => {
+  const hostMatches =
+    Array.isArray(rule?.has) &&
+    rule.has.some((item) => item?.type === 'host' && typeof item?.value === 'string' && item.value.includes('test.liutongxue.com.cn'));
+  const xRobotsHeader =
+    Array.isArray(rule?.headers) &&
+    rule.headers.some(
+      (header) =>
+        typeof header?.key === 'string' &&
+        header.key.toLowerCase() === 'x-robots-tag' &&
+        typeof header?.value === 'string' &&
+        /noindex/i.test(header.value)
+    );
+
+  return hostMatches && xRobotsHeader;
+});
+
+if (!hasTestNoindexHeader) {
+  failures.push('vercel.json 缺少面向 test.liutongxue.com.cn 的 X-Robots-Tag noindex 头。');
+}
 
 const apiChatSource = readFileSync(resolve(repoRoot, 'api/chat.ts'), 'utf8');
 if (/from\s+['"]\.\.\/src\//.test(apiChatSource)) {
@@ -136,6 +177,7 @@ try {
 
     const allowOrigin = apiResponse.headers['Access-Control-Allow-Origin'];
     const payload = apiResponse.payload;
+    const expectedAllowOrigins = new Set([siteUrl, canonicalSiteUrl]);
     const hasValidPayload =
       payload &&
       typeof payload === 'object' &&
@@ -143,7 +185,7 @@ try {
       ['api', 'mock'].includes(payload.mode) &&
       ['api', 'mock'].includes(payload.status);
 
-    if (apiResponse.statusCode !== 200 || allowOrigin !== siteUrl || !hasValidPayload) {
+    if (apiResponse.statusCode !== 200 || !expectedAllowOrigins.has(allowOrigin) || !hasValidPayload) {
       failures.push(`api/chat 健康检查异常:\n${JSON.stringify(apiResponse, null, 2)}`);
     } else {
       apiHealthCheckSummary = `api/chat health ok (${payload.status})`;
@@ -240,6 +282,41 @@ if (extraSitemapRoutes.length) {
 
 if (danglingSceneDirectories.length) {
   failures.push(`存在未落地 index.html 的 scene 目录:\n${formatRouteList(danglingSceneDirectories)}`);
+}
+
+const distToolsIndexPath = resolve(repoRoot, 'dist/tools/index.html');
+if (existsSync(distToolsIndexPath)) {
+  failures.push('dist/tools/index.html 仍然存在，/tools/ 仍可能以 200 页面落地。');
+}
+
+if (isNonCanonicalBuild) {
+  for (const entry of requiredEntries) {
+    const filePath = resolve(repoRoot, 'dist', entry);
+    const route = entry === 'index.html' ? '/' : `/${entry.slice(0, -'index.html'.length)}`;
+    const expectedCanonical = buildAbsoluteUrl(route);
+    const html = readUtf8IfExists(filePath);
+
+    if (!html) {
+      failures.push(`非 canonical 构建缺少产物: ${entry}`);
+      continue;
+    }
+
+    if (!html.includes(`rel="canonical" href="${expectedCanonical}"`)) {
+      failures.push(`非 canonical 构建 canonical 未指向正式域名: ${entry} -> ${expectedCanonical}`);
+    }
+
+    if (!/<meta[^>]+name="robots"[^>]+content="[^"]*noindex/i.test(html)) {
+      failures.push(`非 canonical 构建缺少 robots noindex: ${entry}`);
+    }
+
+    if (!/<meta[^>]+name="googlebot"[^>]+content="[^"]*noindex/i.test(html)) {
+      failures.push(`非 canonical 构建缺少 googlebot noindex: ${entry}`);
+    }
+
+    if (!/<meta[^>]+name="bingbot"[^>]+content="[^"]*noindex/i.test(html)) {
+      failures.push(`非 canonical 构建缺少 bingbot noindex: ${entry}`);
+    }
+  }
 }
 
 if (failures.length) {

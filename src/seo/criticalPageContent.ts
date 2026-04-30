@@ -666,6 +666,27 @@ export function createCriticalPageBreadcrumbStructuredData(pathname: string, abs
   };
 }
 
+const createPublisherReference = (canonicalSiteUrl: string) => ({
+  '@id': `${canonicalSiteUrl}/#organization`
+});
+
+const createWebsiteReference = (canonicalSiteUrl: string) => ({
+  '@id': `${canonicalSiteUrl}/#website`
+});
+
+const getFigureReferenceName = (figure: FigureSeoDefinition) =>
+  figure.personName === figure.name ? figure.name : `${figure.personName}（${figure.name}）`;
+
+const createFigureReferencePerson = (figure: FigureSeoDefinition) => ({
+  '@type': 'Person',
+  name: figure.personName,
+  ...(figure.name !== figure.personName ? { alternateName: figure.name } : {}),
+  disambiguatingDescription: `此人物仅作为 ${figure.heading} 的公开表达风格参考对象出现，不表示该页面是其官方主页、账号或真实表态。`
+});
+
+const createFigureExperimentDisambiguation = (figure: FigureSeoDefinition) =>
+  `${figure.heading} 是受 ${getFigureReferenceName(figure)}的公开表达风格启发的 AI 角色对话实验，不是本人官方账号、认证主页或真实表态。`;
+
 export function createCriticalPagePrimaryStructuredData(pathname: string, absoluteUrl: string, canonicalSiteUrl: string) {
   const page = getCriticalPageContent(pathname);
 
@@ -682,9 +703,8 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           name: 'Liutongxue',
           alternateName: ['liutongxue'],
           description: page.description,
-          publisher: {
-            '@id': `${canonicalSiteUrl}/#organization`
-          },
+          disambiguatingDescription: 'Liutongxue 是 AI 实验项目网站与公开发布主体，不是任何现实人物的官方主页或账号。',
+          publisher: createPublisherReference(canonicalSiteUrl),
           about: [
             {
               '@type': 'Thing',
@@ -718,6 +738,7 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           url: `${canonicalSiteUrl}/`,
           sameAs: ['https://github.com/DosLiu/liutongxue-web'],
           description: 'Liutongxue 是一个 AI 原生实验项目网站，长期并行更新人物对话实验与项目自己的工作日志。',
+          disambiguatingDescription: 'Liutongxue 指的是 AI 实验项目与网站主体，不是任何现实人物的官方主页、账号或认证身份。',
           knowsAbout: ['AI 原生实验', 'AI 人物对话实验', 'AI 团队协作', '场景日志'],
           availableLanguage: ['zh-CN', 'zh-Hans'],
           audience: {
@@ -730,10 +751,9 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           '@id': `${canonicalSiteUrl}/#webpage`,
           url: `${canonicalSiteUrl}/`,
           name: page.title,
-          isPartOf: {
-            '@id': `${canonicalSiteUrl}/#website`
-          },
+          isPartOf: createWebsiteReference(canonicalSiteUrl),
           description: page.description,
+          disambiguatingDescription: '首页介绍的是 Liutongxue 这个 AI 实验项目本身，不是任何现实人物的官方主页。',
           about: [
             {
               '@id': `${canonicalSiteUrl}/#organization`
@@ -803,6 +823,10 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
 
   const figure = figureSeoByPath[pathname];
   if (figure) {
+    const experimentId = `${absoluteUrl}#persona-experiment`;
+    const figureReferencePerson = createFigureReferencePerson(figure);
+    const experimentDisambiguation = createFigureExperimentDisambiguation(figure);
+
     return {
       '@context': 'https://schema.org',
       '@graph': [
@@ -813,15 +837,50 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           name: page.title,
           description: page.description,
           abstract: page.lead,
-          isPartOf: {
-            '@id': `${canonicalSiteUrl}/#website`
+          isPartOf: createWebsiteReference(canonicalSiteUrl),
+          mainEntity: {
+            '@id': experimentId
           },
-          about: {
-            '@type': 'Person',
-            name: figure.personName,
-            alternateName: figure.name
-          },
+          about: [
+            {
+              '@id': experimentId
+            },
+            {
+              '@type': 'Thing',
+              name: 'AI 人物对话实验'
+            }
+          ],
+          mentions: [figureReferencePerson],
+          disambiguatingDescription: experimentDisambiguation,
           keywords: figure.keywords,
+          inLanguage: 'zh-CN'
+        },
+        {
+          '@type': ['CreativeWork', 'Conversation'],
+          '@id': experimentId,
+          url: absoluteUrl,
+          name: figure.heading,
+          alternateName: [`AI ${figure.name}`],
+          description: page.description,
+          abstract: page.lead,
+          disambiguatingDescription: experimentDisambiguation,
+          genre: 'AI 人物对话实验',
+          keywords: figure.keywords,
+          mainEntityOfPage: {
+            '@id': `${absoluteUrl}#webpage`
+          },
+          about: figure.keywords.map((keyword) => ({
+            '@type': 'Thing',
+            name: keyword
+          })),
+          mentions: [figureReferencePerson],
+          isBasedOn: {
+            '@type': 'CreativeWork',
+            name: `${getFigureReferenceName(figure)}的公开表达风格资料`,
+            about: figureReferencePerson,
+            description: `用于 ${figure.heading} 的公开表达风格参考资料集合。`
+          },
+          publisher: createPublisherReference(canonicalSiteUrl),
           inLanguage: 'zh-CN'
         }
       ]
@@ -970,11 +1029,7 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
               name: detailScene.siteLabel
             }
           ],
-          publisher: {
-            '@type': 'Organization',
-            name: 'Liutongxue',
-            url: `${canonicalSiteUrl}/`
-          },
+          publisher: createPublisherReference(canonicalSiteUrl),
           inLanguage: 'zh-CN'
         },
         {

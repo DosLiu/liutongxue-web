@@ -88,6 +88,7 @@ const injectRootSnapshot = (html: string, pathname: string) => {
 const canonicalSiteUrl = trimTrailingSlash(process.env.VITE_CANONICAL_SITE_URL || 'https://www.liutongxue.com.cn');
 const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || canonicalSiteUrl);
 const isNonCanonicalBuild = siteUrl !== canonicalSiteUrl;
+const nonCanonicalRobotsContent = 'noindex, nofollow, noarchive, nosnippet, noimageindex';
 const defaultSocialImagePath = '/og/liutongxue-share.png';
 
 const collectHtmlFiles = (directory: string): string[] =>
@@ -103,7 +104,7 @@ const collectHtmlFiles = (directory: string): string[] =>
 
 const htmlInputs = [
   resolve(__dirname, 'index.html'),
-  ...['tools', 'figures', 'scene'].flatMap((directory) => collectHtmlFiles(resolve(__dirname, directory)))
+  ...['figures', 'scene'].flatMap((directory) => collectHtmlFiles(resolve(__dirname, directory)))
 ];
 
 export default defineConfig({
@@ -323,7 +324,7 @@ export default defineConfig({
                     tag: 'meta',
                     attrs: {
                       name: 'robots',
-                      content: 'noindex, nofollow, noarchive'
+                      content: nonCanonicalRobotsContent
                     },
                     injectTo: 'head' as const
                   },
@@ -331,7 +332,15 @@ export default defineConfig({
                     tag: 'meta',
                     attrs: {
                       name: 'googlebot',
-                      content: 'noindex, nofollow, noarchive'
+                      content: nonCanonicalRobotsContent
+                    },
+                    injectTo: 'head' as const
+                  },
+                  {
+                    tag: 'meta',
+                    attrs: {
+                      name: 'bingbot',
+                      content: nonCanonicalRobotsContent
                     },
                     injectTo: 'head' as const
                   }
