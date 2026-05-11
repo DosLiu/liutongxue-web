@@ -5,7 +5,6 @@ import zhangYimingAvatar from '../assets/figures/zhang-yiming.jpg';
 import customerServiceAvatar from '../assets/figures/customer-service.png';
 import salesAssistantAvatar from '../assets/figures/sales-assistant.png';
 import videoScriptAssistantAvatar from '../assets/figures/video-script-assistant.png';
-import AuthEntryCard from '../features/auth/AuthEntryCard';
 import { sitePaths } from '../site';
 import './FiguresPage.css';
 
@@ -142,10 +141,6 @@ export default function FiguresPage() {
             <p className="figures-subtitle">与行业传奇，展开一场跨时空的深度对话</p>
             <p className="figures-auth-hint">先体验 5 次，登录后每日 10 次</p>
           </div>
-
-          <div className="figures-hero__auth">
-            <AuthEntryCard />
-          </div>
         </section>
 
         <section className="figures-grid" aria-label={figureSection.ariaLabel}>
@@ -165,10 +160,6 @@ export default function FiguresPage() {
           {getFigureEntries(roleSection.category).map((entry) => (
             <FigureEntryItem key={entry.id} entry={entry} />
           ))}
-        </section>
-
-        <section className="figures-mobile-auth" aria-label="登录入口">
-          <AuthEntryCard />
         </section>
       </main>
     </div>
