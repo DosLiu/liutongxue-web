@@ -205,22 +205,25 @@ svg {
 
 .auth-header-widget__popover {
   position: absolute;
-  top: calc(100% + 0.85rem);
+  top: calc(100% + 0.68rem);
   left: 50%;
   right: auto;
   z-index: 20;
-  width: min(16rem, calc(100vw - 2rem));
+  width: auto;
   transform: translateX(-50%);
 }
 
 .auth-header-widget__panel {
   display: grid;
-  gap: 0.72rem;
-  padding: 0.82rem 0.86rem;
+  justify-items: start;
+  gap: 0.52rem;
+  width: max-content;
+  min-width: 0;
+  padding: 0.58rem 0.62rem;
   background: rgba(12, 6, 22, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
-  box-shadow: 0 22px 48px -32px rgba(0, 0, 0, 0.85);
+  border-radius: 0.9rem;
+  box-shadow: 0 18px 38px -28px rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
