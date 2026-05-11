@@ -496,6 +496,83 @@ svg {
   font-size: 0.95rem;
 }
 
+.mobile-auth-nav {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.mobile-auth-nav__trigger {
+  width: 100%;
+  cursor: pointer;
+}
+
+.mobile-auth-nav__trigger.is-open {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(210, 193, 242, 0.16);
+}
+
+.mobile-auth-nav__chevron {
+  flex: 0 0 auto;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.9rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.mobile-auth-nav__trigger.is-open .mobile-auth-nav__chevron {
+  color: rgba(255, 255, 255, 0.82);
+  transform: rotate(180deg);
+}
+
+.mobile-auth-nav__panel {
+  display: grid;
+  gap: 0.42rem;
+  padding: 0 0.28rem 0.12rem;
+}
+
+.mobile-auth-nav__actions {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.mobile-auth-nav__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.64rem 0.9rem;
+  border-radius: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mobile-auth-nav__action:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(210, 193, 242, 0.16);
+  transform: translateX(2px);
+}
+
+.mobile-auth-nav__action--secondary {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.mobile-auth-nav__action.is-disabled {
+  color: rgba(255, 255, 255, 0.48);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .landing-wrapper {
   position: relative;
   display: flex;

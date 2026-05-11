@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useId, useRef, useState } from 'react';
 import ReactBitsLogo from './ReactBitsLogo';
 import AuthHeaderWidget from '../features/auth/AuthHeaderWidget';
+import { useAuthEntryState, type AuthEntryState } from '../features/auth/useAuthEntryState';
 import { siteNavItems, sitePaths, type SiteNavKey } from '../site';
 
 type SiteHeaderActiveKey = SiteNavKey | 'figures' | null;
@@ -31,10 +32,77 @@ const mobileNavItems = [
   }
 ] as const;
 
+type MobileAuthNavItemProps = {
+  authState: AuthEntryState;
+  isParentOpen: boolean;
+  onNavigate: () => void;
+};
+
+function MobileAuthNavItem({ authState, isParentOpen, onNavigate }: MobileAuthNavItemProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const panelId = useId();
+  const { isAuthenticated, isPrimaryActionDisabled, loginProviders, payload } = authState;
+
+  useEffect(() => {
+    if (!isParentOpen) {
+      setIsOpen(false);
+    }
+  }, [isParentOpen]);
+
+  return (
+    <div className={`mobile-auth-nav${isOpen ? ' is-open' : ''}`}>
+      <button
+        type="button"
+        className={`mobile-nav-link mobile-auth-nav__trigger${isOpen ? ' is-open' : ''}`}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <span className="mobile-nav-link__label">登录</span>
+        <span className="mobile-auth-nav__chevron" aria-hidden="true">
+          ▾
+        </span>
+      </button>
+
+      <div id={panelId} className="mobile-auth-nav__panel" hidden={!isOpen}>
+        {isAuthenticated ? (
+          <a href={payload?.logoutUrl} className="mobile-auth-nav__action mobile-auth-nav__action--secondary" onClick={onNavigate}>
+            退出登录
+          </a>
+        ) : loginProviders.length ? (
+          <div className="mobile-auth-nav__actions">
+            {loginProviders.map((provider) => (
+              <a
+                key={provider.type}
+                href={isPrimaryActionDisabled ? undefined : provider.href}
+                className={`mobile-auth-nav__action mobile-auth-nav__action--primary${isPrimaryActionDisabled ? ' is-disabled' : ''}`}
+                aria-disabled={isPrimaryActionDisabled}
+                onClick={(event) => {
+                  if (isPrimaryActionDisabled) {
+                    event.preventDefault();
+                    return;
+                  }
+
+                  onNavigate();
+                }}
+              >
+                {provider.actionLabel}
+              </a>
+            ))}
+          </div>
+        ) : (
+          <span className="mobile-auth-nav__action mobile-auth-nav__action--secondary is-disabled">登录入口暂不可用</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader({ activeKey }, ref) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const mobileNavId = useId();
   const mobileNavRef = useRef<HTMLDivElement | null>(null);
+  const authState = useAuthEntryState();
 
   useEffect(() => {
     if (!isMobileNavOpen) {
@@ -98,7 +166,7 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
               );
             })}
 
-            <AuthHeaderWidget />
+            <AuthHeaderWidget state={authState} />
           </nav>
         </div>
 
@@ -143,6 +211,8 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
                   </a>
                 );
               })}
+
+              <MobileAuthNavItem authState={authState} isParentOpen={isMobileNavOpen} onNavigate={() => setIsMobileNavOpen(false)} />
             </div>
           </div>
         </div>

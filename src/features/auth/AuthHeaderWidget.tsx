@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAuthEntryState } from './useAuthEntryState';
+import { useAuthEntryState, type AuthEntryState } from './useAuthEntryState';
 
-export default function AuthHeaderWidget() {
+type AuthHeaderWidgetProps = {
+  state?: AuthEntryState;
+};
+
+export default function AuthHeaderWidget({ state }: AuthHeaderWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const shellRef = useRef<HTMLDivElement | null>(null);
-  const { isAuthenticated, isPrimaryActionDisabled, loginProviders, payload } = useAuthEntryState();
+  const { isAuthenticated, isPrimaryActionDisabled, loginProviders, payload } = state ?? useAuthEntryState();
 
   useEffect(() => {
     if (!isOpen) {

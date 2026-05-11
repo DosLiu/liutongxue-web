@@ -200,3 +200,5 @@ export function useAuthEntryState() {
     summaryText
   };
 }
+
+export type AuthEntryState = ReturnType<typeof useAuthEntryState>;

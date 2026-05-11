@@ -5,7 +5,6 @@ import zhangYimingAvatar from '../assets/figures/zhang-yiming.jpg';
 import customerServiceAvatar from '../assets/figures/customer-service.png';
 import salesAssistantAvatar from '../assets/figures/sales-assistant.png';
 import videoScriptAssistantAvatar from '../assets/figures/video-script-assistant.png';
-import AuthEntryCard from '../features/auth/AuthEntryCard';
 import { sitePaths } from '../site';
 import './FiguresPage.css';
 
@@ -161,10 +160,6 @@ export default function FiguresPage() {
           {getFigureEntries(roleSection.category).map((entry) => (
             <FigureEntryItem key={entry.id} entry={entry} />
           ))}
-        </section>
-
-        <section className="figures-mobile-auth" aria-label="登录入口">
-          <AuthEntryCard />
         </section>
       </main>
     </div>
