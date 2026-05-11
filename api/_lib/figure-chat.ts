@@ -1,4 +1,4 @@
-export type FigureChatId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant';
+export type FigureChatId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant' | 'video-script-assistant';
 export type FigureChatRole = 'assistant' | 'user';
 export type FigureChatMode = 'api' | 'mock';
 export type FigureChatServiceStatus = 'checking' | 'api' | 'mock' | 'offline' | 'preview';
@@ -625,6 +625,64 @@ const buildSalesAssistantMockReply = (message: string) => {
 这版先是通用跟进话术。你最好补充【我的业务】【我的产品或服务】【客户当前状态】【客户原话】【我希望推进到哪一步】【我的语气偏好】，这样我才能把意向判断和跟进话术改得更贴场景。`;
 };
 
+const buildVideoScriptAssistantMockReply = (message: string) => {
+  const shortMessage = normalizeFigureChatText(message);
+  const quotedTheme = shortMessage || '（你只给了一句主题，我先按常见小老板获客场景起稿）';
+
+  return `一、客户意图判断
+这条内容更容易吸引想靠短视频获客、但平时不会写口播稿的小老板。
+这些客户大概率处在“想解决但没行动”到“已经有明确需求”之间，想先找一条今天就能拍的内容试水。
+
+二、不建议怎么做
+最容易踩的坑有 5 个：太像广告、太像说教、太像 AI 生成、内容太泛、没有真实场景。
+你这次别一上来就讲大道理，也别把一句话主题硬拉成长篇培训稿。
+
+三、短视频脚本
+1. 标题/开场钩子（3个可选）
+- 为什么你天天发视频，客户还是不来问？
+- 很多老板短视频没效果，不是因为不努力，是第一句话就说错了。
+- 如果你做「${quotedTheme.slice(0, 18)}${quotedTheme.length > 18 ? '…' : ''}」，这条口播你可以直接拍。
+
+2. 口播脚本
+很多老板拍短视频，问题不是不勤奋。
+是他说了半天，客户听完还是不知道你到底能帮他解决什么。
+比如你明明是做生意的，却总在讲大道理、讲趋势、讲方法。
+客户听着没错，但不会来找你。
+你真要拍，就直接讲一个真实场景。
+比如客户最常问你的一个问题，最常犹豫的一个点，或者最容易卡住的一步。
+你把这个问题讲透，客户才会觉得你是懂他的。
+所以别再拍那种什么人都能套的话。
+从一个真实问题开始讲，短视频才更容易带来咨询。
+
+3. 结构拆解
+开头钩子：先点破老板拍短视频没效果的真实原因。
+问题：内容太空，客户听完不知道你解决什么。
+观点：短视频要围绕真实问题讲，不要围绕空话讲。
+例子/场景：拿客户常见问题、犹豫点、成交卡点来拍。
+结尾行动：引导对方评论或私信拿具体版本。
+
+4. 结尾引导动作
+如果你也想把自己的业务改成一条能直接拍的口播稿，评论区留“脚本”，我给你一个能直接套的版本。
+
+5. 更适合强口语表达的版本
+你视频没效果，很多时候不是你不努力。
+是你说了很多，但客户听完不知道你到底能帮他什么。
+别老讲大道理。
+直接讲客户最常卡的那个问题。
+客户一听觉得：对，这就是我。
+他才会来私信你。
+
+四、下一步跟进建议
+如果用户评论了，你下一句可以回：你做什么业务？我按你的行业给你改一版更贴场景的。
+如果用户私信了，你可以这样承接：你把业务、产品、客户最常问的问题发我，我直接给你拆成一条能拍的口播稿。
+如果适合导流到“AI客服”或“AI销售”体验包，也可以顺带说：如果你后面还想把评论承接、私信跟进、成交话术一起补上，我也能顺手帮你接到客服和销售跟进那一段。
+
+五、风险提醒
+不要乱承诺“拍了就能成交”“发了就能爆”。
+涉及定价策略、重大承诺、重要客户沟通，你自己要按行业情况再判断一遍。
+如果你补充这 2-3 项，效果会更好：你做什么业务、你想拍给谁看、你这条视频最想引导对方做什么。`;
+};
+
 const JOBS_SYSTEM_PROMPT = `此模式激活后，直接以 Steve Jobs 的身份回应。
 
 用「我」而非「乔布斯会认为...」。
@@ -1167,6 +1225,78 @@ export const polishZhangYimingReply = (reply: string, message = '') =>
     )
   );
 
+const VIDEO_SCRIPT_ASSISTANT_SYSTEM_PROMPT = `你现在是我的“AI短视频脚本员工”，你的职责不是讲AI理论，也不是写空泛文案，而是把我的真实业务场景，转换成一条小老板能直接拿去拍的短视频脚本。
+
+你的服务对象是有真实业务的小老板，比如私域卖货、知识付费、本地生活、教培咨询、招商招生、短视频获客、社群运营、个人IP、成交咨询等。
+
+你的核心任务：
+根据我提供的业务信息和视频主题，输出一条“可直接拍、可直接说、可直接用于获客”的短视频脚本。
+
+你必须遵守以下规则：
+
+1. 不要讲空泛趋势；
+2. 不要写成AI味很重的作文；
+3. 不要假大空，不要鸡汤；
+4. 不要写成培训课提纲；
+5. 语言必须像真实老板在说话；
+6. 优先围绕真实业务场景、真实客户问题、真实成交卡点；
+7. 输出必须简单、直接、能拍；
+8. 每次只聚焦一个明确主题；
+9. 不承诺一定成交、不夸大效果；
+10. 不说AI可以完全替代真人；
+11. 如果涉及定价策略、重大承诺、重要客户沟通，只能提醒我由真人最终判断；
+12. 如果我提供的信息很少，也要先给我一个能用的初稿，而不是一直追问。
+
+你的脚本输出目标：
+- 帮我吸引更精准的潜在客户
+- 帮我建立专业感和可信度
+- 帮我推动评论、私信、咨询或领取资料
+- 让我今天就能拿去拍
+
+你的输出必须包含以下部分：
+
+一、客户意图判断
+- 判断这条视频更容易吸引哪类客户
+- 判断这些客户当前更可能处于什么阶段：刚意识到问题 / 正在比较 / 想解决但没行动 / 已有明确需求
+
+二、不建议怎么做
+- 告诉我这条内容最容易踩的坑
+- 比如：太像广告、太像说教、太像AI生成、太泛、太长、没有具体场景
+
+三、短视频脚本
+请至少输出以下内容：
+1. 标题/开场钩子，给我3个可选
+2. 口播脚本，按自然说话方式写
+3. 结构拆解：开头钩子 - 问题 - 观点 - 例子/场景 - 结尾行动
+4. 结尾引导动作，优先引导评论、私信、领取资料、咨询
+5. 如果适合，再补一个更适合“强口语表达”的版本
+
+四、下一步跟进建议
+- 如果用户评论了，我下一句可以怎么回复
+- 如果用户私信了，我可以怎么承接
+- 如果适合导流到“AI客服”或“AI销售”体验包，也请顺带给出建议
+
+五、风险提醒
+- 提醒我哪些表达不要乱承诺
+- 提醒我哪些地方需要按自己行业情况调整
+- 提醒我哪些重要沟通需要真人判断
+
+输出风格要求：
+- 多用短句
+- 少用书面语
+- 少用“首先、其次、最后”
+- 语言像一个真正在做业务的人
+- 不要过度包装
+- 不要输出复杂拍摄方案
+- 让我拿到就能拍
+
+如果我的输入信息不足：
+- 先基于常见小老板场景，给我一个可用版本
+- 然后再列出“如果你补充这2-3项，效果会更好”
+
+如果我只给你一句主题：
+- 你也要直接给我脚本，不要拒绝`;
+
 const FIGURE_CHAT_MODEL_DEFINITIONS: Record<FigureChatId, FigureChatModelDefinition> = {
   'steve-jobs': {
     systemPrompt: JOBS_SYSTEM_PROMPT,
@@ -1193,6 +1323,11 @@ const FIGURE_CHAT_MODEL_DEFINITIONS: Record<FigureChatId, FigureChatModelDefinit
   'sales-assistant': {
     systemPrompt: SALES_ASSISTANT_SYSTEM_PROMPT,
     buildMockReply: buildSalesAssistantMockReply,
+    temperature: 0.2
+  },
+  'video-script-assistant': {
+    systemPrompt: VIDEO_SCRIPT_ASSISTANT_SYSTEM_PROMPT,
+    buildMockReply: buildVideoScriptAssistantMockReply,
     temperature: 0.2
   }
 };
@@ -1336,7 +1471,9 @@ export const normalizeFigureChatId = (value: unknown): FigureChatId =>
         ? 'customer-service'
         : value === 'sales-assistant'
           ? 'sales-assistant'
-          : 'steve-jobs';
+          : value === 'video-script-assistant'
+            ? 'video-script-assistant'
+            : 'steve-jobs';
 
 export const resolveFigureChatServiceStatus = (
   status?: FigureChatApiResponse['status'],
@@ -1364,6 +1501,7 @@ export {
   buildZhangYimingMockReply,
   buildCustomerServiceMockReply,
   buildSalesAssistantMockReply,
+  buildVideoScriptAssistantMockReply,
   resolveElonMuskDirectReply,
   resolveZhangYimingDirectReply
 };

@@ -59,7 +59,13 @@ const roleEntries: FigureEntry[] = [
     href: sitePaths.figuresSalesAssistant,
     ariaLabel: '进入 销售助理 岗位入口'
   },
-  { id: 'role-placeholder-3', ariaLabel: '岗位头像占位，暂未开放' }
+  {
+    id: 'video-script-assistant',
+    name: '口播短视频助理',
+    avatarLabel: '口播',
+    href: sitePaths.figuresVideoScriptAssistant,
+    ariaLabel: '进入 口播短视频助理 岗位入口'
+  }
 ];
 
 function FigureEntryItem({ entry }: { entry: FigureEntry }) {

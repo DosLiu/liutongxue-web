@@ -31,7 +31,7 @@ type SnapshotDefinition = {
   faq?: SnapshotFaq[];
 };
 
-type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant';
+type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant' | 'video-script-assistant';
 
 type FigureSeoDefinition = {
   id: FigureId;
@@ -213,6 +213,36 @@ const figureSeoDefinitions: FigureSeoDefinition[] = [
       {
         question: '这个页面会不会帮我强行逼单或编造优惠？',
         answer: '不会。这个岗位设定明确要求不承诺一定成交、不制造虚假稀缺、不强行逼单，也不编造优惠、名额、案例和效果。'
+      }
+    ]
+  },
+  {
+    id: 'video-script-assistant',
+    path: '/figures/video-script-assistant/',
+    name: '口播短视频助理',
+    personName: '口播短视频助理',
+    title: 'Liutongxue · AI 口播短视频助理：把真实业务场景写成可直接拍的获客脚本',
+    description: '在 Liutongxue 和 AI 口播短视频助理一起，把真实业务场景拆成可直接拍、可直接说、可直接用于获客的短视频口播脚本。',
+    heading: 'AI 口播短视频助理岗位对话实验',
+    lead:
+      '这是 Liutongxue 的岗位实验页。你在这里对话的，是一个面向真实业务场景的 AI 口播短视频助理，用来把你的业务主题直接拆成今天就能拍的短视频脚本。',
+    focusSummary: [
+      '适合讨论短视频获客、口播选题、开场钩子、真实客户问题、成交卡点，以及评论、私信、咨询、领取资料等转化动作。',
+      '页面重点是把主题改写成真实老板能直接说出口的脚本，同时避免空泛趋势、培训腔、夸大承诺和真人判断外包。'
+    ],
+    keywords: ['AI 口播短视频助理', '短视频脚本', '口播脚本', '短视频获客'],
+    faq: [
+      {
+        question: '这个页面是什么？',
+        answer: '这是 Liutongxue 的 AI 口播短视频助理岗位对话实验页，适合把真实业务主题拆成可直接拍、可直接说的短视频脚本。'
+      },
+      {
+        question: '适合把什么信息发给 AI 口播短视频助理？',
+        answer: '最好一起提供你的业务、产品或服务、想拍的主题、想吸引哪类客户，以及希望引导到评论、私信、咨询还是领取资料，这样脚本会更贴场景。'
+      },
+      {
+        question: '如果我只给一句主题，它也会直接出稿吗？',
+        answer: '会。这个岗位设定要求即使信息不完整，也要先基于常见小老板场景给你一个能拍的初稿，再提醒你补充 2 到 3 项关键信息。'
       }
     ]
   }
@@ -737,7 +767,8 @@ const createWebsiteReference = (canonicalSiteUrl: string) => ({
 const getFigureReferenceName = (figure: FigureSeoDefinition) =>
   figure.personName === figure.name ? figure.name : `${figure.personName}（${figure.name}）`;
 
-const isJobFigure = (figure: FigureSeoDefinition) => figure.id === 'customer-service' || figure.id === 'sales-assistant';
+const isJobFigure = (figure: FigureSeoDefinition) =>
+  figure.id === 'customer-service' || figure.id === 'sales-assistant' || figure.id === 'video-script-assistant';
 
 const createFigureReferencePerson = (figure: FigureSeoDefinition) =>
   isJobFigure(figure)

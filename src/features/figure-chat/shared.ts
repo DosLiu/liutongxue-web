@@ -1,6 +1,7 @@
 import {
   buildCustomerServiceMockReply,
   buildSalesAssistantMockReply,
+  buildVideoScriptAssistantMockReply,
   buildElonMuskMockReply,
   buildFigureChatResponse,
   buildFigureChatMockResponse,
@@ -106,6 +107,17 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
     legacyStorageKeys: ['liutongxue-sales-assistant-chat-remaining'],
     freeLimit: FIGURE_CHAT_FREE_LIMIT,
     buildMockReply: buildSalesAssistantMockReply
+  },
+  'video-script-assistant': {
+    id: 'video-script-assistant',
+    title: '口播短视频助理',
+    description: '一个轻量化 AI 口播短视频助理，不保存聊天记录；未登录可体验 5 次，登录后每日可聊 10 次',
+    assistantLabel: 'AI 口播短视频助理',
+    panelAriaLabel: 'AI 口播短视频助理对话区域',
+    storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
+    legacyStorageKeys: ['liutongxue-video-script-assistant-chat-remaining'],
+    freeLimit: FIGURE_CHAT_FREE_LIMIT,
+    buildMockReply: buildVideoScriptAssistantMockReply
   }
 };
 
@@ -117,6 +129,7 @@ export const resolveZhangYimingCanonicalReply = (message: string) => resolveZhan
 export {
   buildCustomerServiceMockReply,
   buildSalesAssistantMockReply,
+  buildVideoScriptAssistantMockReply,
   buildElonMuskMockReply,
   buildFigureChatResponse,
   buildFigureChatMockResponse,
