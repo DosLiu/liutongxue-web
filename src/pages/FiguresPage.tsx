@@ -9,20 +9,30 @@ import AuthEntryCard from '../features/auth/AuthEntryCard';
 import { sitePaths } from '../site';
 import './FiguresPage.css';
 
+type FigureEntryCategory = 'figure' | 'role';
+
 type FigureEntry = {
   id: string;
-  name?: string;
+  category: FigureEntryCategory;
+  name: string;
   avatarLabel?: string;
   avatarImageSrc?: string;
   avatarImagePosition?: string;
   avatarImageSize?: string;
-  href?: string;
+  href: string;
   ariaLabel?: string;
+};
+
+type FigureEntrySection = {
+  ariaLabel: string;
+  category: FigureEntryCategory;
+  className?: string;
 };
 
 const figureEntries: FigureEntry[] = [
   {
     id: 'steve-jobs',
+    category: 'figure',
     name: '乔布斯',
     avatarLabel: 'SJ',
     avatarImageSrc: steveJobsAvatar,
@@ -30,6 +40,7 @@ const figureEntries: FigureEntry[] = [
   },
   {
     id: 'elon-musk',
+    category: 'figure',
     name: '马斯克',
     avatarLabel: 'EM',
     avatarImageSrc: elonMuskAvatar,
@@ -38,18 +49,17 @@ const figureEntries: FigureEntry[] = [
   },
   {
     id: 'zhang-yiming',
+    category: 'figure',
     name: '张一鸣',
     avatarLabel: 'ZY',
     avatarImageSrc: zhangYimingAvatar,
     avatarImagePosition: '46% 27%',
     avatarImageSize: '178%',
     href: sitePaths.figuresZhangYiming
-  }
-];
-
-const roleEntries: FigureEntry[] = [
+  },
   {
     id: 'customer-service',
+    category: 'role',
     name: '客服助理',
     avatarLabel: '客服',
     avatarImageSrc: customerServiceAvatar,
@@ -58,6 +68,7 @@ const roleEntries: FigureEntry[] = [
   },
   {
     id: 'sales-assistant',
+    category: 'role',
     name: '销售助理',
     avatarLabel: '销售',
     avatarImageSrc: salesAssistantAvatar,
@@ -66,6 +77,7 @@ const roleEntries: FigureEntry[] = [
   },
   {
     id: 'video-script-assistant',
+    category: 'role',
     name: '口播短视频助理',
     avatarLabel: '口播',
     avatarImageSrc: videoScriptAssistantAvatar,
@@ -74,9 +86,28 @@ const roleEntries: FigureEntry[] = [
   }
 ];
 
+const figureEntrySections: FigureEntrySection[] = [
+  {
+    ariaLabel: '人物入口列表',
+    category: 'figure'
+  },
+  {
+    ariaLabel: '岗位头像入口列表',
+    category: 'role',
+    className: 'figures-grid--role-placeholders'
+  }
+];
+
+const [figureSection, roleSection] = figureEntrySections;
+const getFigureEntries = (category: FigureEntryCategory) => figureEntries.filter((entry) => entry.category === category);
+
 function FigureEntryItem({ entry }: { entry: FigureEntry }) {
-  const content = (
-    <>
+  return (
+    <a
+      className="figures-entry figures-entry--active"
+      href={entry.href}
+      aria-label={entry.ariaLabel ?? `进入 ${entry.name} ${entry.category === 'role' ? '岗位' : '人物'}入口`}
+    >
       <div
         className={`figures-entry__avatar${entry.avatarImageSrc ? ' figures-entry__avatar--image' : ''}`}
         style={
@@ -92,21 +123,7 @@ function FigureEntryItem({ entry }: { entry: FigureEntry }) {
       >
         {!entry.avatarImageSrc && entry.avatarLabel ? <span className="figures-entry__avatar-label">{entry.avatarLabel}</span> : null}
       </div>
-      {entry.name ? <h2 className="figures-entry__name">{entry.name}</h2> : null}
-    </>
-  );
-
-  if (!entry.href) {
-    return (
-      <article className="figures-entry figures-entry--placeholder" aria-label={entry.ariaLabel ?? `${entry.name ?? '岗位头像占位'}，暂未开放`}>
-        {content}
-      </article>
-    );
-  }
-
-  return (
-    <a className="figures-entry figures-entry--active" href={entry.href} aria-label={entry.ariaLabel ?? `进入 ${entry.name} 人物入口`}>
-      {content}
+      <h2 className="figures-entry__name">{entry.name}</h2>
     </a>
   );
 }
@@ -131,8 +148,8 @@ export default function FiguresPage() {
           </div>
         </section>
 
-        <section className="figures-grid" aria-label="人物入口列表">
-          {figureEntries.map((entry) => (
+        <section className="figures-grid" aria-label={figureSection.ariaLabel}>
+          {getFigureEntries(figureSection.category).map((entry) => (
             <FigureEntryItem key={entry.id} entry={entry} />
           ))}
         </section>
@@ -144,8 +161,8 @@ export default function FiguresPage() {
           <p className="figures-role-intro__subtitle">精选不同岗位的AI专家分身，随时陪你拆战略、想内容、做增长</p>
         </section>
 
-        <section className="figures-grid figures-grid--role-placeholders" aria-label="岗位头像入口列表">
-          {roleEntries.map((entry) => (
+        <section className={`figures-grid ${roleSection.className ?? ''}`.trim()} aria-label={roleSection.ariaLabel}>
+          {getFigureEntries(roleSection.category).map((entry) => (
             <FigureEntryItem key={entry.id} entry={entry} />
           ))}
         </section>

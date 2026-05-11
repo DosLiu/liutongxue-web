@@ -154,12 +154,10 @@ export const createFigureChatMessageId = (role: FigureChatRole) =>
 export const createFigureChatLocalFallback = ({
   content,
   apiUrl,
-  isStaticPreview,
   config
 }: {
   content: string;
   apiUrl: string | null;
-  isStaticPreview: boolean;
   config: FigureChatConfig;
 }): {
   replyText: string;
@@ -168,11 +166,7 @@ export const createFigureChatLocalFallback = ({
   shouldConsume: boolean;
 } => ({
   replyText: normalizeAssistantReply(config.buildMockReply(content)),
-  nextStatus: apiUrl ? 'mock' : isStaticPreview ? 'preview' : 'offline',
-  nextNotice: apiUrl
-    ? '当前返回的是演示回复，不会扣减次数。'
-    : isStaticPreview
-      ? '当前是静态预览，最新功能与正式结果以 Vercel 为准，不会扣减次数。'
-      : '当前未连接服务，先给你演示回复，不会扣减次数。',
+  nextStatus: apiUrl ? 'mock' : 'offline',
+  nextNotice: apiUrl ? '当前返回的是演示回复，不会扣减次数。' : '当前未连接服务，先给你演示回复，不会扣减次数。',
   shouldConsume: false
 });

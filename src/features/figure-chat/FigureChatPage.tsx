@@ -59,7 +59,6 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   const [serviceStatus, setServiceStatus] = useState<FigureChatServiceStatus>('checking');
   const [error, setError] = useState('');
   const [statusNotice, setStatusNotice] = useState('');
-  const isStaticPreview = false;
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const normalizedInput = useMemo(() => normalizeUserInput(input), [input]);
@@ -137,7 +136,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
     const apiUrl = getFigureChatApiUrl();
 
     if (!apiUrl) {
-      setServiceStatus(isStaticPreview ? 'preview' : 'offline');
+      setServiceStatus('offline');
       return;
     }
 
@@ -184,7 +183,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
       controller.abort();
       window.clearTimeout(timeoutId);
     };
-  }, [isStaticPreview]);
+  }, []);
 
   const handleClear = () => {
     setMessages([]);
@@ -224,7 +223,6 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
     let { replyText, nextStatus, nextNotice, shouldConsume } = createFigureChatLocalFallback({
       content,
       apiUrl,
-      isStaticPreview,
       config
     });
     let nextQuotaScope = quotaScope;

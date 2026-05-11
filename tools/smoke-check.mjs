@@ -15,6 +15,7 @@ const requiredEntries = [
   'figures/elon-musk/index.html',
   'figures/zhang-yiming/index.html',
   'figures/customer-service/index.html',
+  'figures/sales-assistant/index.html',
   'figures/video-script-assistant/index.html',
   'scene/index.html',
   'scene/blog-ops/index.html',

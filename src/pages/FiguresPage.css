@@ -210,29 +210,6 @@
     0 22px 52px rgba(0, 0, 0, 0.24);
 }
 
-.figures-entry--placeholder {
-  opacity: 0.64;
-}
-
-.figures-entry--placeholder .figures-entry__avatar {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.025) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 12px 30px rgba(0, 0, 0, 0.16);
-}
-
-.figures-entry--role-placeholder {
-  gap: 0;
-}
-
-.figures-entry--role-placeholder .figures-entry__avatar {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(96, 113, 255, 0.03) 100%);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 16px 42px rgba(0, 0, 0, 0.18);
-}
-
 @media (max-width: 1080px) {
   .figures-hero {
     display: grid;
