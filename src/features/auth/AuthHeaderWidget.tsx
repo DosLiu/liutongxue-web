@@ -4,7 +4,7 @@ import { useAuthEntryState } from './useAuthEntryState';
 export default function AuthHeaderWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const shellRef = useRef<HTMLDivElement | null>(null);
-  const { flash, isAuthenticated, isLoading, isPrimaryActionDisabled, loginProviders, payload, statusLabel, summaryText } = useAuthEntryState();
+  const { isAuthenticated, isPrimaryActionDisabled, loginProviders, payload } = useAuthEntryState();
 
   useEffect(() => {
     if (!isOpen) {
@@ -40,9 +40,6 @@ export default function AuthHeaderWidget() {
     };
   }, [isOpen]);
 
-  const loginStatusText = isAuthenticated ? `已登录 · ${payload?.user?.loginType || '已连接'}` : statusLabel;
-  const hintText = flash?.description || summaryText || payload?.message || '先体验 5 次，登录后每日 10 次。';
-
   return (
     <div ref={shellRef} className={`auth-header-widget${isOpen ? ' is-open' : ''}`}>
       <button
@@ -61,17 +58,6 @@ export default function AuthHeaderWidget() {
 
       <div className="auth-header-widget__popover" hidden={!isOpen}>
         <div className="auth-header-widget__panel" role="menu" aria-label="登录方式">
-          <div className="auth-header-widget__panel-status">
-            <span
-              className={`auth-entry-card__status ${
-                isAuthenticated ? 'auth-entry-card__status--success' : isLoading ? 'auth-entry-card__status--muted' : 'auth-entry-card__status--default'
-              }`}
-            >
-              {loginStatusText}
-            </span>
-            {hintText ? <p className="auth-header-widget__summary">{hintText}</p> : null}
-          </div>
-
           {isAuthenticated ? (
             <div className="auth-header-widget__signed-panel">
               <a href={payload?.logoutUrl} className="auth-header-widget__action auth-header-widget__action--secondary" role="menuitem">
@@ -103,7 +89,6 @@ export default function AuthHeaderWidget() {
             </div>
           )}
 
-          {payload?.missingEnv?.length ? <p className="auth-header-widget__footnote">登录服务配置中</p> : null}
         </div>
       </div>
     </div>
