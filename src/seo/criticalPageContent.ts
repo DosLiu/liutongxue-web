@@ -31,7 +31,7 @@ type SnapshotDefinition = {
   faq?: SnapshotFaq[];
 };
 
-type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service';
+type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant';
 
 type FigureSeoDefinition = {
   id: FigureId;
@@ -183,6 +183,36 @@ const figureSeoDefinitions: FigureSeoDefinition[] = [
       {
         question: '这个页面会不会帮我夸大承诺或强行逼单？',
         answer: '不会。这个岗位设定明确要求不承诺一定成交、不夸大效果、不强行逼单，也不编造不存在的优惠、案例和结果。'
+      }
+    ]
+  },
+  {
+    id: 'sales-assistant',
+    path: '/figures/sales-assistant/',
+    name: '销售助理',
+    personName: '销售助理',
+    title: 'Liutongxue · AI 销售助理：判断客户意向、分析卡点与生成跟进话术',
+    description: '在 Liutongxue 和 AI 销售助理一起判断客户意向、分析没下单原因，并生成自然、不强迫、能推进下一步的销售跟进话术。',
+    heading: 'AI 销售助理岗位对话实验',
+    lead:
+      '这是 Liutongxue 的岗位实验页。你在这里对话的，是一个面向真实业务场景的 AI 销售助理，用来帮你判断客户意向、分析跟进卡点，并生成可直接发送的话术。',
+    focusSummary: [
+      '适合讨论客户咨询后沉默、已经报价、说考虑一下、问了很多但没付款，以及预约、体验、付款、到店、电话沟通等推进场景。',
+      '页面重点是先判断客户意向和卡点，再生成自然、不油腻、不强迫的销售跟进话术，同时避免虚假稀缺和高风险承诺。'
+    ],
+    keywords: ['AI 销售助理', '销售跟进话术', '客户意向判断', '成交推进'],
+    faq: [
+      {
+        question: '这个页面是什么？',
+        answer: '这是 Liutongxue 的 AI 销售助理岗位对话实验页，适合围绕客户意向判断、没下单原因分析和下一句销售跟进话术生成继续拆问题。'
+      },
+      {
+        question: '适合把什么信息发给 AI 销售助理？',
+        answer: '最好一起提供你的业务、产品或服务、客户当前状态、客户原话、你希望推进到哪一步，以及你的语气偏好，这样生成的话术会更贴场景。'
+      },
+      {
+        question: '这个页面会不会帮我强行逼单或编造优惠？',
+        answer: '不会。这个岗位设定明确要求不承诺一定成交、不制造虚假稀缺、不强行逼单，也不编造优惠、名额、案例和效果。'
       }
     ]
   }
@@ -707,8 +737,10 @@ const createWebsiteReference = (canonicalSiteUrl: string) => ({
 const getFigureReferenceName = (figure: FigureSeoDefinition) =>
   figure.personName === figure.name ? figure.name : `${figure.personName}（${figure.name}）`;
 
+const isJobFigure = (figure: FigureSeoDefinition) => figure.id === 'customer-service' || figure.id === 'sales-assistant';
+
 const createFigureReferencePerson = (figure: FigureSeoDefinition) =>
-  figure.id === 'customer-service'
+  isJobFigure(figure)
     ? {
         '@type': 'Thing',
         name: figure.personName,
@@ -722,7 +754,7 @@ const createFigureReferencePerson = (figure: FigureSeoDefinition) =>
       };
 
 const createFigureExperimentDisambiguation = (figure: FigureSeoDefinition) =>
-  figure.id === 'customer-service'
+  isJobFigure(figure)
     ? `${figure.heading} 是面向真实业务场景的 AI 岗位对话实验，不是真实员工账号、人工客服窗口或服务承诺。`
     : `${figure.heading} 是受 ${getFigureReferenceName(figure)}的公开表达风格启发的 AI 角色对话实验，不是本人官方账号、认证主页或真实表态。`;
 
@@ -903,7 +935,7 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           description: page.description,
           abstract: page.lead,
           disambiguatingDescription: experimentDisambiguation,
-          genre: 'AI 人物对话实验',
+          genre: isJobFigure(figure) ? 'AI 岗位对话实验' : 'AI 人物对话实验',
           keywords: figure.keywords,
           mainEntityOfPage: {
             '@id': `${absoluteUrl}#webpage`
@@ -914,7 +946,7 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           })),
           mentions: [figureReferencePerson],
           isBasedOn:
-            figure.id === 'customer-service'
+            isJobFigure(figure)
               ? {
                   '@type': 'CreativeWork',
                   name: `${getFigureReferenceName(figure)}岗位能力参考资料`,

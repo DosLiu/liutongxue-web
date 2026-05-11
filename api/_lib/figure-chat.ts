@@ -1,4 +1,4 @@
-export type FigureChatId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service';
+export type FigureChatId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant';
 export type FigureChatRole = 'assistant' | 'user';
 export type FigureChatMode = 'api' | 'mock';
 export type FigureChatServiceStatus = 'checking' | 'api' | 'mock' | 'offline' | 'preview';
@@ -593,6 +593,38 @@ const buildCustomerServiceMockReply = (message: string) => {
 这版先是通用回复，能先稳住关系，但你最好补充【我的业务】【我的产品或服务】【客户原话】【我希望推进到哪一步】【我的语气偏好】，这样我才能把话术改得更贴场景。`;
 };
 
+const buildSalesAssistantMockReply = (message: string) => {
+  const shortMessage = normalizeFigureChatText(message);
+  const quotedMessage = shortMessage || '（你还没贴客户原话）';
+
+  return `【1. 客户意向等级】
+当前信息还不完整，我先按通用销售跟进场景处理，暂时更偏温意向。依据是客户还在看、还没明确拒绝，但也没有给出明确行动。
+
+【2. 客户现在可能卡在哪里】
+大概率卡在价值还没完全看懂，或者还在比较、犹豫，不确定现在是不是合适的时机推进。
+
+【3. 现在不适合怎么跟】
+不建议立刻催付款，也不要上来就说“名额快没了”“现在不定就错过了”，这种话容易把客户推远。
+
+【4. 下一句跟进话术 A：温和确认版】
+我先跟你确认一下，你刚刚这句「${quotedMessage.slice(0, 36)}${quotedMessage.length > 36 ? '…' : ''}」我已经记下来了。你要是方便，也可以直接告诉我你现在最顾虑的是哪一点，我再按你的情况跟你说明。
+
+【5. 下一句跟进话术 B：价值提醒版】
+我不想急着推进你做决定，更想先帮你判断这件事适不适合你。你如果愿意，我可以结合你现在的情况，把这件事能帮你解决什么、值不值得继续聊，直接跟你讲清楚。
+
+【6. 下一句跟进话术 C：推进动作版】
+如果你觉得方向是对的，我们可以先往前走一小步。你把你现在最关心的一点发我，我直接按你的情况给你更具体的建议，这样你也更容易判断要不要继续。
+
+【7. 3步跟进节奏】
+今天先温和确认顾虑；如果对方没回，隔 1 到 2 天再补一句价值提醒；第三次就简短收尾，把沟通权交还给客户。
+
+【8. 是否值得继续跟】
+目前值得继续跟，但先别高频追着发，先观察客户是否愿意继续给信息。
+
+【9. 风险提醒】
+这版先是通用跟进话术。你最好补充【我的业务】【我的产品或服务】【客户当前状态】【客户原话】【我希望推进到哪一步】【我的语气偏好】，这样我才能把意向判断和跟进话术改得更贴场景。`;
+};
+
 const JOBS_SYSTEM_PROMPT = `此模式激活后，直接以 Steve Jobs 的身份回应。
 
 用「我」而非「乔布斯会认为...」。
@@ -956,6 +988,85 @@ const CUSTOMER_SERVICE_SYSTEM_PROMPT = `你是我的 AI客服员工。
 - 优先帮我保住客户关系，再推进下一步；
 - 如果信息不足，你可以先给通用版本，但要提醒我补充关键信息。`;
 
+const SALES_ASSISTANT_SYSTEM_PROMPT = `你是我的 AI销售跟进员工。
+
+你的服务对象：
+有真实业务的小老板。他们有客户咨询、有意向客户、有报价、有成交场景，但经常不知道下一句怎么跟进。
+
+你的任务：
+帮我判断客户意向，分析客户现在卡在哪里，并生成不油腻、不强迫、能推进下一步的销售跟进话术。
+
+你不能做的事：
+1. 不承诺一定成交；
+2. 不制造虚假稀缺；
+3. 不强行逼单；
+4. 不编造优惠、名额、案例和效果；
+5. 不使用PUA式销售话术；
+6. 不替我做最终商业判断。
+
+你要帮我完成三件事：
+1. 判断客户现在属于冷意向、温意向，还是高意向；
+2. 判断客户没下单的主要原因；
+3. 给我下一句可以直接发出去的跟进话术。
+
+我会按这个格式输入：
+
+【我的业务】
+例如：教培招生 / 私域卖货 / 本地生活 / 咨询服务 / 知识付费
+
+【我的产品或服务】
+简单介绍我卖什么、价格大概是多少。
+
+【客户当前状态】
+例如：刚咨询 / 已经报价 / 看过方案 / 说考虑一下 / 已经沉默 3 天 / 问了很多但没付款
+
+【客户原话】
+把客户最近说的话复制给你。
+
+【我希望推进到哪一步】
+例如：预约体验 / 确认需求 / 付款 / 到店 / 加微信 / 约电话 / 继续沟通
+
+【我的语气偏好】
+例如：温和 / 专业 / 直接 / 不强势 / 有亲和力
+
+你每次必须按以下格式输出：
+
+【1. 客户意向等级】
+冷意向 / 温意向 / 高意向，并说明判断依据。
+
+【2. 客户现在可能卡在哪里】
+可能是价格、信任、需求不明确、时间不合适、决策人不是他、缺少紧迫感等。
+
+【3. 现在不适合怎么跟】
+告诉我哪些话术会显得太急、太硬、太油腻。
+
+【4. 下一句跟进话术 A：温和确认版】
+适合客户还在犹豫时使用。
+
+【5. 下一句跟进话术 B：价值提醒版】
+适合客户已经了解产品，但还没有行动时使用。
+
+【6. 下一句跟进话术 C：推进动作版】
+适合想推动预约、体验、付款、到店、电话沟通等下一步时使用。
+
+【7. 3步跟进节奏】
+告诉我今天怎么跟、隔多久再跟、第三次怎么收尾。
+
+【8. 是否值得继续跟】
+判断这个客户值得继续投入，还是先放入低频跟进。
+
+【9. 风险提醒】
+提醒我是否需要真人判断价格、承诺、优惠或特殊条款。
+
+要求：
+- 话术要自然；
+- 不要像销售培训课；
+- 不要强行压迫客户；
+- 不要过度承诺；
+- 不要把客户逼走；
+- 优先帮助我判断意向，再决定怎么推进；
+- 如果信息不足，你可以先输出通用版本，但要提醒我补充客户状态和产品价格。`;
+
 const ZHANG_YIMING_EXECUTION_STACK_RE =
   /(供应链|投流|运营|营销|物流|售后|客服|选品|履约|合规|海关|谈价|报关|仓储|发货|分销|渠道|私域|买量|广告|推广|素材)/g;
 
@@ -1077,6 +1188,11 @@ const FIGURE_CHAT_MODEL_DEFINITIONS: Record<FigureChatId, FigureChatModelDefinit
   'customer-service': {
     systemPrompt: CUSTOMER_SERVICE_SYSTEM_PROMPT,
     buildMockReply: buildCustomerServiceMockReply,
+    temperature: 0.2
+  },
+  'sales-assistant': {
+    systemPrompt: SALES_ASSISTANT_SYSTEM_PROMPT,
+    buildMockReply: buildSalesAssistantMockReply,
     temperature: 0.2
   }
 };
@@ -1218,7 +1334,9 @@ export const normalizeFigureChatId = (value: unknown): FigureChatId =>
       ? 'zhang-yiming'
       : value === 'customer-service'
         ? 'customer-service'
-        : 'steve-jobs';
+        : value === 'sales-assistant'
+          ? 'sales-assistant'
+          : 'steve-jobs';
 
 export const resolveFigureChatServiceStatus = (
   status?: FigureChatApiResponse['status'],
@@ -1245,6 +1363,7 @@ export {
   buildElonMuskMockReply,
   buildZhangYimingMockReply,
   buildCustomerServiceMockReply,
+  buildSalesAssistantMockReply,
   resolveElonMuskDirectReply,
   resolveZhangYimingDirectReply
 };

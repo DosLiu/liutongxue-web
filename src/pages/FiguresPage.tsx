@@ -52,7 +52,13 @@ const roleEntries: FigureEntry[] = [
     href: sitePaths.figuresCustomerService,
     ariaLabel: '进入 客服助理 岗位入口'
   },
-  { id: 'role-placeholder-2', ariaLabel: '岗位头像占位，暂未开放' },
+  {
+    id: 'sales-assistant',
+    name: '销售助理',
+    avatarLabel: '销售',
+    href: sitePaths.figuresSalesAssistant,
+    ariaLabel: '进入 销售助理 岗位入口'
+  },
   { id: 'role-placeholder-3', ariaLabel: '岗位头像占位，暂未开放' }
 ];
 
