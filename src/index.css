@@ -244,6 +244,7 @@ svg {
 .auth-header-widget__actions,
 .auth-header-widget__signed-panel {
   display: grid;
+  justify-content: start;
   gap: 0.48rem;
 }
 
@@ -251,11 +252,13 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.2rem;
-  padding: 0.52rem 0.82rem;
-  border-radius: 0.82rem;
+  justify-self: start;
+  width: fit-content;
+  min-height: 2.06rem;
+  padding: 0.4rem 0.68rem;
+  border-radius: 0.78rem;
   color: rgba(255, 255, 255, 0.92);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
 }
