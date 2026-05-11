@@ -106,6 +106,13 @@ export default function FiguresPage() {
           ))}
         </section>
 
+        <section className="figures-role-intro" aria-labelledby="figures-role-intro-title">
+          <h2 id="figures-role-intro-title" className="figures-role-intro__title">
+            你的AI岗位搭子
+          </h2>
+          <p className="figures-role-intro__subtitle">精选不同岗位的AI专家分身，随时陪你拆战略、想内容、做增长。</p>
+        </section>
+
         <section className="figures-mobile-auth" aria-label="登录入口">
           <AuthEntryCard />
         </section>

@@ -76,6 +76,33 @@
   margin: 0 auto;
 }
 
+.figures-role-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.72rem;
+  width: min(100%, 40rem);
+  margin: clamp(2.3rem, 4.4vw, 3.25rem) auto 0;
+  text-align: center;
+}
+
+.figures-role-intro__title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(1.62rem, 2.8vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.035em;
+}
+
+.figures-role-intro__subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: clamp(0.94rem, 1.35vw, 1.02rem);
+  line-height: 1.72;
+  letter-spacing: 0.01em;
+}
+
 .figures-entry {
   display: flex;
   flex-direction: column;
@@ -260,6 +287,20 @@
 
   .figures-entry__name {
     font-size: 0.92rem;
+  }
+
+  .figures-role-intro {
+    gap: 0.62rem;
+    margin-top: 1.8rem;
+  }
+
+  .figures-role-intro__title {
+    font-size: 1.42rem;
+  }
+
+  .figures-role-intro__subtitle {
+    font-size: 0.9rem;
+    line-height: 1.62;
   }
 
   .figures-mobile-auth {
