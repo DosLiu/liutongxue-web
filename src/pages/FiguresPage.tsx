@@ -8,12 +8,13 @@ import './FiguresPage.css';
 
 type FigureEntry = {
   id: string;
-  name: string;
-  avatarLabel: string;
+  name?: string;
+  avatarLabel?: string;
   avatarImageSrc?: string;
   avatarImagePosition?: string;
   avatarImageSize?: string;
   href?: string;
+  ariaLabel?: string;
 };
 
 const figureEntries: FigureEntry[] = [
@@ -43,10 +44,16 @@ const figureEntries: FigureEntry[] = [
   }
 ];
 
-const rolePlaceholderEntries = [
-  { id: 'role-placeholder-1' },
-  { id: 'role-placeholder-2' },
-  { id: 'role-placeholder-3' }
+const roleEntries: FigureEntry[] = [
+  {
+    id: 'customer-service',
+    name: '客服助理',
+    avatarLabel: '客服',
+    href: sitePaths.figuresCustomerService,
+    ariaLabel: '进入 客服助理 岗位入口'
+  },
+  { id: 'role-placeholder-2', ariaLabel: '岗位头像占位，暂未开放' },
+  { id: 'role-placeholder-3', ariaLabel: '岗位头像占位，暂未开放' }
 ];
 
 function FigureEntryItem({ entry }: { entry: FigureEntry }) {
@@ -65,22 +72,22 @@ function FigureEntryItem({ entry }: { entry: FigureEntry }) {
         }
         aria-hidden="true"
       >
-        {!entry.avatarImageSrc ? <span className="figures-entry__avatar-label">{entry.avatarLabel}</span> : null}
+        {!entry.avatarImageSrc && entry.avatarLabel ? <span className="figures-entry__avatar-label">{entry.avatarLabel}</span> : null}
       </div>
-      <h2 className="figures-entry__name">{entry.name}</h2>
+      {entry.name ? <h2 className="figures-entry__name">{entry.name}</h2> : null}
     </>
   );
 
   if (!entry.href) {
     return (
-      <article className="figures-entry figures-entry--placeholder" aria-label={`${entry.name}，暂未开放`}>
+      <article className="figures-entry figures-entry--placeholder" aria-label={entry.ariaLabel ?? `${entry.name ?? '岗位头像占位'}，暂未开放`}>
         {content}
       </article>
     );
   }
 
   return (
-    <a className="figures-entry figures-entry--active" href={entry.href} aria-label={`进入 ${entry.name} 人物入口`}>
+    <a className="figures-entry figures-entry--active" href={entry.href} aria-label={entry.ariaLabel ?? `进入 ${entry.name} 人物入口`}>
       {content}
     </a>
   );
@@ -119,11 +126,9 @@ export default function FiguresPage() {
           <p className="figures-role-intro__subtitle">精选不同岗位的AI专家分身，随时陪你拆战略、想内容、做增长</p>
         </section>
 
-        <section className="figures-grid figures-grid--role-placeholders" aria-label="岗位头像占位列表">
-          {rolePlaceholderEntries.map((entry) => (
-            <article key={entry.id} className="figures-entry figures-entry--placeholder figures-entry--role-placeholder" aria-label="岗位头像占位">
-              <div className="figures-entry__avatar" aria-hidden="true" />
-            </article>
+        <section className="figures-grid figures-grid--role-placeholders" aria-label="岗位头像入口列表">
+          {roleEntries.map((entry) => (
+            <FigureEntryItem key={entry.id} entry={entry} />
           ))}
         </section>
 

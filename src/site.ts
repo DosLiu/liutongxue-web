@@ -16,6 +16,7 @@ export const sitePaths = {
   figuresSteveJobs: withBaseUrl('/figures/steve-jobs/'),
   figuresElonMusk: withBaseUrl('/figures/elon-musk/'),
   figuresZhangYiming: withBaseUrl('/figures/zhang-yiming/'),
+  figuresCustomerService: withBaseUrl('/figures/customer-service/'),
   sceneLogs,
   contact: 'mailto:hello@liutongxue.com'
 } as const;

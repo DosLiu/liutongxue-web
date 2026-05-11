@@ -411,6 +411,30 @@ const buildZhangYimingMockReply = (message) => {
 
 问题没改写对，执行越认真，偏得越完整。`;
 };
+const buildCustomerServiceMockReply = (message) => {
+    const shortMessage = normalizeFigureChatText(message);
+    const quotedMessage = shortMessage || '（你还没贴客户原话）';
+    return `【1. 客户意图判断】
+当前信息还不完整，我先按通用咨询场景处理。客户更像是在确认信息、评估值不值得继续聊，也可能夹杂一点犹豫或价格顾虑。
+
+【2. 不建议这样回】
+不要立刻催单，不要一上来就降价，也不要用“现在不定就没了”这类强压式说法。
+
+【3. 可直接发送回复 A：温和解释版】
+我先理解一下你的顾虑。你刚刚这句「${quotedMessage.slice(0, 36)}${quotedMessage.length > 36 ? '…' : ''}」我这边已经记下来了，如果你愿意，我可以把具体内容和适合你的方式再说明白一点。
+
+【4. 可直接发送回复 B：价值塑造版】
+我更想先帮你判断这件事适不适合你，而不是急着推进。你要是方便，我可以结合你的情况，把我们这边能解决什么、适合什么人，直接跟你讲清楚。
+
+【5. 可直接发送回复 C：推进下一步版】
+如果你愿意，我们可以先往前走一小步：你把你最在意的一点告诉我，我直接按你的情况给你一个更具体的建议，这样你会更容易判断要不要继续。
+
+【6. 如果客户还不回复，下一次怎么跟进】
+我补一句哈，不着急做决定，你要是还在对比或者有顾虑，直接跟我说你最卡的一点就行，我按你的情况给你说明白。
+
+【7. 风险提醒】
+这版先是通用回复，能先稳住关系，但你最好补充【我的业务】【我的产品或服务】【客户原话】【我希望推进到哪一步】【我的语气偏好】，这样我才能把话术改得更贴场景。`;
+};
 const JOBS_SYSTEM_PROMPT = `此模式激活后，直接以 Steve Jobs 的身份回应。
 
 用「我」而非「乔布斯会认为...」。
@@ -695,6 +719,72 @@ const rebalanceZhangYimingParagraphs = (reply) => {
     });
     return merged.join('\n\n');
 };
+const CUSTOMER_SERVICE_SYSTEM_PROMPT = `你是我的 AI客服员工。
+
+你的服务对象：
+有真实业务的小老板。他们可能做私域卖货、知识付费、本地生活、教培咨询、招商招生、社群运营、个人 IP、成交咨询等业务。
+
+你的任务：
+帮我处理客户咨询、客户异议、客户嫌贵、客户说考虑一下、客户不回复、客户砍价等场景，生成更自然、更专业、更容易推进下一步的回复话术。
+
+你不能做的事：
+1. 不承诺一定成交；
+2. 不夸大产品效果；
+3. 不强行逼单；
+4. 不写油腻销售话术；
+5. 不替我做高风险承诺；
+6. 不编造不存在的优惠、案例和结果。
+
+当我输入客户问题时，你需要先判断客户真实意图，再给我可以直接发送的回复。
+
+我会按这个格式输入：
+
+【我的业务】
+例如：我做教培招生 / 私域卖货 / 本地生活 / 咨询服务 / 知识付费
+
+【我的产品或服务】
+简单介绍我卖什么。
+
+【客户原话】
+把客户说的话原样复制给你。
+
+【我希望推进到哪一步】
+例如：让客户继续沟通 / 预约体验 / 领取资料 / 付款 / 到店 / 加微信
+
+【我的语气偏好】
+例如：温和 / 专业 / 直接 / 不强势 / 有亲和力
+
+你每次必须按以下格式输出：
+
+【1. 客户意图判断】
+判断客户是在嫌贵、犹豫、试探、砍价、没信任，还是信息不足。
+
+【2. 不建议这样回】
+告诉我哪些回复方式容易让客户流失。
+
+【3. 可直接发送回复 A：温和解释版】
+适合不想压迫客户的场景。
+
+【4. 可直接发送回复 B：价值塑造版】
+适合需要重新说明产品价值的场景。
+
+【5. 可直接发送回复 C：推进下一步版】
+适合想把客户推进到预约、体验、付款、加微信、继续沟通的场景。
+
+【6. 如果客户还不回复，下一次怎么跟进】
+给我一条不打扰、不油腻的跟进话术。
+
+【7. 风险提醒】
+提醒我这次回复有什么要注意的地方。
+
+要求：
+- 回复要像真人说话；
+- 每条话术不要太长；
+- 不要写得像广告；
+- 不要过度解释；
+- 不要一上来就降价；
+- 优先帮我保住客户关系，再推进下一步；
+- 如果信息不足，你可以先给通用版本，但要提醒我补充关键信息。`;
 const ZHANG_YIMING_EXECUTION_STACK_RE = /(供应链|投流|运营|营销|物流|售后|客服|选品|履约|合规|海关|谈价|报关|仓储|发货|分销|渠道|私域|买量|广告|推广|素材)/g;
 const shouldKeepZhangYimingSelfProof = (message) => /(张一鸣|字节|头条|抖音|tiktok|酷讯|经历|传记|你自己|你当年|你以前|案例|例子|微博|演讲)/i.test(message);
 const stripZhangYimingSelfProof = (reply, message) => {
@@ -779,6 +869,11 @@ const FIGURE_CHAT_MODEL_DEFINITIONS = {
         buildMockReply: buildZhangYimingMockReply,
         resolveDirectReply: resolveZhangYimingDirectReply,
         temperature: 0.1
+    },
+    'customer-service': {
+        systemPrompt: CUSTOMER_SERVICE_SYSTEM_PROMPT,
+        buildMockReply: buildCustomerServiceMockReply,
+        temperature: 0.2
     }
 };
 export const getFigureChatModelDefinition = (figureId) => FIGURE_CHAT_MODEL_DEFINITIONS[figureId];
@@ -873,7 +968,13 @@ export const sanitizeFigureChatMessages = (messages) => {
         .filter((message) => message.content)
         .slice(-12);
 };
-export const normalizeFigureChatId = (value) => value === 'elon-musk' ? 'elon-musk' : value === 'zhang-yiming' ? 'zhang-yiming' : 'steve-jobs';
+export const normalizeFigureChatId = (value) => value === 'elon-musk'
+    ? 'elon-musk'
+    : value === 'zhang-yiming'
+        ? 'zhang-yiming'
+        : value === 'customer-service'
+            ? 'customer-service'
+            : 'steve-jobs';
 export const resolveFigureChatServiceStatus = (status, mode, fallbackStatus = 'offline') => {
     if (status === 'api' || status === 'mock' || status === 'offline' || status === 'preview') {
         return status;
@@ -886,4 +987,4 @@ export const resolveFigureChatServiceStatus = (status, mode, fallbackStatus = 'o
     }
     return fallbackStatus;
 };
-export { buildSteveJobsMockReply, buildElonMuskMockReply, buildZhangYimingMockReply, resolveElonMuskDirectReply, resolveZhangYimingDirectReply };
+export { buildSteveJobsMockReply, buildElonMuskMockReply, buildZhangYimingMockReply, buildCustomerServiceMockReply, resolveElonMuskDirectReply, resolveZhangYimingDirectReply };

@@ -31,7 +31,7 @@ type SnapshotDefinition = {
   faq?: SnapshotFaq[];
 };
 
-type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming';
+type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service';
 
 type FigureSeoDefinition = {
   id: FigureId;
@@ -153,6 +153,36 @@ const figureSeoDefinitions: FigureSeoDefinition[] = [
       {
         question: '适合问 AI 张一鸣什么问题？',
         answer: '适合讨论增长方法、组织效率、管理判断、内容平台策略与全球化等问题。'
+      }
+    ]
+  },
+  {
+    id: 'customer-service',
+    path: '/figures/customer-service/',
+    name: '客服助理',
+    personName: '客服助理',
+    title: 'Liutongxue · AI 客服助理：客户咨询、异议处理与成交推进话术',
+    description: '在 Liutongxue 和 AI 客服助理演练客户咨询、嫌贵、砍价、考虑一下和不回复等场景，拿到更自然、更专业的话术。',
+    heading: 'AI 客服助理岗位对话实验',
+    lead:
+      '这是 Liutongxue 的岗位实验页。你在这里对话的，是一个面向真实业务场景的 AI 客服助理，用来帮你处理客户咨询、异议与推进回复。',
+    focusSummary: [
+      '适合讨论客户咨询、客户异议、嫌贵、砍价、考虑一下、不回复和推进下一步等场景。',
+      '页面重点是帮你生成可直接发送的话术，同时避免夸大效果、强行逼单和高风险承诺。'
+    ],
+    keywords: ['AI 客服助理', '客户咨询回复', '异议处理', '成交推进话术'],
+    faq: [
+      {
+        question: '这个页面是什么？',
+        answer: '这是 Liutongxue 的 AI 客服助理岗位对话实验页，适合围绕客户咨询、异议处理、嫌贵和推进下一步等场景生成回复话术。'
+      },
+      {
+        question: '适合把什么信息发给 AI 客服助理？',
+        answer: '最好一起提供你的业务、产品或服务、客户原话、你想推进到哪一步，以及你的语气偏好，这样生成的话术会更贴场景。'
+      },
+      {
+        question: '这个页面会不会帮我夸大承诺或强行逼单？',
+        answer: '不会。这个岗位设定明确要求不承诺一定成交、不夸大效果、不强行逼单，也不编造不存在的优惠、案例和结果。'
       }
     ]
   }
@@ -677,15 +707,24 @@ const createWebsiteReference = (canonicalSiteUrl: string) => ({
 const getFigureReferenceName = (figure: FigureSeoDefinition) =>
   figure.personName === figure.name ? figure.name : `${figure.personName}（${figure.name}）`;
 
-const createFigureReferencePerson = (figure: FigureSeoDefinition) => ({
-  '@type': 'Person',
-  name: figure.personName,
-  ...(figure.name !== figure.personName ? { alternateName: figure.name } : {}),
-  disambiguatingDescription: `此人物仅作为 ${figure.heading} 的公开表达风格参考对象出现，不表示该页面是其官方主页、账号或真实表态。`
-});
+const createFigureReferencePerson = (figure: FigureSeoDefinition) =>
+  figure.id === 'customer-service'
+    ? {
+        '@type': 'Thing',
+        name: figure.personName,
+        disambiguatingDescription: `此岗位仅作为 ${figure.heading} 的能力参考对象出现，不表示该页面是真实员工账号、人工客服窗口或服务承诺。`
+      }
+    : {
+        '@type': 'Person',
+        name: figure.personName,
+        ...(figure.name !== figure.personName ? { alternateName: figure.name } : {}),
+        disambiguatingDescription: `此人物仅作为 ${figure.heading} 的公开表达风格参考对象出现，不表示该页面是其官方主页、账号或真实表态。`
+      };
 
 const createFigureExperimentDisambiguation = (figure: FigureSeoDefinition) =>
-  `${figure.heading} 是受 ${getFigureReferenceName(figure)}的公开表达风格启发的 AI 角色对话实验，不是本人官方账号、认证主页或真实表态。`;
+  figure.id === 'customer-service'
+    ? `${figure.heading} 是面向真实业务场景的 AI 岗位对话实验，不是真实员工账号、人工客服窗口或服务承诺。`
+    : `${figure.heading} 是受 ${getFigureReferenceName(figure)}的公开表达风格启发的 AI 角色对话实验，不是本人官方账号、认证主页或真实表态。`;
 
 export function createCriticalPagePrimaryStructuredData(pathname: string, absoluteUrl: string, canonicalSiteUrl: string) {
   const page = getCriticalPageContent(pathname);
@@ -874,12 +913,20 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
             name: keyword
           })),
           mentions: [figureReferencePerson],
-          isBasedOn: {
-            '@type': 'CreativeWork',
-            name: `${getFigureReferenceName(figure)}的公开表达风格资料`,
-            about: figureReferencePerson,
-            description: `用于 ${figure.heading} 的公开表达风格参考资料集合。`
-          },
+          isBasedOn:
+            figure.id === 'customer-service'
+              ? {
+                  '@type': 'CreativeWork',
+                  name: `${getFigureReferenceName(figure)}岗位能力参考资料`,
+                  about: figureReferencePerson,
+                  description: `用于 ${figure.heading} 的岗位能力与服务边界参考资料集合。`
+                }
+              : {
+                  '@type': 'CreativeWork',
+                  name: `${getFigureReferenceName(figure)}的公开表达风格资料`,
+                  about: figureReferencePerson,
+                  description: `用于 ${figure.heading} 的公开表达风格参考资料集合。`
+                },
           publisher: createPublisherReference(canonicalSiteUrl),
           inLanguage: 'zh-CN'
         }

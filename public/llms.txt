@@ -42,6 +42,7 @@ Liutongxue is a Chinese AI experiment site with two steady content directions:
 - AI Steve Jobs experiment: https://www.liutongxue.com.cn/figures/steve-jobs/
 - AI Elon Musk experiment: https://www.liutongxue.com.cn/figures/elon-musk/
 - AI Zhang Yiming experiment: https://www.liutongxue.com.cn/figures/zhang-yiming/
+- AI Customer Service Assistant experiment: https://www.liutongxue.com.cn/figures/customer-service/
 - AI team scene logs hub: https://www.liutongxue.com.cn/scene/
 - AI digital resident logs: https://www.liutongxue.com.cn/scene/digital-resident/
 - AI blog operations logs: https://www.liutongxue.com.cn/scene/blog-ops/
