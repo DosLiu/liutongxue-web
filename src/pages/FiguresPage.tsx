@@ -2,6 +2,9 @@ import SiteHeader from '../components/SiteHeader';
 import steveJobsAvatar from '../assets/figures/steve-jobs.jpg';
 import elonMuskAvatar from '../assets/figures/elon-musk.jpg';
 import zhangYimingAvatar from '../assets/figures/zhang-yiming.jpg';
+import customerServiceAvatar from '../assets/figures/customer-service.png';
+import salesAssistantAvatar from '../assets/figures/sales-assistant.png';
+import videoScriptAssistantAvatar from '../assets/figures/video-script-assistant.png';
 import AuthEntryCard from '../features/auth/AuthEntryCard';
 import { sitePaths } from '../site';
 import './FiguresPage.css';
@@ -49,6 +52,7 @@ const roleEntries: FigureEntry[] = [
     id: 'customer-service',
     name: '客服助理',
     avatarLabel: '客服',
+    avatarImageSrc: customerServiceAvatar,
     href: sitePaths.figuresCustomerService,
     ariaLabel: '进入 客服助理 岗位入口'
   },
@@ -56,6 +60,7 @@ const roleEntries: FigureEntry[] = [
     id: 'sales-assistant',
     name: '销售助理',
     avatarLabel: '销售',
+    avatarImageSrc: salesAssistantAvatar,
     href: sitePaths.figuresSalesAssistant,
     ariaLabel: '进入 销售助理 岗位入口'
   },
@@ -63,6 +68,7 @@ const roleEntries: FigureEntry[] = [
     id: 'video-script-assistant',
     name: '口播短视频助理',
     avatarLabel: '口播',
+    avatarImageSrc: videoScriptAssistantAvatar,
     href: sitePaths.figuresVideoScriptAssistant,
     ariaLabel: '进入 口播短视频助理 岗位入口'
   }
