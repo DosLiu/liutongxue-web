@@ -24,10 +24,9 @@ const mobileNavItems = [
     href: sitePaths.scene
   },
   {
-    label: '具身AI（开发中）',
+    label: '具身AI',
     key: 'contact',
-    href: reservedNavTargets.contact,
-    disabled: true
+    href: reservedNavTargets.contact
   }
 ] as const;
 
@@ -88,27 +87,10 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
         <nav className="landing-nav-items" aria-label="Primary">
           {siteNavItems.map((item) => {
             const isActive = activeKey != null && item.key === activeKey;
-
-            if (item.key === 'contact') {
-              const reservedTarget = reservedNavTargets.contact;
-
-              return (
-                <span
-                  key={item.label}
-                  className="nav-link nav-link--disabled"
-                  aria-disabled="true"
-                  data-future-href={reservedTarget}
-                  data-future-page="figures"
-                  title="人物选择入口即将开放"
-                >
-                  <span>{item.label}</span>
-                  <span className="nav-link__meta">（开发中）</span>
-                </span>
-              );
-            }
+            const href = item.key === 'contact' ? reservedNavTargets.contact : item.href;
 
             return (
-              <a key={item.label} href={item.href} className={`nav-link${isActive ? ' active-link' : ''}`}>
+              <a key={item.label} href={href} className={`nav-link${isActive ? ' active-link' : ''}`}>
                 <span>{item.label}</span>
               </a>
             );
@@ -141,21 +123,6 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
             <div className="mobile-nav-panel__inner">
               {mobileNavItems.map((item) => {
                 const isActive = activeKey != null && item.key === activeKey;
-
-                if ('disabled' in item && item.disabled) {
-                  return (
-                    <span
-                      key={item.key}
-                      className="mobile-nav-link mobile-nav-link--disabled"
-                      aria-disabled="true"
-                      data-future-href={item.href}
-                      data-future-page="figures"
-                      title="人物选择入口即将开放"
-                    >
-                      <span className="mobile-nav-link__label">{item.label}</span>
-                    </span>
-                  );
-                }
 
                 return (
                   <a
