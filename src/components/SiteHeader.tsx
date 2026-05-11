@@ -97,11 +97,9 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
                 </a>
               );
             })}
-          </nav>
 
-          <div className="header-auth-slot" aria-label="账户入口">
             <AuthHeaderWidget />
-          </div>
+          </nav>
         </div>
 
         <div ref={mobileNavRef} className="mobile-nav-shell">
