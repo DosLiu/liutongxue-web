@@ -43,6 +43,12 @@ const figureEntries: FigureEntry[] = [
   }
 ];
 
+const rolePlaceholderEntries = [
+  { id: 'role-placeholder-1' },
+  { id: 'role-placeholder-2' },
+  { id: 'role-placeholder-3' }
+];
+
 function FigureEntryItem({ entry }: { entry: FigureEntry }) {
   const content = (
     <>
@@ -111,6 +117,14 @@ export default function FiguresPage() {
             你的AI岗位搭子
           </h2>
           <p className="figures-role-intro__subtitle">精选不同岗位的AI专家分身，随时陪你拆战略、想内容、做增长</p>
+        </section>
+
+        <section className="figures-grid figures-grid--role-placeholders" aria-label="岗位头像占位列表">
+          {rolePlaceholderEntries.map((entry) => (
+            <article key={entry.id} className="figures-entry figures-entry--placeholder figures-entry--role-placeholder" aria-label="岗位头像占位">
+              <div className="figures-entry__avatar" aria-hidden="true" />
+            </article>
+          ))}
         </section>
 
         <section className="figures-mobile-auth" aria-label="登录入口">
