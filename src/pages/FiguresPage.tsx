@@ -43,6 +43,8 @@ const figureEntries: FigureEntry[] = [
   }
 ];
 
+const previewAvatarLabels = ['01', '02', '03'];
+
 function FigureEntryItem({ entry }: { entry: FigureEntry }) {
   const content = (
     <>
@@ -89,9 +91,16 @@ export default function FiguresPage() {
         <section className="figures-hero" aria-labelledby="figures-title">
           <div className="figures-hero__content">
             <h1 id="figures-title" className="figures-title">
-              顶级思维面对面
+              你的AI岗位搭子
             </h1>
-            <p className="figures-subtitle">与行业传奇，展开一场跨时空的深度对话</p>
+            <p className="figures-subtitle">精选不同岗位的AI专家分身，随时陪你拆战略、想内容、做增长。</p>
+            <div className="figures-hero__preview" aria-hidden="true">
+              {previewAvatarLabels.map((label) => (
+                <span key={label} className="figures-hero__preview-avatar">
+                  {label}
+                </span>
+              ))}
+            </div>
             <p className="figures-auth-hint">先体验 5 次，登录后每日 10 次</p>
           </div>
 
