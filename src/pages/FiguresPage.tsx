@@ -142,10 +142,6 @@ export default function FiguresPage() {
             <p className="figures-subtitle">与行业传奇，展开一场跨时空的深度对话</p>
             <p className="figures-auth-hint">先体验 5 次，登录后每日 10 次</p>
           </div>
-
-          <div className="figures-hero__auth">
-            <AuthEntryCard />
-          </div>
         </section>
 
         <section className="figures-grid" aria-label={figureSection.ariaLabel}>

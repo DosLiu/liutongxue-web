@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useId, useRef, useState } from 'react';
 import ReactBitsLogo from './ReactBitsLogo';
+import AuthHeaderWidget from '../features/auth/AuthHeaderWidget';
 import { siteNavItems, sitePaths, type SiteNavKey } from '../site';
 
 type SiteHeaderActiveKey = SiteNavKey | 'figures' | null;
@@ -84,18 +85,24 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
           <ReactBitsLogo />
         </a>
 
-        <nav className="landing-nav-items" aria-label="Primary">
-          {siteNavItems.map((item) => {
-            const isActive = activeKey != null && item.key === activeKey;
-            const href = item.key === 'contact' ? reservedNavTargets.contact : item.href;
+        <div className="header-desktop-actions">
+          <nav className="landing-nav-items" aria-label="Primary">
+            {siteNavItems.map((item) => {
+              const isActive = activeKey != null && item.key === activeKey;
+              const href = item.key === 'contact' ? reservedNavTargets.contact : item.href;
 
-            return (
-              <a key={item.label} href={href} className={`nav-link${isActive ? ' active-link' : ''}`}>
-                <span>{item.label}</span>
-              </a>
-            );
-          })}
-        </nav>
+              return (
+                <a key={item.label} href={href} className={`nav-link${isActive ? ' active-link' : ''}`}>
+                  <span>{item.label}</span>
+                </a>
+              );
+            })}
+          </nav>
+
+          <div className="header-auth-slot" aria-label="账户入口">
+            <AuthHeaderWidget />
+          </div>
+        </div>
 
         <div ref={mobileNavRef} className="mobile-nav-shell">
           <button
