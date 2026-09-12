@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, relative, resolve } from 'node:path';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
@@ -171,8 +171,8 @@ const createMockApiResponse = () => {
 };
 
 try {
-  const { default: chatHandler } = await import(resolve(repoRoot, 'api/chat.ts'));
-  const { getAuthConfig } = await import(resolve(repoRoot, 'api/_lib/auth.js'));
+  const { default: chatHandler } = await import(pathToFileURL(resolve(repoRoot, 'api/chat.ts')).href);
+  const { getAuthConfig } = await import(pathToFileURL(resolve(repoRoot, 'api/_lib/auth.js')).href);
 
   {
     const { apiResponse, res } = createMockApiResponse();
