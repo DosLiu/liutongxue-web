@@ -9,10 +9,12 @@
 当前站点主要包含 3 类内容：
 
 - 首页 `/`：站点主视觉、核心模块、联系区
-- 人物页 `/figures/`，以及当前已落地的 3 个具体人物对话页
+- 人物页 `/figures/`，以及当前已落地的 6 个对话页（3 个人物：乔布斯 / 马斯克 / 张一鸣；3 个岗位 AI：客服助理 / 销售助理 / 口播短视频助理）
 - Scene 页 `/scene/`，以及当前已落地的 3 个日志集合页、13 个日志详情页
 
 项目以稳定维护和发布展示型站点为主；人物聊天链路同时保留后端模型接口与前端 fallback 演示回复，用于接口异常或未接通时兜底。
+
+人物页同时带有一套登录与每日限额体系（大恩聚合登录 + KV 每日限额），维护前建议先读第 10.3 节。
 
 ### 当前正式域名
 
@@ -37,13 +39,15 @@
 - 多入口 HTML 构建，不是 React Router 单页路由
 - 静态资源由 Vite 构建输出
 - `api/chat.ts` 作为 Serverless 接口提供人物对话能力
+- `api/auth/*` 与 `api/daen.ts` 作为 Serverless 接口提供大恩聚合登录与每日限额
 
 ### 维护上要先知道的事
 
 - 这个项目更接近 **MPA（多页面应用）**，不是典型 SPA
-- 很多 SEO 信息写在各自路由的 `index.html` 里
+- 关键页面的 SEO 信息（title / description / canonical / OG / 结构化数据 / 无 JS 静态快照）统一收口在 `src/seo/criticalPageContent.ts`，构建时由 `vite.config.ts` 注入；各 HTML 入口里的 `<title>` / `<meta description>` 只是兜底占位
 - Scene 详情页正文不是 CMS，而是直接写在 `src/data/scene/*.ts`
-- 人物聊天同时存在“后端模型接口链路”和“前端 fallback 演示链路”；涉及人物设定、回复策略或相关文案时，需要同时检查两条链路是否保持一致
+- 人物聊天同时存在“后端模型接口链路”和“前端 fallback 演示链路”；两条链路共用 `api/_lib/figure-chat.ts` 同一份角色逻辑（前端 `src/features/figure-chat/core.ts` 只是 re-export，不需要双写 prompt）
+- `api/_lib/` 下的 `.ts` 与 `.js` 是双份手工同步的文件；`api/*.ts`、`api/auth/*.js` 入口 import 的是 `.js`，只改 `.ts` 不同步 `.js` 时线上不会生效
 
 ---
 
@@ -52,9 +56,21 @@
 ```text
 .
 ├─ api/
-│  └─ chat.ts                         # 人物聊天接口（Serverless）
+│  ├─ chat.ts                         # 人物聊天接口（Serverless）
+│  ├─ daen.ts                         # 认证聚合入口（?route=login/callback/logout/me）
+│  ├─ auth/
+│  │  ├─ login.js                     # 发起大恩聚合登录（302 到登录页）
+│  │  ├─ callback.js                  # OAuth 回调，写入签名 session cookie
+│  │  ├─ logout.js                    # 退出登录，清除 session cookie
+│  │  └─ me.js                        # 当前登录状态 + 今日限额快照
+│  └─ _lib/                           # 共享逻辑；.ts 与 .js 双份手工同步，运行时走 .js
+│     ├─ auth.ts / auth.js            # 大恩登录协议、签名 cookie session
+│     ├─ figure-chat.ts / figure-chat.js  # 人物角色逻辑（前后端共用）
+│     ├─ quota.js                     # 账号每日限额（Upstash / Vercel KV REST；仅 .js + .d.ts）
+│     └─ http.ts / http.js            # CORS / JSON / redirect 工具
 ├─ public/
 │  ├─ llms.txt
+│  ├─ og/liutongxue-share.png         # og:image 分享图
 │  ├─ robots.txt
 │  └─ sitemap.xml
 ├─ src/
@@ -66,8 +82,10 @@
 │  ├─ components/                     # 首页/全站通用组件
 │  ├─ constants/                      # 首页文案常量
 │  ├─ data/scene/                     # Scene 列表与详情页数据源
+│  ├─ features/auth/                  # 登录状态获取与头部登录组件
 │  ├─ features/figure-chat/           # 人物聊天前端逻辑
 │  ├─ pages/                          # 页面组件
+│  ├─ seo/criticalPageContent.ts      # 关键页 SEO 元数据 + 无 JS 静态快照
 │  ├─ main.tsx
 │  ├─ figures.tsx
 │  ├─ scene.tsx
@@ -78,9 +96,10 @@
 ├─ scene/.../index.html               # Scene 各路由 HTML 入口
 ├─ tools/index.html                   # /tools/ -> /scene/ 跳转页
 ├─ index.html                         # 首页 HTML 入口
-├─ vite.config.ts                     # 多入口构建 + canonical / OG 注入
+├─ .github/workflows/deploy-pages.yml # GitHub Pages 部署（静态镜像，见 10.6）
+├─ vite.config.ts                     # 多入口构建 + canonical / OG / 静态快照注入
 ├─ .env.example
-└─ tools/smoke-check.mjs              # 路由 / sitemap / API 健康检查
+└─ tools/smoke-check.mjs              # 路由 / sitemap / API / auth 回调检查
 ```
 
 ---
@@ -105,6 +124,8 @@ npm run dev
 > 这个命令主要启动前端页面。  
 > `api/chat.ts` 是 Serverless 入口，不会因为 `npm run dev` 自动一体化启动真实后端链路。  
 > 如果本地需要真实聊天接口，要额外保证 `/api/chat` 可访问，或者通过环境变量指定 API 地址。
+>
+> `api/auth/*` 同样是 Serverless 入口：本地默认没有登录链路，头部登录组件会提示“暂时无法确认登录状态”，属预期现象。
 
 ### 生产构建
 
@@ -149,6 +170,7 @@ npm run check:smoke
 - `public/sitemap.xml` 是否与实际路由一致
 - `/scene/**` 目录是否存在缺失入口
 - `api/chat.ts` 健康检查是否通过
+- auth 回调口径是否锁定为 `/api/auth/callback`（含 `.env.example` 里的 canonical 回调写法）
 
 ---
 
@@ -163,12 +185,25 @@ npm run check:smoke
 | `/figures/steve-jobs/` | `figures/steve-jobs/index.html` | `src/figures-steve-jobs.tsx` | `features/figure-chat` |
 | `/figures/elon-musk/` | `figures/elon-musk/index.html` | `src/figures-elon-musk.tsx` | `features/figure-chat` |
 | `/figures/zhang-yiming/` | `figures/zhang-yiming/index.html` | `src/figures-zhang-yiming.tsx` | `features/figure-chat` |
+| `/figures/customer-service/` | `figures/customer-service/index.html` | `src/figures-customer-service.tsx` | `features/figure-chat` |
+| `/figures/sales-assistant/` | `figures/sales-assistant/index.html` | `src/figures-sales-assistant.tsx` | `features/figure-chat` |
+| `/figures/video-script-assistant/` | `figures/video-script-assistant/index.html` | `src/figures-video-script-assistant.tsx` | `features/figure-chat` |
 | `/scene/` | `scene/index.html` | `src/scene.tsx` | `src/pages/ScenePage.tsx` |
 | `/scene/digital-resident/` | `scene/digital-resident/index.html` | `src/sceneLogCollection.tsx` | `src/data/scene/digital-resident.ts` |
 | `/scene/blog-ops/` | `scene/blog-ops/index.html` | `src/sceneLogCollection.tsx` | `src/data/scene/blog-ops.ts` |
 | `/scene/site-ops/` | `scene/site-ops/index.html` | `src/sceneLogCollection.tsx` | `src/data/scene/site-ops.ts` |
 | `/scene/.../YYYY-MM-DD/` | 各详情页 `index.html` | `src/sceneLogDetail.tsx` | 对应 `src/data/scene/*.ts` 中的 `detailContent` |
 | `/tools/` | `tools/index.html` | 无 React 页面 | 纯跳转到 `/scene/` |
+
+### 认证 API 路由
+
+| 路由 | 文件入口 | 行为 |
+| --- | --- | --- |
+| `/api/auth/login?type=qq\|baidu` | `api/auth/login.js` | 写入签名 state cookie 后 302 到大恩登录页 |
+| `/api/auth/callback` | `api/auth/callback.js` | 校验 state、换取用户资料，写入签名 session cookie，按 `return_to` 回跳 |
+| `/api/auth/logout` | `api/auth/logout.js` | 清除 session cookie；GET 302 回站，POST 返回 JSON |
+| `/api/auth/me` | `api/auth/me.js` | 返回登录状态、登录方式列表与今日限额快照 |
+| `/api/daen?route=...` | `api/daen.ts` | 旧聚合入口，按 query 分发到上面四个 handler |
 
 ### Scene 详情页实际来源
 
@@ -249,6 +284,9 @@ Scene 详情页不是逐个写 JSX，而是：
 - `src/assets/figures/steve-jobs.jpg`
 - `src/assets/figures/elon-musk.jpg`
 - `src/assets/figures/zhang-yiming.jpg`
+- `src/assets/figures/customer-service.png`
+- `src/assets/figures/sales-assistant.png`
+- `src/assets/figures/video-script-assistant.png`
 
 ### 人物入口页 SEO 在哪里改
 
@@ -287,14 +325,9 @@ Scene 详情页不是逐个写 JSX，而是：
 
 ### 人物详情页 head 区在哪里改
 
-- `figures/steve-jobs/index.html`
-- `figures/elon-musk/index.html`
-- `figures/zhang-yiming/index.html`
+人物页 SEO（title / description / OG / 结构化数据 / 静态快照）统一由 `src/seo/criticalPageContent.ts` 的 `figureSeoDefinitions` 维护，构建时自动注入并覆盖 HTML 占位。
 
-这里分别维护：
-
-- `<title>`
-- `<meta name="description">`
+`figures/steve-jobs/index.html` 这类 HTML 入口里的 `<title>` / `<meta name="description">` 只作为兜底，一般不需要直接改。
 
 ### 人物回复策略相关逻辑在哪里改
 
@@ -312,7 +345,7 @@ Scene 详情页不是逐个写 JSX，而是：
 
 ### 6.2.1 新增聊天人物 SOP
 
-如果不是修改现有 3 个人物，而是并行新增一个新人物，建议按下面顺序做：
+如果不是修改现有 6 个对话入口，而是并行新增一个新人物或新岗位，建议按下面顺序做：
 
 1. 先确定人物 slug，例如：`figures/new-person/`
 2. 在 `src/site.ts` 补人物路径常量
@@ -334,8 +367,8 @@ Scene 详情页不是逐个写 JSX，而是：
    - `src/features/figure-chat/core.ts`
    - `api/chat.ts`
 9. 新人物页落地后，同步补：
-   - `public/sitemap.xml`
-   - 对应 `figures/<slug>/index.html` 的 `<title>` / `<meta name="description">`
+    - `public/sitemap.xml`
+    - `src/seo/criticalPageContent.ts` 里的 `figureSeoDefinitions`（新页面的 SEO 元数据与静态快照）
 10. 最后执行：
     - `npm run check`
     - 手动打开新人物页，至少确认 1 次 fallback 链路可用
@@ -508,7 +541,7 @@ contact: 'mailto:hello@liutongxue.com'
 
 但当前首页联系区的实际用户承接方式是二维码展示；该 mailto 常量当前不是首页主 CTA。
 
-同时，头部导航中的“具身AI”在 `src/components/SiteHeader.tsx` 中仍为禁用态占位项，尚未配置可访问的正式入口。
+同时，头部导航中的“具身AI”已在 `src/components/SiteHeader.tsx` 的 `reservedNavTargets` 中指向 `/figures/`；以后如果要给“具身AI”更换正式入口，改这一处即可。
 
 ---
 
@@ -549,16 +582,12 @@ contact: 'mailto:hello@liutongxue.com'
 
 ### 页面 title / meta description
 
-每个路由自己的 HTML 入口文件里改，例如：
+当前分两层维护：
 
-- `index.html`
-- `figures/index.html`
-- `figures/**/*.html`
-- `scene/index.html`
-- `scene/**/*.html`
-- `tools/index.html`
+- **关键页面**（首页、`/figures/` 与 6 个对话页、`/scene/` 与全部集合页 / 详情页）：title / description 统一在 `src/seo/criticalPageContent.ts` 的 `criticalPageContent` 里维护；scene 详情页的 `seoTitle` / `seoDescription` 来自 `src/data/scene/*.ts` 日志数据。构建时由 `vite.config.ts` 计算并覆盖写回 HTML
+- **各 HTML 入口文件**（`index.html`、`figures/**/*.html`、`scene/**/*.html`、`tools/index.html`）里的 `<title>` / `<meta name="description">`：只在页面不在 `criticalPageContent` 覆盖范围时兜底生效；当前关键页 HTML 里多为占位值，一般不用直接改
 
-也就是说，**title 和 meta description 不是集中在 React 组件里改，而是主要在每个 HTML 文件里改。**
+也就是说，**改关键页的 SEO 文案优先去 `src/seo/criticalPageContent.ts`，而不是逐个 HTML 文件。**
 
 ### canonical / OG 在哪里改
 
@@ -575,6 +604,9 @@ contact: 'mailto:hello@liutongxue.com'
 - `og:title`
 - `og:description`
 - `og:url`
+- `og:image` / `twitter` 卡片系列（默认 `public/og/liutongxue-share.png`）
+- JSON-LD 结构化数据（主实体 / 面包屑 / FAQ）
+- 关键页还会把无 JS 静态快照预渲染进 `#root`
 - 非 canonical 构建（如 TEST）时的 `robots=noindex,nofollow,noarchive`
 
 注入所依赖的数据来源：
@@ -600,8 +632,8 @@ contact: 'mailto:hello@liutongxue.com'
 
 因为 `/tools/` 现在只是兼容旧入口，不再作为独立内容页维护。
 
-> 当前没有统一注入 `og:image` 的逻辑。  
-> 如果后续要补分享图，需要在 `vite.config.ts` 或各页面 HTML 里单独扩展。
+> 当前 `vite.config.ts` 会为所有页面统一注入 `og:image` / `twitter:image`，默认指向 `public/og/liutongxue-share.png`（1200x630）。  
+> 要更换分享图，替换 `vite.config.ts` 里的 `defaultSocialImagePath` 或直接替换 `public/og/` 下的文件。
 
 ---
 
@@ -654,6 +686,7 @@ contact: 'mailto:hello@liutongxue.com'
 - `public/sitemap.xml` 是否与真实路由一致
 - scene 日期目录是否缺 `index.html`
 - `api/chat.ts` 健康检查
+- auth 回调归一化检查（回调真源锁定为 `/api/auth/callback`）
 
 > 新增页面不应仅补 HTML 入口，通常还需要同步检查并补齐以下项：
 > - 路径常量
@@ -700,7 +733,7 @@ Scene cover 图放在 `src/assets/scene/**/cover.webp`，由 `src/data/scene/ass
 ### 10.1 环境变量总表
 
 README 中提到的本地开发、构建与 smoke check 已经在第 4 章写明；
-这里补的是“聊天链路 / canonical / 域名迁移”相关的变量说明。
+这里补的是“聊天链路 / 登录限额 / canonical / 域名迁移”相关的变量说明。
 
 | 变量名 | 是否必填 | 读取位置 | 用途 | 默认行为 / 备注 |
 | --- | --- | --- | --- | --- |
@@ -712,8 +745,20 @@ README 中提到的本地开发、构建与 smoke check 已经在第 4 章写明
 | `OPENAI_MODEL` | 否 | `api/chat.ts` | 指定模型名 | 默认值是 `gpt-4.1-mini`。 |
 | `OPENAI_BASE_URL` | 否 | `api/chat.ts` | 指定 OpenAI 兼容网关地址 | 默认值是 `https://api.openai.com/v1`。 |
 | `ALLOWED_ORIGINS` | 生产强烈建议填写 | `api/chat.ts` | 控制允许跨域访问 API 的前端来源 | 多个域名用英文逗号分隔；本地和已知预览来源要显式纳入。 |
+| `DAEN_CONNECT_URL` | 登录功能必填 | `api/_lib/auth.js` | 大恩聚合登录统一接口地址 | 默认 `https://u.daenwl.com/connect.php`。 |
+| `DAEN_ENABLED_TYPES` | 登录功能必填 | `api/_lib/auth.js` | 当前开放的登录方式 | 逗号分隔；当前为 `qq,baidu`。 |
+| `DAEN_APP_ID` / `DAEN_APP_KEY` | 登录功能必填 | `api/_lib/auth.js` | 大恩应用凭证 | 真实值只放环境变量，不要提交进仓库。 |
+| `DAEN_AUTH_CALLBACK_URL` | 登录功能必填 | `api/_lib/auth.js` | OAuth 回调地址 | 即使误填旧地址，运行时也会自动收敛到 `/api/auth/callback`。 |
+| `AUTH_SESSION_SECRET` | 登录功能必填 | `api/_lib/auth.js` | 签名 state / session cookie 的密钥 | 至少 32 位随机字符串。 |
+| `AUTH_SESSION_TTL_SECONDS` | 否 | `api/_lib/auth.js` | session 有效期 | 默认 604800（7 天）。 |
+| `AUTH_SESSION_COOKIE_NAME` / `AUTH_STATE_COOKIE_NAME` | 否 | `api/_lib/auth.js` | session / state cookie 名 | 默认 `liutongxue_session` / `liutongxue_auth_state`。 |
+| `AUTH_LOGIN_SUCCESS_URL` / `AUTH_LOGOUT_REDIRECT_URL` | 否 | `api/_lib/auth.js` | 登录成功 / 退出后的回站地址 | 默认 `/figures/`；从具体人物页发起登录会优先回跳原页面。 |
+| `AUTH_DAILY_LIMIT` | 否 | `api/_lib/auth.js`、`api/_lib/quota.js` | 已登录账号的人物对话每日限额 | 默认 10。 |
+| `AUTH_KV_ENABLED` | 启用账号限额时必填 | `api/_lib/quota.js` | 是否启用账号每日限额 | 需与下面两个 KV REST 变量同时配置。 |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | 启用账号限额时必填 | `api/_lib/quota.js` | Upstash / Vercel KV REST 凭证 | 未完整配置时返回 `quota.mode=unavailable`，前端显示“今日次数待确认”，不误导为已生效。 |
+| `KV_URL` | 否 | — | 可选，保留给其他 KV 用途 | 人物对话限额当前只走 REST。 |
 
-### 10.2 三种常见运行场景
+### 10.2 几种常见运行场景
 
 #### 场景 A：前端与 API 同域部署
 
@@ -765,7 +810,28 @@ VITE_CANONICAL_SITE_URL=https://www.liutongxue.com.cn
 npm run check
 ```
 
-### 10.3 人物聊天链路的当前约定
+### 10.3 登录与每日限额链路
+
+当前登录体系基于“大恩聚合登录”（OAuth 承接 QQ / 百度），由 Vercel Serverless 承载：
+
+| 环节 | 位置 |
+| --- | --- |
+| 登录协议与签名 cookie session | `api/_lib/auth.ts`（运行时走 `auth.js`） |
+| 登录 / 回调 / 退出 / 状态接口 | `api/auth/login.js`、`callback.js`、`logout.js`、`me.js` |
+| 旧聚合分发入口 | `api/daen.ts`（`?route=login\|callback\|logout\|me`） |
+| 前端登录状态获取 | `src/features/auth/useAuthEntryState.ts`（请求 `/api/auth/me`） |
+| 头部登录 / 账号组件 | `src/features/auth/AuthHeaderWidget.tsx`（桌面端）+ `src/components/SiteHeader.tsx`（移动端下拉） |
+| 账号每日限额 | `api/_lib/quota.js`（Upstash / Vercel KV REST） |
+
+当前行为约定：
+
+- 登录流程：`/api/auth/login?type=qq|baidu` 写入签名 state cookie 并 302 到大恩 → 大恩回调 `/api/auth/callback` → 校验 state、换取用户资料 → 写入 HMAC 签名的 session cookie → 按 `return_to` 回跳原页面（带 `?auth=signed-in` / `auth-error` 提示）
+- 未登录：每设备可体验 5 次（前端 localStorage，所有角色共享 `liutongxue-figure-chat-remaining`）
+- 已登录：每账号每日 10 次（`AUTH_DAILY_LIMIT`），按上海时区零点重置；服务端经 KV REST 按 subject 扣减，`api/chat.ts` 在调用模型前先预留额度，模型失败会回滚
+- KV 未完整配置时：接口返回 `quota.mode=unavailable`，前端显示“今日次数待确认”，不会误报额度已生效
+- `src/features/auth/AuthEntryCard.tsx` 当前没有被任何页面引用（登录入口已收进头部导航），属于保留的历史组件
+
+### 10.4 人物聊天链路的当前约定
 
 当前人物聊天链路是：
 
@@ -779,8 +845,9 @@ npm run check
 - 同域访问时，聊天页默认请求当前域名下的 `/api/chat`
 - 如果缺少模型变量或接口不可达，前端会自动回退到演示回复
 - 如果后端函数加载失败，前端会显示未连接或 fallback 状态
+- 登录用户的响应会带 `quota` 字段（scope / remaining / limit / mode / exhausted），前端据此展示“今日剩余”，并把 429 转成限额提示
 
-### 10.4 部署与域名口径
+### 10.5 部署与域名口径
 
 #### 正式口径
 
@@ -831,6 +898,48 @@ npm run check
 - README 中的正式域名文案
 - `ALLOWED_ORIGINS`
 
+### 10.6 GitHub Pages 部署（静态镜像）
+
+仓库自带 `.github/workflows/deploy-pages.yml`，push 到 `main` 或手动触发（workflow_dispatch）即可构建并发布到 GitHub Pages。
+
+#### 先知道的约束
+
+- GitHub Pages 只能托管静态产物；`api/` 下的 Serverless（真实模型聊天、登录、账号限额）在 Pages 上不可用
+- Pages 上的聊天页会走项目自带的兜底：接口健康检查失败后自动降级为演示回复（offline / mock 状态），不扣次数
+- 头部登录组件会提示“暂时无法确认登录状态”，属预期现象
+
+#### 首次启用步骤
+
+1. 打开 GitHub 仓库 → `Settings` → `Pages`
+2. `Build and deployment` → `Source` 选择 **GitHub Actions**
+3. push 到 `main`（或在 Actions 页手动 Run workflow）
+4. 完成后站点地址为：`https://dosliu.github.io/liutongxue-web/`
+
+> 免费计划要求仓库为 public；private 仓库需要 GitHub Pro 及以上。
+
+#### 当前默认：镜像模式
+
+workflow 顶部 env 集中管理三个值：
+
+- `VITE_SITE_URL` = Pages 地址
+- `VITE_CANONICAL_SITE_URL` = 正式域名（保持 `https://www.liutongxue.com.cn`）
+- `PAGES_BASE` = `/liutongxue-web/`（项目页必须带 base 路径）
+
+两者不一致时，构建会自动给所有页面注入 `noindex`、canonical 继续指向正式域名，与 TEST 构建同一套机制（见 10.2 场景 C），不会产生第二套可索引口径。
+
+已知限制：`src/seo/criticalPageContent.ts` 静态快照里的站内链接是根路径硬编码（如 `/scene/`），项目页子路径部署下，无 JS 环境点击这些快照链接会 404；React 加载后由 `src/site.ts` 的 BASE_URL 路径接管，正常可用。绑定自定义域名（根路径部署）则无此问题。
+
+#### 切换到主站模式（如果要长期只用 Pages）
+
+1. 把 `VITE_CANONICAL_SITE_URL` 改成与 `VITE_SITE_URL` 一致（或绑定自定义域名后改成该域名）
+2. 绑定自定义域名时：把 `PAGES_BASE` 改成 `/`，并在 `public/` 下加 `CNAME` 文件、按 GitHub 提示配 DNS
+3. 同步核对 `public/sitemap.xml`、`public/robots.txt`、`public/llms.txt` 的域名口径（见 10.5 的迁移清单）
+4. 注意：纯 Pages 主站模式下 `og:image` 注入的是 canonical 域名根路径，未带 base 前缀，需自行确认分享图可访问
+
+#### 可选：Pages 静态 + Vercel API 混合
+
+如果保留现有 Vercel 项目只当 API 用：在 workflow 的 build 步骤加环境变量 `VITE_JOBS_CHAT_API_BASE_URL=https://www.liutongxue.com.cn`，并把 Pages 域名加入 Vercel 侧的 `ALLOWED_ORIGINS`。这样 Pages 上的聊天可以走真实模型（设备 5 次限额仍生效）；登录链路前端写死了同域 `/api/auth/*`，混合模式下仍不可用。
+
 ---
 
 ## 11. 高风险 / 不要轻易乱动的区域
@@ -845,12 +954,13 @@ npm run check
 - 涉及 CORS、fallback、Serverless 运行时
 - 改坏会直接影响线上聊天可用性
 
-### 2) `src/features/figure-chat/core.ts`
+### 2) `api/_lib/figure-chat.ts`（前端 `src/features/figure-chat/core.ts` 只是 re-export）
 
 原因：
 
-- 同时承载人物 system prompt、直出规则、mock 逻辑
+- 同时承载 6 个角色的人物 system prompt、直出规则、mock 逻辑
 - 轻微改动就会显著改变角色口吻与稳定性
+- 注意 `.ts` / `.js` 双份手工同步，改一份要同步另一份
 
 ### 3) `src/features/figure-chat/shared.ts`
 
@@ -887,6 +997,27 @@ npm run check
 - 这是项目当前的路由一致性守门脚本
 - 改它等于改验收标准
 
+### 8) `api/_lib/auth.ts` / `api/_lib/auth.js`
+
+原因：
+
+- 承载大恩登录协议、state / session 签名 cookie，是鉴权安全边界
+- 改坏会直接影响登录可用性，甚至引入伪造 session 的风险
+
+### 9) `api/_lib/quota.js`
+
+原因：
+
+- 账号每日限额的唯一实现（KV REST 扣减、回滚、上海时区重置）
+- 只有 `.js` + `.d.ts`，没有 `.ts` 源码版
+
+### 10) `src/seo/criticalPageContent.ts`
+
+原因：
+
+- 关键页 title / description / 结构化数据 / 无 JS 快照的唯一来源
+- 改错会直接影响搜索收录与分享卡片
+
 ---
 
 ## 12. 提交前建议流程
@@ -904,6 +1035,7 @@ npm run check
 - 修改 `public/sitemap.xml`
 - 修改 `api/chat.ts`
 - 修改人物聊天 prompt / mock / fallback
+- 修改登录 / 限额相关文件（`api/auth/*`、`api/_lib/auth.*`、`api/_lib/quota.js`）
 - 修改 scene 数据和图片路径
 
 推荐最小检查清单：
@@ -914,6 +1046,7 @@ npm run check
 4. 打开至少 1 个 scene 集合页
 5. 打开至少 1 个 scene 详情页
 6. 如果碰了聊天逻辑，再检查 `/api/chat`
+7. 如果碰了登录或限额逻辑，再检查 `/api/auth/me` 与人物页限额展示
 
 ---
 
@@ -923,9 +1056,9 @@ npm run check
 
 1. 先看 `README`
 2. 再看 `src/site.ts`，理解全站路径
-3. 再看 `vite.config.ts`，理解多入口与 SEO 注入
+3. 再看 `vite.config.ts` 与 `src/seo/criticalPageContent.ts`，理解多入口、SEO 注入与静态快照
 4. 再看 `src/pages/*` 与 `src/data/scene/*`
-5. 最后再碰 `features/figure-chat/*` 和 `api/chat.ts`
+5. 最后再碰 `features/figure-chat/*`、`api/chat.ts`、`api/auth/*` 与 `api/_lib/*`
 
 优先做 **小范围精确修改**，不要上来就尝试把它重构成另一套架构。
 
@@ -934,17 +1067,20 @@ npm run check
 - 保持入口一致
 - 保持 scene 数据与 HTML / sitemap 对齐
 - 保持人物聊天的前后端逻辑不要漂移
+- 改 `api/_lib/` 时 `.ts` / `.js` 两份同步提交
 
 ---
 
 ## 14. 当前维护状态
 
-截至当前版本，这些基础项已经对齐：
+截至当前版本（2026-09），这些基础项已经对齐：
 
 - title 风格已统一
-- description / og:description 已统一到关键页面
+- description / og:description / og:image 已统一到关键页面
 - `/tools/` 已转为 `/scene/` 兼容入口
 - scene 图片已做一轮收口与压缩
+- 人物对话页已扩展到 6 个（3 个人物 + 3 个岗位 AI）
+- 大恩聚合登录与账号每日限额链路已落地
 - `npm run check` 当前通过
 
 因此，这个仓库现在已经适合直接进入下一轮需求开发。

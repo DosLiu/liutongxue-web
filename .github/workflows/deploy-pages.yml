@@ -1,0 +1,67 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  # GitHub Pages 实际访问地址（项目页格式：https://<owner>.github.io/<repo>/）
+  VITE_SITE_URL: https://dosliu.github.io/liutongxue-web/
+  # canonical 域名口径：
+  #   - 镜像模式（当前默认）：保持正式域名，Pages 产物构建时会自动注入 noindex，不影响 www.liutongxue.com.cn 的 SEO 口径
+  #   - 主站模式：改成与 VITE_SITE_URL 一致（或将来绑定自定义域名后改成该域名），同时需要同步核对
+  #     public/sitemap.xml、public/robots.txt、public/llms.txt 的域名口径（见 README 10.5 / 10.6）
+  VITE_CANONICAL_SITE_URL: https://www.liutongxue.com.cn
+  # 项目页部署必须带 base 路径；若绑定自定义域名（根路径部署），改成 “/” 即可
+  PAGES_BASE: /liutongxue-web/
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build -- --base="$PAGES_BASE"
+
+      - name: Disable Jekyll processing
+        run: touch dist/.nojekyll
+
+      - name: Smoke check
+        run: npm run check:smoke
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
