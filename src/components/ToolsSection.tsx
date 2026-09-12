@@ -36,7 +36,7 @@ function ToolCard({ tool, index }: ToolCardProps) {
   const cardContent = (
     <div className="tool-card-content">
       <h3 className="tool-card-title">{tool.label}</h3>
-      <p className="tool-card-description">{tool.description}</p>
+      {tool.description ? <p className="tool-card-description">{tool.description}</p> : null}
     </div>
   );
 
@@ -87,7 +87,7 @@ export default function ToolsSection({ id }: ToolsSectionProps) {
 
         <div className={`tools-showcase-header ${titleVisible ? 'visible' : ''}`}>
           <h2 className="tools-showcase-title">案发现场</h2>
-          <p className="tools-showcase-subtitle">多维 Agent 矩阵的实时协作</p>
+          <p className="tools-showcase-subtitle">三个持续更新的项目现场</p>
         </div>
 
         <div className="tools-showcase-spacer tools-showcase-spacer--gap" aria-hidden="true" />
