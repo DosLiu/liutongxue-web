@@ -855,21 +855,20 @@ npm run check
 - README、SEO、sitemap、robots、canonical、`llms.txt` 默认都应以这个 `www` 域名为准
 - TEST / 预览域名只用于验收，不应作为默认公开口径，也不应作为 canonical source
 
-#### TEST-first 发布流程
+#### 发布流程（2026-09 起：本地验收）
 
 当前默认发布顺序是：
 
 1. 本地改动
-2. 本地验证（至少 `npm run check`）
-3. 同步到 `test`
-4. 在 TEST 域名验收
-5. 验收通过后再同步到 `main`
+2. 本地验证：至少 `npm run check`，再用 `npm run dev` / `npm run preview` 逐页人工验收
+3. 同步到 `test` 分支留档
+4. 验收通过后合入 `main`
 
 补充约束：
 
-- 不要把 TEST 当成正式索引入口
-- 不要在用户未确认 TEST 之前直接把同轮改动同步到 `main`
-- 如果 TEST 构建存在分支漂移，先修 TEST，再谈正式同步
+- 2026-09 起 TEST 域名（test.liutongxue.com.cn）已停用不可达，验收以本地预览为准
+- 合入 `main` 即同时发布正式站（Vercel www）与 GitHub Pages 镜像，合入前必须完成本地逐页验收
+- 不要把 TEST 域名当成正式索引入口（构建层仍会自动 noindex）
 
 #### 当前已验证的部署形态
 
