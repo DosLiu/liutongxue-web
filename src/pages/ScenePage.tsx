@@ -1,68 +1,87 @@
 import { useState } from 'react';
 import SiteHeader from '../components/SiteHeader';
 import SceneQrModal from '../components/SceneQrModal';
-import { SCENE_PROJECT_BLOCKS, type SceneProjectBlock } from '../constants/sceneProjects';
+import { SCENE_PROJECT_CARDS, type SceneProjectCard } from '../constants/sceneProjects';
+import { getLatestSceneLog, sceneCollectionList } from '../data/scene';
 import './ScenePage.css';
 
-const isExternalHref = (href: string) => /^https?:\/\//i.test(href);
+type ProjectCardView = SceneProjectCard & { footerLabel: string; footerText: string };
 
-type ProjectBlockProps = {
-  block: SceneProjectBlock;
-  onOpenQr: (block: SceneProjectBlock) => void;
+const buildCardViews = (): ProjectCardView[] => {
+  const latestLogs = sceneCollectionList
+    .map((collection) => getLatestSceneLog(collection.key))
+    .filter((log) => Boolean(log))
+    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+  const latestLog = latestLogs[0];
+
+  return SCENE_PROJECT_CARDS.map((card) => {
+    if (card.id === 'ai-work-logs' && latestLog) {
+      return {
+        ...card,
+        footerLabel: '最新动态',
+        footerText: `${latestLog.publishedAt}｜${latestLog.preview}`
+      };
+    }
+
+    return { ...card, footerLabel: card.footerLabel ?? '', footerText: card.footerText ?? '' };
+  });
 };
 
-function ProjectBlock({ block, onOpenQr }: ProjectBlockProps) {
-  const href = block.href;
-  const isExternal = href ? isExternalHref(href) : false;
-  const titleId = `scene-project-title-${block.id}`;
+type ProjectCardProps = {
+  card: ProjectCardView;
+  onOpenQr: (card: SceneProjectCard) => void;
+};
+
+function ProjectCard({ card, onOpenQr }: ProjectCardProps) {
+  const isExternal = card.href ? /^https?:\/\//i.test(card.href) : false;
+  const body = (
+    <>
+      <h2 className="scene-card__title">{card.title}</h2>
+      <p className="scene-card__description">{card.description || '介绍文案待补充。'}</p>
+
+      <div className="scene-card__footer">
+        <div className="scene-card__log-preview">
+          {card.footerLabel ? (
+            <span className="scene-card__log-meta">
+              <span className="scene-card__log-date">{card.footerLabel}</span>
+            </span>
+          ) : null}
+          <span className="scene-card__log-text">{card.footerText}</span>
+        </div>
+      </div>
+    </>
+  );
+
+  if (card.qr) {
+    return (
+      <button
+        type="button"
+        className="scene-card scene-card--link"
+        onClick={() => onOpenQr(card)}
+        aria-haspopup="dialog"
+      >
+        {body}
+      </button>
+    );
+  }
+
+  if (!card.href) {
+    return <div className="scene-card">{body}</div>;
+  }
 
   return (
-    <section className={`scene-project scene-project--${block.id}`} aria-labelledby={titleId}>
-      <div className="scene-project__head">
-        <span className="scene-project__tag">{block.tag}</span>
-        <h2 id={titleId} className="scene-project__title">
-          {block.title}
-        </h2>
-      </div>
-
-      {block.intro ? (
-        <p className="scene-project__intro">{block.intro}</p>
-      ) : (
-        <p className="scene-project__intro scene-project__intro--placeholder">介绍文案待补充。</p>
-      )}
-
-      {block.points?.length ? (
-        <ul className="scene-project__points">
-          {block.points.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
-      ) : null}
-
-      <div className="scene-project__actions">
-        {block.qr ? (
-          <button type="button" className="scene-project__cta" onClick={() => onOpenQr(block)}>
-            {block.ctaLabel}
-          </button>
-        ) : href ? (
-          <a
-            className="scene-project__cta"
-            href={href}
-            {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-          >
-            {block.ctaLabel}
-            {isExternal ? <span aria-hidden="true"> ↗</span> : null}
-          </a>
-        ) : (
-          <span className="scene-project__cta scene-project__cta--pending">上线地址待补充</span>
-        )}
-      </div>
-    </section>
+    <a
+      href={card.href}
+      className="scene-card scene-card--link"
+      {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    >
+      {body}
+    </a>
   );
 }
 
 export default function ScenePage() {
-  const [qrBlock, setQrBlock] = useState<SceneProjectBlock | null>(null);
+  const [qrCard, setQrCard] = useState<SceneProjectCard | null>(null);
 
   return (
     <>
@@ -83,15 +102,15 @@ export default function ScenePage() {
             </div>
           </section>
 
-          <div className="scene-project-list">
-            {SCENE_PROJECT_BLOCKS.map((block) => (
-              <ProjectBlock key={block.id} block={block} onOpenQr={setQrBlock} />
+          <section className="scene-card-grid" aria-label="项目入口">
+            {buildCardViews().map((card) => (
+              <ProjectCard key={card.id} card={card} onOpenQr={setQrCard} />
             ))}
-          </div>
+          </section>
         </div>
       </main>
 
-      <SceneQrModal block={qrBlock} onClose={() => setQrBlock(null)} />
+      <SceneQrModal block={qrCard} onClose={() => setQrCard(null)} />
     </>
   );
 }

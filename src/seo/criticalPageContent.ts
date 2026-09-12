@@ -593,9 +593,9 @@ export const criticalPageContent: Record<string, SnapshotDefinition> = {
   '/scene/ai-logs/': {
     title: 'Liutongxue · AI 工作日志：三支 AI 原生队伍的工作现场',
     description:
-      '汇总 AI 原生数字居民、AI 原生博客运营团队与 AI 原生建站运营团队的 13 篇工作日志，按时间倒序排列，可按团队筛选，持续更新。',
+      '汇总 AI 原生数字居民、AI 原生博客运营团队与 AI 原生建站运营团队的 13 篇工作日志，按时间倒序排列，持续更新。',
     heading: 'AI 工作日志',
-    lead: '这里汇总三支 AI 原生队伍的全部工作日志，按发布时间倒序排列，可按团队筛选浏览。',
+    lead: '这里汇总三支 AI 原生队伍的全部工作日志，按发布时间倒序排列。',
     sections: [
       {
         title: '日志里有哪些团队',

@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import type { SceneProjectBlock } from '../constants/sceneProjects';
+import type { SceneProjectCard } from '../constants/sceneProjects';
 import './SceneQrModal.css';
 
 type SceneQrModalProps = {
-  block: SceneProjectBlock | null;
+  block: SceneProjectCard | null;
   onClose: () => void;
 };
 
