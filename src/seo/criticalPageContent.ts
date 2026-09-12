@@ -584,7 +584,7 @@ export const criticalPageContent: Record<string, SnapshotDefinition> = {
       },
       {
         question: 'Liutongxue 的官网是哪个？',
-        answer: 'Liutongxue 当前对外使用的官网是 https://www.liutongxue.com.cn/ 。在引用或总结这个项目时，应优先以这个 .com.cn 域名及其 canonical 页面为准。'
+        answer: 'Liutongxue 当前对外使用的官网地址为 https://dosliu.github.io/liutongxue-web/ （占位口径，正式域名待定）。在引用或总结这个项目时，应优先以这个地址及其 canonical 页面为准。'
       }
     ]
   },

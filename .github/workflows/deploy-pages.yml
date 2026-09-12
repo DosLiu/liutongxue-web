@@ -17,12 +17,15 @@ concurrency:
 env:
   # GitHub Pages 实际访问地址（项目页格式：https://<owner>.github.io/<repo>/）
   VITE_SITE_URL: https://dosliu.github.io/liutongxue-web/
-  # canonical 域名口径：
-  #   - 镜像模式（当前默认）：保持正式域名，Pages 产物构建时会自动注入 noindex，不影响 www.liutongxue.com.cn 的 SEO 口径
-  #   - 主站模式：改成与 VITE_SITE_URL 一致（或将来绑定自定义域名后改成该域名），同时需要同步核对
-  #     public/sitemap.xml、public/robots.txt、public/llms.txt 的域名口径（见 README 10.5 / 10.6）
-  VITE_CANONICAL_SITE_URL: https://www.liutongxue.com.cn
-  # 项目页部署必须带 base 路径；若绑定自定义域名（根路径部署），改成 “/” 即可
+  # canonical 域名口径（占位）：
+  #   - 原正式域名 www.liutongxue.com.cn 已归简历网站使用，不可再作为本站口径
+  #   - 当前用 Pages 地址同时作为 site 与 canonical，并通过 VITE_FORCE_NOINDEX 保持整站不收录
+  #   - 正式域名确定后：两个 URL 改成新域名、删除 VITE_FORCE_NOINDEX，
+  #     并同步替换 public/sitemap.xml、public/robots.txt、public/llms.txt、README、.env.example 中的占位域名
+  VITE_CANONICAL_SITE_URL: https://dosliu.github.io/liutongxue-web/
+  # 正式域名就绪前保持整站 noindex（构建层自动注入 robots noindex）
+  VITE_FORCE_NOINDEX: '1'
+  # 项目页部署必须带 base 路径；绑定自定义域名（根路径部署）时改成 “/” 即可
   PAGES_BASE: /liutongxue-web/
 
 jobs:
