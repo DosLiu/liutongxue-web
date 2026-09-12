@@ -18,6 +18,7 @@ const requiredEntries = [
   'figures/sales-assistant/index.html',
   'figures/video-script-assistant/index.html',
   'scene/index.html',
+  'scene/ai-logs/index.html',
   'scene/blog-ops/index.html',
   'scene/digital-resident/index.html',
   'scene/site-ops/index.html'
