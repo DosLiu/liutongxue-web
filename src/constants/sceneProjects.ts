@@ -34,7 +34,7 @@ export const SCENE_PROJECT_CARDS: SceneProjectCard[] = [
   },
   {
     id: 'mini-program',
-    title: '微信小程序',
+    title: '就喝1杯',
     description:
       '假装喝一杯，真的省下钱。想喝奶茶又怕胖？来这里假装喝一杯。点单、摇杯、插吸管、一口口吸到底，仪式感拉满，糖分热量都是零。',
     footerLabel: '体验入口',
