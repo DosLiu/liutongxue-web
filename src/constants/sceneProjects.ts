@@ -1,3 +1,4 @@
+import miniProgramQr from '../assets/mini-program-qr.jpg';
 import { sitePaths } from '../site';
 
 export type SceneProjectCard = {
@@ -31,14 +32,16 @@ export const SCENE_PROJECT_CARDS: SceneProjectCard[] = [
     footerLabel: '现场证据',
     footerText: '已上线，点进去亲自验证 ↗'
   },
-  // 微信小程序：文案与小程序码图片待补充，图片放到 src/assets/ 后填入 qr.imageSrc
   {
     id: 'mini-program',
     title: '微信小程序',
-    description: '',
-    footerText: '点击卡片查看小程序码',
+    description:
+      '假装喝一杯，真的省下钱。想喝奶茶又怕胖？来这里假装喝一杯。点单、摇杯、插吸管、一口口吸到底，仪式感拉满，糖分热量都是零。',
+    footerLabel: '体验入口',
+    footerText: '点开卡片，扫码假装喝一杯 ↗',
     qr: {
-      caption: '微信扫码或长按识别，打开小程序'
+      caption: '微信扫码或长按识别，马上假装喝一杯',
+      imageSrc: miniProgramQr
     }
   }
 ];

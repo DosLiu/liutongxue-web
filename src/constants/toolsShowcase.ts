@@ -20,6 +20,6 @@ export const TOOL_SHOWCASE_ITEMS: ToolShowcaseItem[] = [
   {
     id: 'mini-program',
     label: '微信小程序',
-    description: ''
+    description: '想喝奶茶又怕胖？来这里假装喝一杯：点单、摇杯、插吸管，仪式感拉满，糖分热量都是零。'
   }
 ];
