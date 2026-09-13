@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.liutongxue.com.cn/sitemap.xml
-Host: www.liutongxue.com.cn
+# 占位域名：正式域名确定后统一替换（原 www.liutongxue.com.cn 已归简历网站使用）
+Sitemap: https://dosliu.github.io/liutongxue-web/sitemap.xml
+Host: dosliu.github.io

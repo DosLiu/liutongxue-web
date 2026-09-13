@@ -19,8 +19,8 @@ type CookieOptions = {
 };
 
 const DEFAULT_ALLOWED_ORIGINS = [
-  'https://www.liutongxue.com.cn',
-  'https://liutongxue.com.cn',
+  // 占位：正式域名待定（原 www.liutongxue.com.cn 已归简历网站使用），当前用 GitHub Pages 来源
+  'https://dosliu.github.io',
   'http://localhost:5173',
   'http://127.0.0.1:5173'
 ];

@@ -1127,3 +1127,28 @@
     font-size: 0.78rem;
   }
 }
+
+button.scene-card {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+}
+
+/* AI 工作日志聚合页：团队按钮 */
+.scene-ai-logs__teams {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.scene-ai-logs__team-button {
+  min-width: auto;
+  padding: 0.42rem 1.05rem;
+}
+
+.scene-ai-logs__team-button.is-active {
+  color: #fff;
+  border-color: rgba(219, 187, 255, 0.55);
+  background: rgba(192, 171, 223, 0.16);
+}

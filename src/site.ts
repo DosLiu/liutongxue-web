@@ -12,6 +12,7 @@ const sceneLogs = Object.fromEntries(
 export const sitePaths = {
   home: baseUrl,
   scene: withBaseUrl('/scene/'),
+  sceneAiLogs: withBaseUrl('/scene/ai-logs/'),
   figures: withBaseUrl('/figures/'),
   figuresSteveJobs: withBaseUrl('/figures/steve-jobs/'),
   figuresElonMusk: withBaseUrl('/figures/elon-musk/'),

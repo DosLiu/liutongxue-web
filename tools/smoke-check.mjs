@@ -4,9 +4,13 @@ import { dirname, relative, resolve } from 'node:path';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, '..');
-const siteUrl = (process.env.VITE_SITE_URL || 'https://www.liutongxue.com.cn').replace(/\/+$/, '');
-const canonicalSiteUrl = (process.env.VITE_CANONICAL_SITE_URL || 'https://www.liutongxue.com.cn').replace(/\/+$/, '');
-const isNonCanonicalBuild = siteUrl !== canonicalSiteUrl;
+// 占位口径：正式域名待定（原 www.liutongxue.com.cn 已归简历网站使用），当前用 GitHub Pages 地址
+const siteUrl = (process.env.VITE_SITE_URL || 'https://dosliu.github.io/liutongxue-web').replace(/\/+$/, '');
+const canonicalSiteUrl = (process.env.VITE_CANONICAL_SITE_URL || 'https://dosliu.github.io/liutongxue-web').replace(/\/+$/, '');
+// 占位期 VITE_FORCE_NOINDEX=1，与 vite.config 的强制 noindex 行为保持一致
+const isNonCanonicalBuild = siteUrl !== canonicalSiteUrl || process.env.VITE_FORCE_NOINDEX === '1';
+// 占位口径的 canonical 域名自带子路径（如 /liutongxue-web），解析 sitemap 时需要剥掉
+const canonicalBasePath = new URL(canonicalSiteUrl).pathname.replace(/\/+$/, '');
 
 const requiredEntries = [
   'index.html',
@@ -18,6 +22,7 @@ const requiredEntries = [
   'figures/sales-assistant/index.html',
   'figures/video-script-assistant/index.html',
   'scene/index.html',
+  'scene/ai-logs/index.html',
   'scene/blog-ops/index.html',
   'scene/digital-resident/index.html',
   'scene/site-ops/index.html'
@@ -74,7 +79,9 @@ for (const match of sitemapSource.matchAll(/<loc>(.*?)<\/loc>/g)) {
   if (!location) continue;
 
   const route = location.startsWith('http://') || location.startsWith('https://')
-    ? normalizeRoute(new URL(location).pathname)
+    ? normalizeRoute(canonicalBasePath && new URL(location).pathname.startsWith(canonicalBasePath)
+      ? new URL(location).pathname.slice(canonicalBasePath.length)
+      : new URL(location).pathname)
     : normalizeRoute(location.replace(siteUrl, ''));
 
   sitemapRoutes.add(route);
@@ -173,14 +180,16 @@ const createMockApiResponse = () => {
 try {
   const { default: chatHandler } = await import(pathToFileURL(resolve(repoRoot, 'api/chat.ts')).href);
   const { getAuthConfig } = await import(pathToFileURL(resolve(repoRoot, 'api/_lib/auth.js')).href);
+  // 浏览器的 CORS Origin 只含 scheme+host（占位口径下是 https://dosliu.github.io），不带子路径
+  const requestOrigin = new URL(siteUrl).origin;
+  const expectedAllowOrigins = new Set([requestOrigin, new URL(canonicalSiteUrl).origin, siteUrl, canonicalSiteUrl]);
 
   {
     const { apiResponse, res } = createMockApiResponse();
-    await chatHandler({ method: 'GET', headers: { origin: siteUrl } }, res);
+    await chatHandler({ method: 'GET', headers: { origin: requestOrigin } }, res);
 
     const allowOrigin = apiResponse.headers['Access-Control-Allow-Origin'];
     const payload = apiResponse.payload;
-    const expectedAllowOrigins = new Set([siteUrl, canonicalSiteUrl]);
     const hasValidPayload =
       payload &&
       typeof payload === 'object' &&
@@ -205,7 +214,7 @@ try {
       await chatHandler(
         {
           method: 'POST',
-          headers: { origin: siteUrl },
+          headers: { origin: requestOrigin },
           body: JSON.stringify({
             figureId: 'elon-musk',
             messages: [{ role: 'user', content: 'AI Agent赛道这么热，谁会赢？' }]
@@ -243,12 +252,12 @@ try {
     const previousCallbackUrl = process.env.DAEN_AUTH_CALLBACK_URL;
 
     try {
-      process.env.DAEN_AUTH_CALLBACK_URL = 'https://www.liutongxue.com.cn/api/daen?route=callback';
+      process.env.DAEN_AUTH_CALLBACK_URL = 'https://dosliu.github.io/api/daen?route=callback';
       const callbackUrl = getAuthConfig().callbackUrl;
       const usesCanonicalPathInExample =
         envExampleSource.includes('/api/auth/callback') && !envExampleSource.includes('/api/daen?route=callback');
 
-      if (callbackUrl !== 'https://www.liutongxue.com.cn/api/auth/callback' || !usesCanonicalPathInExample) {
+      if (callbackUrl !== 'https://dosliu.github.io/api/auth/callback' || !usesCanonicalPathInExample) {
         failures.push(
           `auth callback 归一化异常:\n${JSON.stringify({ callbackUrl, usesCanonicalPathInExample }, null, 2)}`
         );

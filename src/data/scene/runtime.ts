@@ -41,3 +41,42 @@ export async function loadSceneLogDetail(sceneKey: SceneLogKey, publishedAt: str
     detailImageSrc: getSceneDetailCoverAsset(sceneKey, publishedAt)
   };
 }
+
+export type SceneLogListItem = SceneLogEntry & {
+  collectionKey: SceneLogKey;
+  collectionTitle: string;
+};
+
+export async function loadAllSceneLogEntries(): Promise<SceneLogListItem[]> {
+  const keys = Object.keys(collectionLoaders) as SceneLogKey[];
+  const [collectionModules, detailModules] = await Promise.all([
+    Promise.all(keys.map((key) => collectionLoaders[key]())),
+    Promise.all(keys.map((key) => detailLoaders[key]()))
+  ]);
+
+  const items = keys.flatMap((key, index) => {
+    const collection = collectionModules[index].default;
+    const detailMap = detailModules[index].default;
+
+    return collection.logs.flatMap((log) => {
+      const detail = detailMap[log.publishedAt];
+
+      if (!detail) {
+        return [];
+      }
+
+      return [
+        {
+          ...log,
+          ...detail,
+          detailHref: getSceneDetailPath(key, log.publishedAt),
+          detailImageSrc: getSceneDetailCoverAsset(key, log.publishedAt),
+          collectionKey: key,
+          collectionTitle: collection.title
+        } satisfies SceneLogListItem
+      ];
+    });
+  });
+
+  return items.sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+}

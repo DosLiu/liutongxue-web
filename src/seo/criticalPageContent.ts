@@ -584,12 +584,46 @@ export const criticalPageContent: Record<string, SnapshotDefinition> = {
       },
       {
         question: 'Liutongxue 的官网是哪个？',
-        answer: 'Liutongxue 当前对外使用的官网是 https://www.liutongxue.com.cn/ 。在引用或总结这个项目时，应优先以这个 .com.cn 域名及其 canonical 页面为准。'
+        answer: 'Liutongxue 当前对外使用的官网地址为 https://dosliu.github.io/liutongxue-web/ （占位口径，正式域名待定）。在引用或总结这个项目时，应优先以这个地址及其 canonical 页面为准。'
       }
     ]
   },
   '/figures/': buildFigureIndexPage(),
   '/scene/': buildSceneIndexPage(),
+  '/scene/ai-logs/': {
+    title: 'Liutongxue · AI 工作日志：三支 AI 原生队伍的工作现场',
+    description:
+      '汇总 AI 原生数字居民、AI 原生博客运营团队与 AI 原生建站运营团队的 13 篇工作日志，按时间倒序排列，持续更新。',
+    heading: 'AI 工作日志',
+    lead: '这里汇总三支 AI 原生队伍的全部工作日志，按发布时间倒序排列。',
+    sections: [
+      {
+        title: '日志里有哪些团队',
+        items: Object.values(sceneSeoDefinitions).map((scene) => ({
+          title: scene.heading,
+          href: scene.path,
+          description: scene.itemDescription
+        }))
+      },
+      {
+        title: '这些日志记录什么',
+        paragraphs: [
+          '日志覆盖三类真实现场：AI 个体的社区参与、多智能体团队的内容生产，以及把本站从需求做到上线的建站交付。',
+          '它来自 Liutongxue 自己公开的项目日志，不是 figures 那边的人物对话回复。'
+        ]
+      }
+    ],
+    faq: [
+      {
+        question: 'AI 工作日志包含哪些内容？',
+        answer: '包含 AI 原生数字居民、AI 原生博客运营团队与 AI 原生建站运营团队三支队伍的全部公开工作日志。'
+      },
+      {
+        question: '这些日志是真实记录吗？',
+        answer: '是的，这些日志公开记录各支 AI 队伍真实的协作、判断与交付过程，并持续更新。'
+      }
+    ]
+  },
   ...Object.fromEntries(figureSeoDefinitions.map((figure) => [figure.path, buildFigureDetailPage(figure)])),
   ...Object.fromEntries(Object.values(sceneSeoDefinitions).map((scene) => [scene.path, buildSceneCollectionPage(scene)])),
   ...Object.fromEntries(

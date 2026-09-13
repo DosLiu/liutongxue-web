@@ -1,6 +1,6 @@
 # liutongxue-web
 
-> liutongxue.com.cn 的前端仓库。  
+> Liutongxue 项目聚合展示站的前端仓库（正式域名待定，当前以 GitHub Pages 为过渡地址）。  
 > 这是一个 **多入口静态站点 + Vercel Serverless 聊天接口** 的组合项目。  
 > 如果以后把这个项目交给另一个 AI 或开发者，建议优先按 **路由入口 → React 页面 → 文案/数据源 → SEO/静态资源 → 校验命令** 这条链路理解。
 
@@ -16,11 +16,12 @@
 
 人物页同时带有一套登录与每日限额体系（大恩聚合登录 + KV 每日限额），维护前建议先读第 10.3 节。
 
-### 当前正式域名
+### 当前对外地址（占位口径）
 
-- `https://www.liutongxue.com.cn`
+- `https://dosliu.github.io/liutongxue-web/`（GitHub Pages）
 
-默认公开访问以这个正式域名为准。
+> 原正式域名 `www.liutongxue.com.cn` 已归站长的简历网站使用，与本站不再相关。
+> 本站正式域名待定；确定前全站 canonical / sitemap / robots / llms.txt 以 Pages 地址为占位口径，并通过 `VITE_FORCE_NOINDEX=1` 保持整站不收录。
 
 ---
 
@@ -617,9 +618,9 @@ contact: 'mailto:hello@liutongxue.com'
 - `VITE_SITE_URL`（当前构建实际部署域名 / 预览域名）
 
 > 当前约定是：
-> - 正式构建：`VITE_SITE_URL` 与 `VITE_CANONICAL_SITE_URL` 都指向 `https://www.liutongxue.com.cn`
-> - TEST 构建：`VITE_SITE_URL` 指向 TEST 域名，但 `VITE_CANONICAL_SITE_URL` 仍指向正式域名
-> - 因此 TEST 页面会自动带 `noindex`，同时 `canonical` / `og:url` 继续指向正式域名
+> - 占位期：`VITE_SITE_URL` 与 `VITE_CANONICAL_SITE_URL` 都指向 Pages 地址（`https://dosliu.github.io/liutongxue-web`），并设 `VITE_FORCE_NOINDEX=1` 强制整站 noindex
+> - 正式域名确定后：两个变量改成新域名并移除该开关，noindex 随之消失
+> - canonical / og:url 会自动带上 `PAGES_BASE` 前缀（GitHub Pages 项目页为 `/liutongxue-web`）
 
 ### `/tools/` 的 canonical 特殊逻辑
 
@@ -727,8 +728,8 @@ Scene cover 图放在 `src/assets/scene/**/cover.webp`，由 `src/data/scene/ass
 
 当前公开访问方式：
 
-- 主站页面：`https://www.liutongxue.com.cn`
-- 真实模型 API：同项目下的 `api/chat.ts`
+- 主站页面：`https://dosliu.github.io/liutongxue-web/`（占位口径，正式域名待定）
+- 真实模型 API：`api/chat.ts`（当前未随 Pages 部署，Pages 上聊天自动走演示回复）
 
 ### 10.1 环境变量总表
 
@@ -739,8 +740,9 @@ README 中提到的本地开发、构建与 smoke check 已经在第 4 章写明
 | --- | --- | --- | --- | --- |
 | `VITE_JOBS_CHAT_API_BASE_URL` | 否 | `src/features/figure-chat/runtime.ts` | 指定聊天接口基地址 | 前端和 `/api/chat` 不同域时使用；留空时默认走当前域名下的 `/api/chat`。填 `/` 时也会强制走同域。 |
 | `VITE_CHAT_API_URL` | 否 | `src/features/figure-chat/runtime.ts` | 直接指定完整聊天接口地址 | 优先级高于 `VITE_JOBS_CHAT_API_BASE_URL`，通常只用于特殊调试或兼容场景。 |
-| `VITE_SITE_URL` | 生产强烈建议确认 | `vite.config.ts`、`tools/smoke-check.mjs` | 当前构建实际部署域名；也作为 smoke check 默认站点地址 | 正式构建时通常等于 `https://www.liutongxue.com.cn`；TEST / 预览构建时可以指向 TEST 域名。 |
-| `VITE_CANONICAL_SITE_URL` | canonical 构建强烈建议确认 | `vite.config.ts` | `canonical` / `og:url` / 结构化数据中使用的正式 canonical 域名 | 默认值是 `https://www.liutongxue.com.cn`。TEST 构建时通常保持正式域名不变。 |
+| `VITE_SITE_URL` | 占位期已内置于 workflow | `vite.config.ts`、`tools/smoke-check.mjs` | 当前构建实际部署域名；也作为 smoke check 默认站点地址 | 默认值是 GitHub Pages 地址（占位口径）。 |
+| `VITE_CANONICAL_SITE_URL` | 占位期已内置于 workflow | `vite.config.ts` | `canonical` / `og:url` / 结构化数据中使用的口径域名 | 默认值是 GitHub Pages 地址（占位口径）。 |
+| `VITE_FORCE_NOINDEX` | 占位期必填（workflow 已设） | `vite.config.ts`、`tools/smoke-check.mjs` | 强制整站注入 noindex | 设为 `1` 时无论 URL 口径是否一致都注入 noindex；正式域名就绪后移除。 |
 | `OPENAI_API_KEY` | 真实模型时必填 | `api/chat.ts` | 调用 OpenAI 兼容接口 | 不填时前端会退回演示回复。 |
 | `OPENAI_MODEL` | 否 | `api/chat.ts` | 指定模型名 | 默认值是 `gpt-4.1-mini`。 |
 | `OPENAI_BASE_URL` | 否 | `api/chat.ts` | 指定 OpenAI 兼容网关地址 | 默认值是 `https://api.openai.com/v1`。 |
@@ -783,21 +785,21 @@ VITE_JOBS_CHAT_API_BASE_URL=https://api.example.com
 
 同时后端要把前端域名加入 `ALLOWED_ORIGINS`。
 
-#### 场景 C：TEST / 预览部署
+#### 场景 C：占位期 Pages 构建（当前默认）
 
-推荐配置：
+推荐配置（已内置于 workflow）：
 
 ```bash
-VITE_SITE_URL=https://test.liutongxue.com.cn
-VITE_CANONICAL_SITE_URL=https://www.liutongxue.com.cn
+VITE_SITE_URL=https://dosliu.github.io/liutongxue-web
+VITE_CANONICAL_SITE_URL=https://dosliu.github.io/liutongxue-web
+VITE_FORCE_NOINDEX=1
 ```
 
 当前行为：
 
-- 页面实际部署在 TEST 域名
-- `canonical` / `og:url` / 结构化数据继续指向正式域名
-- 页面会自动注入 `noindex, nofollow, noarchive`
-- TEST 仅用于验收，不作为对外 canonical source
+- 页面部署在 GitHub Pages（项目页子路径）
+- `canonical` / `og:url` / 结构化数据指向 Pages 地址（占位口径）
+- `VITE_FORCE_NOINDEX=1` 使整站注入 `noindex, nofollow, noarchive`，正式域名就绪前不对外收录
 
 #### 场景 D：本地调试
 
@@ -849,27 +851,26 @@ npm run check
 
 ### 10.5 部署与域名口径
 
-#### 正式口径
+#### 域名口径（占位期）
 
-- 当前正式域名：`https://www.liutongxue.com.cn`
-- README、SEO、sitemap、robots、canonical、`llms.txt` 默认都应以这个 `www` 域名为准
-- TEST / 预览域名只用于验收，不应作为默认公开口径，也不应作为 canonical source
+- 原正式域名 `www.liutongxue.com.cn` 已归站长的简历网站使用，本站一切口径不再引用它
+- 当前对外口径：GitHub Pages 地址 `https://dosliu.github.io/liutongxue-web/`，正式域名待定
+- 占位期通过 `VITE_FORCE_NOINDEX=1` 保持整站不收录；正式域名确定后全局替换占位域名并移除该开关
 
-#### TEST-first 发布流程
+#### 发布流程（2026-09 起：本地验收）
 
 当前默认发布顺序是：
 
 1. 本地改动
-2. 本地验证（至少 `npm run check`）
-3. 同步到 `test`
-4. 在 TEST 域名验收
-5. 验收通过后再同步到 `main`
+2. 本地验证：至少 `npm run check`，再用 `npm run dev` / `npm run preview` 逐页人工验收
+3. 同步到 `test` 分支留档
+4. 验收通过后合入 `main`
 
 补充约束：
 
-- 不要把 TEST 当成正式索引入口
-- 不要在用户未确认 TEST 之前直接把同轮改动同步到 `main`
-- 如果 TEST 构建存在分支漂移，先修 TEST，再谈正式同步
+- 2026-09 起 TEST 域名（test.liutongxue.com.cn）已停用不可达，验收以本地预览为准
+- 合入 `main` 即同时发布正式站（Vercel www）与 GitHub Pages 镜像，合入前必须完成本地逐页验收
+- 不要把 TEST 域名当成正式索引入口（构建层仍会自动 noindex）
 
 #### 当前已验证的部署形态
 
@@ -877,7 +878,7 @@ npm run check
 
 - 多入口静态页面
 - 同项目下的 `api/chat.ts` Serverless 接口
-- 正式域名走 `www.liutongxue.com.cn`
+- 当前通过 GitHub Pages 项目页部署，正式域名待定
 
 也就是说：
 
@@ -917,15 +918,16 @@ npm run check
 
 > 免费计划要求仓库为 public；private 仓库需要 GitHub Pro 及以上。
 
-#### 当前默认：镜像模式
+#### 当前默认：占位口径模式
 
-workflow 顶部 env 集中管理三个值：
+workflow 顶部 env 集中管理：
 
 - `VITE_SITE_URL` = Pages 地址
-- `VITE_CANONICAL_SITE_URL` = 正式域名（保持 `https://www.liutongxue.com.cn`）
+- `VITE_CANONICAL_SITE_URL` = Pages 地址（占位口径，正式域名待定）
+- `VITE_FORCE_NOINDEX` = `1`（正式域名就绪前保持整站不收录）
 - `PAGES_BASE` = `/liutongxue-web/`（项目页必须带 base 路径）
 
-两者不一致时，构建会自动给所有页面注入 `noindex`、canonical 继续指向正式域名，与 TEST 构建同一套机制（见 10.2 场景 C），不会产生第二套可索引口径。
+canonical / og:url 会自动带上 base 路径指向 Pages 地址；`VITE_FORCE_NOINDEX=1` 使构建注入整站 `noindex`，正式域名就绪前不对外收录。正式域名确定后：两个 URL 改成新域名、删除 `VITE_FORCE_NOINDEX`，并同步替换 sitemap / robots / llms.txt / README / .env.example 中的占位域名。
 
 已知限制：`src/seo/criticalPageContent.ts` 静态快照里的站内链接是根路径硬编码（如 `/scene/`），项目页子路径部署下，无 JS 环境点击这些快照链接会 404；React 加载后由 `src/site.ts` 的 BASE_URL 路径接管，正常可用。绑定自定义域名（根路径部署）则无此问题。
 
@@ -938,7 +940,7 @@ workflow 顶部 env 集中管理三个值：
 
 #### 可选：Pages 静态 + Vercel API 混合
 
-如果保留现有 Vercel 项目只当 API 用：在 workflow 的 build 步骤加环境变量 `VITE_JOBS_CHAT_API_BASE_URL=https://www.liutongxue.com.cn`，并把 Pages 域名加入 Vercel 侧的 `ALLOWED_ORIGINS`。这样 Pages 上的聊天可以走真实模型（设备 5 次限额仍生效）；登录链路前端写死了同域 `/api/auth/*`，混合模式下仍不可用。
+如果以后要接真实模型聊天：需要一个能跑 Serverless 的平台单独部署 `api/`（原 Vercel 项目已随 www 域名归还简历网站而失效），再把前端 `VITE_JOBS_CHAT_API_BASE_URL` 指向该地址，并把 Pages 来源加入其 `ALLOWED_ORIGINS`。这样 Pages 上的聊天可以走真实模型（设备 5 次限额仍生效）；登录链路前端写死了同域 `/api/auth/*`，混合模式下仍不可用。
 
 ---
 
