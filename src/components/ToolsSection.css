@@ -9,7 +9,8 @@
 }
 
 .tools-showcase-section--embedded {
-  --tools-section-min-height: max(var(--hero-viewport-height, 100svh), 48rem);
+  /* 首页卡片为纯展示，不再强制撑满一屏，避免卡片下方出现大面积留黑 */
+  --tools-section-min-height: auto;
   --tools-top-track: clamp(6.25rem, 12vh, 7.5rem);
   --tools-bottom-track: minmax(clamp(3rem, 6vh, 4.5rem), 1fr);
   --tools-breathing-gap: clamp(2.75rem, 4.5vw, 3.5rem);
@@ -114,7 +115,7 @@
 .tool-showcase-card {
   position: relative;
   display: flex;
-  min-height: clamp(27rem, 33vw, 30rem);
+  min-height: clamp(17rem, 22vw, 19.5rem);
   flex-direction: column;
   overflow: hidden;
   border: 1px solid transparent;
@@ -126,11 +127,15 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
     0 16px 42px -26px rgba(60, 28, 112, 0.75);
   padding: clamp(1.45rem, 1.8vw, 1.75rem);
-  cursor: pointer;
   opacity: 0;
   text-decoration: none;
   transform: translateY(30px);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 光标只给真正可点击的链接卡；纯展示卡保持默认光标 */
+a.tool-showcase-card {
+  cursor: pointer;
 }
 
 .tool-showcase-card.visible {
@@ -206,7 +211,7 @@
 
 @media (max-width: 1024px) {
   .tools-showcase-section--embedded {
-    --tools-section-min-height: max(var(--hero-viewport-height, 100svh), 56rem);
+    --tools-section-min-height: auto;
     --tools-top-track: clamp(4.75rem, 9vh, 6rem);
     --tools-bottom-track: minmax(clamp(3rem, 5vh, 4rem), 0.52fr);
     --tools-breathing-gap: clamp(2.75rem, 5vw, 3.5rem);
