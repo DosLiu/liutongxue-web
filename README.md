@@ -1,6 +1,6 @@
 # liutongxue-web
 
-> Liutongxue 项目聚合展示站的前端仓库（正式域名待定，当前以 GitHub Pages 为过渡地址）。  
+> Liutongxue 项目聚合展示站的前端仓库（正式地址：https://web.liutongxue.com.cn ，Vercel 托管）。  
 > 这是一个 **多入口静态站点 + Vercel Serverless 聊天接口** 的组合项目。  
 > 如果以后把这个项目交给另一个 AI 或开发者，建议优先按 **路由入口 → React 页面 → 文案/数据源 → SEO/静态资源 → 校验命令** 这条链路理解。
 
@@ -16,12 +16,12 @@
 
 人物页同时带有一套登录与每日限额体系（大恩聚合登录 + KV 每日限额），维护前建议先读第 10.3 节。
 
-### 当前对外地址（占位口径）
+### 当前正式地址
 
-- `https://dosliu.github.io/liutongxue-web/`（GitHub Pages）
+- `https://web.liutongxue.com.cn`（Vercel 托管，根路径部署）
 
 > 原正式域名 `www.liutongxue.com.cn` 已归站长的简历网站使用，与本站不再相关。
-> 本站正式域名待定；确定前全站 canonical / sitemap / robots / llms.txt 以 Pages 地址为占位口径，并通过 `VITE_FORCE_NOINDEX=1` 保持整站不收录。
+> GitHub Pages（`dosliu.github.io/liutongxue-web`）保留为不收录的镜像，canonical 指向正式地址。
 
 ---
 
@@ -618,9 +618,9 @@ contact: 'mailto:hello@liutongxue.com'
 - `VITE_SITE_URL`（当前构建实际部署域名 / 预览域名）
 
 > 当前约定是：
-> - 占位期：`VITE_SITE_URL` 与 `VITE_CANONICAL_SITE_URL` 都指向 Pages 地址（`https://dosliu.github.io/liutongxue-web`），并设 `VITE_FORCE_NOINDEX=1` 强制整站 noindex
-> - 正式域名确定后：两个变量改成新域名并移除该开关，noindex 随之消失
-> - canonical / og:url 会自动带上 `PAGES_BASE` 前缀（GitHub Pages 项目页为 `/liutongxue-web`）
+> - 默认（Vercel 正式站）：`VITE_SITE_URL` 与 `VITE_CANONICAL_SITE_URL` 都指向 `https://web.liutongxue.com.cn`，正常收录
+> - GitHub Pages 镜像构建（workflow 覆盖）：`VITE_SITE_URL` 指向 Pages 地址，`VITE_CANONICAL_SITE_URL` 仍指向正式地址
+> - 因此 Pages 镜像自动注入 `noindex`；`canonical` / `og:url` 一律按正式地址根路径书写（`https://web.liutongxue.com.cn/scene/...`）
 
 ### `/tools/` 的 canonical 特殊逻辑
 
@@ -728,8 +728,8 @@ Scene cover 图放在 `src/assets/scene/**/cover.webp`，由 `src/data/scene/ass
 
 当前公开访问方式：
 
-- 主站页面：`https://dosliu.github.io/liutongxue-web/`（占位口径，正式域名待定）
-- 真实模型 API：`api/chat.ts`（当前未随 Pages 部署，Pages 上聊天自动走演示回复）
+- 主站页面：`https://web.liutongxue.com.cn/`（Vercel 正式站）
+- 真实模型 API：`api/chat.ts`（随 Vercel 部署；配置 `OPENAI_API_KEY` 后为真实模型，未配置时自动回退演示回复）
 
 ### 10.1 环境变量总表
 
@@ -740,9 +740,9 @@ README 中提到的本地开发、构建与 smoke check 已经在第 4 章写明
 | --- | --- | --- | --- | --- |
 | `VITE_JOBS_CHAT_API_BASE_URL` | 否 | `src/features/figure-chat/runtime.ts` | 指定聊天接口基地址 | 前端和 `/api/chat` 不同域时使用；留空时默认走当前域名下的 `/api/chat`。填 `/` 时也会强制走同域。 |
 | `VITE_CHAT_API_URL` | 否 | `src/features/figure-chat/runtime.ts` | 直接指定完整聊天接口地址 | 优先级高于 `VITE_JOBS_CHAT_API_BASE_URL`，通常只用于特殊调试或兼容场景。 |
-| `VITE_SITE_URL` | 占位期已内置于 workflow | `vite.config.ts`、`tools/smoke-check.mjs` | 当前构建实际部署域名；也作为 smoke check 默认站点地址 | 默认值是 GitHub Pages 地址（占位口径）。 |
-| `VITE_CANONICAL_SITE_URL` | 占位期已内置于 workflow | `vite.config.ts` | `canonical` / `og:url` / 结构化数据中使用的口径域名 | 默认值是 GitHub Pages 地址（占位口径）。 |
-| `VITE_FORCE_NOINDEX` | 占位期必填（workflow 已设） | `vite.config.ts`、`tools/smoke-check.mjs` | 强制整站注入 noindex | 设为 `1` 时无论 URL 口径是否一致都注入 noindex；正式域名就绪后移除。 |
+| `VITE_SITE_URL` | 否（默认值即正式口径） | `vite.config.ts`、`tools/smoke-check.mjs` | 当前构建实际部署域名；也作为 smoke check 默认站点地址 | 默认值是 `https://web.liutongxue.com.cn`；Pages 镜像构建时由 workflow 覆盖为 Pages 地址。 |
+| `VITE_CANONICAL_SITE_URL` | 否（默认值即正式口径） | `vite.config.ts` | `canonical` / `og:url` / 结构化数据中使用的口径域名 | 默认值是 `https://web.liutongxue.com.cn`。 |
+| `VITE_FORCE_NOINDEX` | 可选开关（当前未启用） | `vite.config.ts`、`tools/smoke-check.mjs` | 强制整站注入 noindex | 设为 `1` 时无论 URL 口径是否一致都注入 noindex；Pages 镜像的 noindex 由两个 URL 不一致自动触发。 |
 | `OPENAI_API_KEY` | 真实模型时必填 | `api/chat.ts` | 调用 OpenAI 兼容接口 | 不填时前端会退回演示回复。 |
 | `OPENAI_MODEL` | 否 | `api/chat.ts` | 指定模型名 | 默认值是 `gpt-4.1-mini`。 |
 | `OPENAI_BASE_URL` | 否 | `api/chat.ts` | 指定 OpenAI 兼容网关地址 | 默认值是 `https://api.openai.com/v1`。 |
@@ -785,21 +785,20 @@ VITE_JOBS_CHAT_API_BASE_URL=https://api.example.com
 
 同时后端要把前端域名加入 `ALLOWED_ORIGINS`。
 
-#### 场景 C：占位期 Pages 构建（当前默认）
+#### 场景 C：GitHub Pages 镜像构建
 
-推荐配置（已内置于 workflow）：
+配置（已内置于 workflow）：
 
 ```bash
 VITE_SITE_URL=https://dosliu.github.io/liutongxue-web
-VITE_CANONICAL_SITE_URL=https://dosliu.github.io/liutongxue-web
-VITE_FORCE_NOINDEX=1
+VITE_CANONICAL_SITE_URL=https://web.liutongxue.com.cn
 ```
 
 当前行为：
 
 - 页面部署在 GitHub Pages（项目页子路径）
-- `canonical` / `og:url` / 结构化数据指向 Pages 地址（占位口径）
-- `VITE_FORCE_NOINDEX=1` 使整站注入 `noindex, nofollow, noarchive`，正式域名就绪前不对外收录
+- `canonical` / `og:url` / 结构化数据指向正式地址 `web.liutongxue.com.cn`
+- 两个 URL 不一致使镜像自动注入 `noindex, nofollow, noarchive`，不会被收录
 
 #### 场景 D：本地调试
 
@@ -851,11 +850,11 @@ npm run check
 
 ### 10.5 部署与域名口径
 
-#### 域名口径（占位期）
+#### 域名口径
 
+- 正式地址：`https://web.liutongxue.com.cn`（Vercel 托管，根路径部署，正常收录）
 - 原正式域名 `www.liutongxue.com.cn` 已归站长的简历网站使用，本站一切口径不再引用它
-- 当前对外口径：GitHub Pages 地址 `https://dosliu.github.io/liutongxue-web/`，正式域名待定
-- 占位期通过 `VITE_FORCE_NOINDEX=1` 保持整站不收录；正式域名确定后全局替换占位域名并移除该开关
+- GitHub Pages 为不收录镜像，canonical 指向正式地址；未来更换域名时，全局替换 sitemap / robots / llms.txt / README / workflow 中的口径即可
 
 #### 发布流程（2026-09 起：本地验收）
 
@@ -878,7 +877,7 @@ npm run check
 
 - 多入口静态页面
 - 同项目下的 `api/chat.ts` Serverless 接口
-- 当前通过 GitHub Pages 项目页部署，正式域名待定
+- 正式站由 Vercel 托管（根路径，`https://web.liutongxue.com.cn`）；GitHub Pages 项目页为不收录镜像
 
 也就是说：
 
@@ -914,33 +913,27 @@ npm run check
 1. 打开 GitHub 仓库 → `Settings` → `Pages`
 2. `Build and deployment` → `Source` 选择 **GitHub Actions**
 3. push 到 `main`（或在 Actions 页手动 Run workflow）
-4. 完成后站点地址为：`https://dosliu.github.io/liutongxue-web/`
+4. 完成后镜像地址为：`https://dosliu.github.io/liutongxue-web/`
 
 > 免费计划要求仓库为 public；private 仓库需要 GitHub Pro 及以上。
 
-#### 当前默认：占位口径模式
+#### 当前默认：镜像模式
 
 workflow 顶部 env 集中管理：
 
 - `VITE_SITE_URL` = Pages 地址
-- `VITE_CANONICAL_SITE_URL` = Pages 地址（占位口径，正式域名待定）
-- `VITE_FORCE_NOINDEX` = `1`（正式域名就绪前保持整站不收录）
+- `VITE_CANONICAL_SITE_URL` = 正式地址 `https://web.liutongxue.com.cn`
 - `PAGES_BASE` = `/liutongxue-web/`（项目页必须带 base 路径）
 
-canonical / og:url 会自动带上 base 路径指向 Pages 地址；`VITE_FORCE_NOINDEX=1` 使构建注入整站 `noindex`，正式域名就绪前不对外收录。正式域名确定后：两个 URL 改成新域名、删除 `VITE_FORCE_NOINDEX`，并同步替换 sitemap / robots / llms.txt / README / .env.example 中的占位域名。
+两者不一致时，镜像产物自动注入整站 `noindex`，`canonical` / `og:url` 指向正式地址——与 Vercel 正式站不产生收录冲突。
 
-已知限制：`src/seo/criticalPageContent.ts` 静态快照里的站内链接是根路径硬编码（如 `/scene/`），项目页子路径部署下，无 JS 环境点击这些快照链接会 404；React 加载后由 `src/site.ts` 的 BASE_URL 路径接管，正常可用。绑定自定义域名（根路径部署）则无此问题。
+已知限制：`src/seo/criticalPageContent.ts` 静态快照里的站内链接是根路径硬编码（如 `/scene/`），项目页子路径部署下，无 JS 环境点击这些快照链接会 404；React 加载后由 `src/site.ts` 的 BASE_URL 路径接管，正常可用。正式站（根路径部署）无此问题。
 
-#### 切换到主站模式（如果要长期只用 Pages）
+#### Vercel 正式站
 
-1. 把 `VITE_CANONICAL_SITE_URL` 改成与 `VITE_SITE_URL` 一致（或绑定自定义域名后改成该域名）
-2. 绑定自定义域名时：把 `PAGES_BASE` 改成 `/`，并在 `public/` 下加 `CNAME` 文件、按 GitHub 提示配 DNS
-3. 同步核对 `public/sitemap.xml`、`public/robots.txt`、`public/llms.txt` 的域名口径（见 10.5 的迁移清单）
-4. 注意：纯 Pages 主站模式下 `og:image` 注入的是 canonical 域名根路径，未带 base 前缀，需自行确认分享图可访问
+Vercel 项目连接着本仓库，push 到 `main` 会自动部署正式站（根路径，`https://web.liutongxue.com.cn`）。
 
-#### 可选：Pages 静态 + Vercel API 混合
-
-如果以后要接真实模型聊天：需要一个能跑 Serverless 的平台单独部署 `api/`（原 Vercel 项目已随 www 域名归还简历网站而失效），再把前端 `VITE_JOBS_CHAT_API_BASE_URL` 指向该地址，并把 Pages 来源加入其 `ALLOWED_ORIGINS`。这样 Pages 上的聊天可以走真实模型（设备 5 次限额仍生效）；登录链路前端写死了同域 `/api/auth/*`，混合模式下仍不可用。
+`api/` 下的 Serverless 随 Vercel 一起上线，未配置模型变量时聊天自动回退演示回复；在项目 Settings → Environment Variables 配置 `OPENAI_API_KEY`（可选 `OPENAI_MODEL` / `OPENAI_BASE_URL`）后恢复真实模型回复，配置 `DAEN_*` / `AUTH_*` 系列后，登录与账号每日限额在同一域名下直接可用。
 
 ---
 

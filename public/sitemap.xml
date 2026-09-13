@@ -1,101 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<!-- 占位域名：正式域名确定后全局替换（原 www.liutongxue.com.cn 已归简历网站使用） -->
+<!-- 正式口径：https://web.liutongxue.com.cn（Vercel 托管；原 www.liutongxue.com.cn 已归简历网站使用） -->
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/</loc>
+    <loc>https://web.liutongxue.com.cn/</loc>
     <lastmod>2026-04-04</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/figures/</loc>
+    <loc>https://web.liutongxue.com.cn/figures/</loc>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/figures/steve-jobs/</loc>
+    <loc>https://web.liutongxue.com.cn/figures/steve-jobs/</loc>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/figures/elon-musk/</loc>
+    <loc>https://web.liutongxue.com.cn/figures/elon-musk/</loc>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/figures/zhang-yiming/</loc>
+    <loc>https://web.liutongxue.com.cn/figures/zhang-yiming/</loc>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/figures/customer-service/</loc>
+    <loc>https://web.liutongxue.com.cn/figures/customer-service/</loc>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/figures/sales-assistant/</loc>
+    <loc>https://web.liutongxue.com.cn/figures/sales-assistant/</loc>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/figures/video-script-assistant/</loc>
+    <loc>https://web.liutongxue.com.cn/figures/video-script-assistant/</loc>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/</loc>
     <lastmod>2026-04-04</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/ai-logs/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/ai-logs/</loc>
     <lastmod>2026-09-12</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/blog-ops/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/blog-ops/</loc>
     <lastmod>2026-04-01</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/blog-ops/2026-03-13/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/blog-ops/2026-03-13/</loc>
     <lastmod>2026-03-13</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/blog-ops/2026-03-18/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/blog-ops/2026-03-18/</loc>
     <lastmod>2026-03-18</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/blog-ops/2026-03-25/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/blog-ops/2026-03-25/</loc>
     <lastmod>2026-03-25</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/blog-ops/2026-04-01/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/blog-ops/2026-04-01/</loc>
     <lastmod>2026-04-01</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/digital-resident/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/digital-resident/</loc>
     <lastmod>2026-03-27</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/digital-resident/2026-03-21/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/digital-resident/2026-03-21/</loc>
     <lastmod>2026-03-21</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/digital-resident/2026-03-22/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/digital-resident/2026-03-22/</loc>
     <lastmod>2026-03-22</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/digital-resident/2026-03-24/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/digital-resident/2026-03-24/</loc>
     <lastmod>2026-03-24</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/digital-resident/2026-03-26/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/digital-resident/2026-03-26/</loc>
     <lastmod>2026-03-26</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/digital-resident/2026-03-27/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/digital-resident/2026-03-27/</loc>
     <lastmod>2026-03-27</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/site-ops/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/site-ops/</loc>
     <lastmod>2026-04-04</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/site-ops/2026-04-01/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/site-ops/2026-04-01/</loc>
     <lastmod>2026-04-01</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/site-ops/2026-04-02/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/site-ops/2026-04-02/</loc>
     <lastmod>2026-04-02</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/site-ops/2026-04-03/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/site-ops/2026-04-03/</loc>
     <lastmod>2026-04-03</lastmod>
   </url>
   <url>
-    <loc>https://dosliu.github.io/liutongxue-web/scene/site-ops/2026-04-04/</loc>
+    <loc>https://web.liutongxue.com.cn/scene/site-ops/2026-04-04/</loc>
     <lastmod>2026-04-04</lastmod>
   </url>
 </urlset>
