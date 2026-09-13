@@ -1156,6 +1156,7 @@ export const getFigureChatHealthPayload = (hasApiKey) => hasApiKey
         reply: ''
     };
 export const DEFAULT_ALLOWED_ORIGINS = [
+    'https://web.liutongxue.com.cn',
     'https://dosliu.github.io',
     'http://localhost:5173',
     'http://127.0.0.1:5173'

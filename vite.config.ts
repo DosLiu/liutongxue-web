@@ -85,10 +85,10 @@ const injectRootSnapshot = (html: string, pathname: string) => {
   return html.replace('<div id="root"></div>', `<div id="root">${snapshotHtml}</div>`);
 };
 
-// 占位口径：正式域名待定（原 www.liutongxue.com.cn 已归简历网站使用），当前用 GitHub Pages 地址
-const canonicalSiteUrl = trimTrailingSlash(process.env.VITE_CANONICAL_SITE_URL || 'https://dosliu.github.io/liutongxue-web');
+// 正式口径：web.liutongxue.com.cn（Vercel 托管；原 www.liutongxue.com.cn 已归简历网站使用，GitHub Pages 为不收录镜像）
+const canonicalSiteUrl = trimTrailingSlash(process.env.VITE_CANONICAL_SITE_URL || 'https://web.liutongxue.com.cn');
 const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || canonicalSiteUrl);
-// 占位期通过 VITE_FORCE_NOINDEX=1 强制整站 noindex，正式域名就绪后移除
+// 可选开关：VITE_FORCE_NOINDEX=1 可强制整站 noindex（当前部署未启用）
 const isNonCanonicalBuild = siteUrl !== canonicalSiteUrl || process.env.VITE_FORCE_NOINDEX === '1';
 const nonCanonicalRobotsContent = 'noindex, nofollow, noarchive, nosnippet, noimageindex';
 const defaultSocialImagePath = '/og/liutongxue-share.png';
