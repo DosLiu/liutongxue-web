@@ -107,20 +107,23 @@ function FigureEntryItem({ entry }: { entry: FigureEntry }) {
       href={entry.href}
       aria-label={entry.ariaLabel ?? `进入 ${entry.name} ${entry.category === 'role' ? '岗位' : '人物'}入口`}
     >
-      <div
-        className={`figures-entry__avatar${entry.avatarImageSrc ? ' figures-entry__avatar--image' : ''}`}
-        style={
-          entry.avatarImageSrc
-            ? {
-                backgroundImage: `url(${entry.avatarImageSrc})`,
-                backgroundPosition: entry.avatarImagePosition ?? 'center',
-                backgroundSize: entry.avatarImageSize ?? 'cover'
-              }
-            : undefined
-        }
-        aria-hidden="true"
-      >
-        {!entry.avatarImageSrc && entry.avatarLabel ? <span className="figures-entry__avatar-label">{entry.avatarLabel}</span> : null}
+      <div className="figures-entry__visual-shell">
+        <div className="figures-entry__glow-backdrop" aria-hidden="true" />
+        <div
+          className={`figures-entry__avatar${entry.avatarImageSrc ? ' figures-entry__avatar--image' : ''}`}
+          style={
+            entry.avatarImageSrc
+              ? {
+                  backgroundImage: `url(${entry.avatarImageSrc})`,
+                  backgroundPosition: entry.avatarImagePosition ?? 'center',
+                  backgroundSize: entry.avatarImageSize ?? 'cover'
+                }
+              : undefined
+          }
+          aria-hidden="true"
+        >
+          {!entry.avatarImageSrc && entry.avatarLabel ? <span className="figures-entry__avatar-label">{entry.avatarLabel}</span> : null}
+        </div>
       </div>
       <h2 className="figures-entry__name">{entry.name}</h2>
     </a>
@@ -133,6 +136,9 @@ export default function FiguresPage() {
       <SiteHeader activeKey="figures" />
 
       <main className="figures-shell">
+        {/* 宇宙环境星云微光 */}
+        <div className="figures-ambient-haze" aria-hidden="true" />
+
         <section className="figures-hero" aria-labelledby="figures-title">
           <div className="figures-hero__content">
             <h1 id="figures-title" className="figures-title">

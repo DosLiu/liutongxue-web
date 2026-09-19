@@ -1,5 +1,6 @@
 import wechatQr from '../assets/contact/wechat-qr.jpg';
 import feishuQr from '../assets/contact/feishu-qr.jpg';
+import CosmicCardCanvas from './CosmicCardCanvas';
 import './StartBuildingSection.css';
 
 export default function StartBuildingSection() {
@@ -7,6 +8,7 @@ export default function StartBuildingSection() {
     <section className="start-building-section" aria-labelledby="start-building-title">
       <div className="start-building-container">
         <div className="start-building-card">
+          <CosmicCardCanvas />
           <h2 id="start-building-title" className="start-building-title">
             与我链接
           </h2>

@@ -1247,7 +1247,7 @@ export const criticalPageFallbackStyle = `
   .static-page-fallback h1 {
     font-size: clamp(2.3rem, 4vw, 3.35rem);
     line-height: 1.12;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.015em;
   }
 
   .static-page-fallback h2 {

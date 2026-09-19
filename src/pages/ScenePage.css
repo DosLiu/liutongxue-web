@@ -1,6 +1,7 @@
 .scene-page {
   position: relative;
   min-height: 100vh;
+  min-height: 100svh;
   overflow: hidden;
   background: var(--bg-body);
 }
@@ -77,6 +78,7 @@
   width: 100%;
   max-width: var(--page-content-max);
   min-height: var(--hero-viewport-height, 100vh);
+  min-height: var(--hero-viewport-height, 100svh);
   margin: 0 auto;
   padding-inline: var(--page-gutter);
 }
@@ -158,27 +160,39 @@
 .scene-title {
   display: inline-block;
   margin: 0;
-  color: rgba(255, 255, 255, 0.96);
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  color: #ffffff;
+  background: linear-gradient(175deg, #ffffff 0%, #f0f6ff 35%, #dbeafe 70%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-size: clamp(2.75rem, 2.2rem + 1.45vw, 3.45rem);
   font-weight: 600;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.015em;
   line-height: 1.1;
   text-align: center;
+  filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.18)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.6));
 }
 
 .scene-log-title {
   margin: 0;
-  color: var(--text-primary);
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  color: #ffffff;
+  background: linear-gradient(175deg, #ffffff 0%, #f0f6ff 35%, #dbeafe 70%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-size: clamp(3.9rem, 6.2vw, 5.8rem);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.018em;
+  filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.18)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.6));
 }
 
 .scene-log-title--single {
   font-size: clamp(2.55rem, 4.3vw, 3.45rem);
   line-height: 1.08;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.015em;
   text-align: center;
 }
 
@@ -426,6 +440,7 @@
 .scene-log-page {
   position: relative;
   min-height: 100vh;
+  min-height: 100svh;
   overflow: hidden;
   background:
     radial-gradient(circle at top, rgba(82, 39, 255, 0.13), transparent 34%),
@@ -734,7 +749,7 @@
   margin-top: 0;
   font-size: clamp(2rem, 3.4vw, 2.75rem);
   line-height: 1.14;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.015em;
   text-align: center;
 }
 

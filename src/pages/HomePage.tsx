@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import heroImage from '../assets/hero.webp';
 import FeatureCardsSection from '../components/FeatureCardsSection';
-import PlasmaWave from '../components/PlasmaWave';
+import AntigravityStarfield from '../components/AntigravityStarfield';
 import SiteFooter from '../components/SiteFooter';
 import SiteHeader from '../components/SiteHeader';
 import StartBuildingSection from '../components/StartBuildingSection';
@@ -138,18 +137,16 @@ export default function HomePage() {
 
       <main>
         <section className="landing-wrapper">
-          <div className="mobile-hero-background-container">
-            <img src={heroImage} alt="Liutongxue hero background" className="mobile-hero-background-image" />
-          </div>
-
-          <PlasmaWave />
+          <AntigravityStarfield />
 
           <div ref={landingContentRef} className="landing-content">
             <div className="landing-gradient-blur" aria-hidden="true" />
 
             <div ref={heroMainContentRef} className="hero-main-content">
               <h1 className="landing-title">
-                <span className="hero-text-animate hero-title-line">一个持续进化中的 AI</span>
+                <span className="hero-text-animate hero-title-line">
+                  一个持续进化中的 <span className="hero-title-ai">AI</span>
+                </span>
               </h1>
 
               <p

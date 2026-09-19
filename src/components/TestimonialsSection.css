@@ -37,12 +37,18 @@
 .testimonials-title {
   display: inline-block;
   margin: 0;
-  color: rgba(255, 255, 255, 0.96);
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   font-size: clamp(2.75rem, 2.2rem + 1.45vw, 3.45rem);
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
   text-align: center;
+  color: #ffffff;
+  background: linear-gradient(175deg, #ffffff 0%, #f0f6ff 35%, #dbeafe 70%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.18)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.6));
 }
 
 /* ===========================================

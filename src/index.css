@@ -3,7 +3,7 @@
 
 :root {
   color-scheme: dark;
-  font-family: 'Figtree', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -86,6 +86,7 @@ svg {
   padding: 0 4em;
   transform: translateX(-50%);
   background: linear-gradient(to bottom, var(--bg-body), transparent);
+  cursor: default;
 }
 
 .header-container {
@@ -338,7 +339,8 @@ svg {
   align-items: center;
   justify-content: center;
   gap: 0.7rem;
-  min-height: 3rem;
+  /* 与桌面端导航胶囊同高（60px），保持页头观感一致 */
+  min-height: 3.75rem;
   padding: 0.72rem 0.9rem 0.72rem 1rem;
   color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
@@ -411,15 +413,19 @@ svg {
   padding: 0.5rem;
   opacity: 0;
   pointer-events: none;
+  /* 收起时不可聚焦，避免 Tab / 读屏进入不可见的面板 */
+  visibility: hidden;
   transform: translateY(-0.4rem) scale(0.98);
   transform-origin: top right;
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0s linear 0.22s;
 }
 
 .mobile-nav-panel.is-open {
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
   transform: translateY(0) scale(1);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0s linear 0s;
 }
 
 .mobile-nav-panel__inner {
@@ -573,6 +579,11 @@ svg {
   pointer-events: none;
 }
 
+.landing-wrapper,
+.landing-wrapper * {
+  cursor: none !important;
+}
+
 .landing-wrapper {
   position: relative;
   display: flex;
@@ -623,12 +634,13 @@ svg {
   position: relative;
   z-index: 6;
   max-width: none;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-  font-size: clamp(3.9rem, 6.2vw, 5.8rem);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.055em;
+  margin-bottom: 1.25rem;
+  color: #ffffff;
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-size: clamp(3.2rem, 5.8vw, 5.6rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
   text-align: center;
   white-space: nowrap;
   user-select: none;
@@ -638,30 +650,44 @@ svg {
   display: inline-block;
   max-width: 100%;
   white-space: nowrap;
-  color: #f5f8fc;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 22%, #edf3f9 54%, #d5dde7 100%);
+  color: #ffffff;
+  background: linear-gradient(175deg, #ffffff 0%, #f0f6ff 32%, #dbeafe 68%, #c7d2fe 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.07);
-  filter: drop-shadow(0 10px 24px rgba(8, 12, 20, 0.24));
+  filter: drop-shadow(0 0 28px rgba(0, 245, 255, 0.24)) drop-shadow(0 14px 28px rgba(0, 0, 0, 0.7));
+}
+
+.hero-title-ai {
+  display: inline-block;
+  font-family: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  margin-left: 0.12em;
+  background: linear-gradient(135deg, #ffffff 0%, #38bdf8 52%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.45));
 }
 
 .landing-subtitle {
   position: relative;
   z-index: 6;
-  max-width: min(100%, 42rem);
+  max-width: min(100%, 46rem);
   margin: 0 auto;
   overflow: visible !important;
-  color: rgba(230, 234, 240, 0.84);
-  font-size: clamp(1.16rem, 1.55vw, 1.38rem);
+  color: rgba(226, 234, 248, 0.9);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-size: clamp(1.15rem, 1.58vw, 1.36rem);
   font-weight: 400;
-  line-height: 1.52;
-  letter-spacing: 0.008em;
+  line-height: 1.62;
+  letter-spacing: 0.055em;
   text-align: center;
   white-space: normal;
   text-wrap: balance;
   user-select: none;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75), 0 0 24px rgba(0, 245, 255, 0.15);
 }
 
 .landing-subtitle-leading,
@@ -674,17 +700,22 @@ svg {
   display: inline-block;
 }
 
+.landing-subtitle-leading-char {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.35);
+}
+
 .landing-subtitle-char {
   --subtitle-char-delay: 0s;
   opacity: 0;
-  transform: translateY(0.5em) scale(0.92);
+  transform: translateY(0.4em) scale(0.94);
   animation-name: heroSubtitleCharPop;
-  animation-duration: 0.52s;
-  animation-timing-function: cubic-bezier(0.2, 0.9, 0.2, 1);
+  animation-duration: 0.58s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: both;
   animation-delay: var(--subtitle-char-delay);
   animation-play-state: paused;
-  will-change: transform, opacity;
+  will-change: transform, opacity, filter;
 }
 
 .landing-subtitle-ready .landing-subtitle-char {
@@ -693,13 +724,14 @@ svg {
 
 .landing-gradient-blur {
   position: absolute;
-  top: 50%;
+  top: 48%;
   left: 50%;
-  aspect-ratio: 1;
-  height: 1200px;
+  width: min(920px, 92vw);
+  height: 480px;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(6, 0, 16, 0.6) 0%, transparent 70%);
+  background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(3, 4, 9, 0.7) 0%, rgba(3, 4, 9, 0.35) 55%, transparent 75%);
   pointer-events: none;
+  z-index: 5;
 }
 
 .hero-main-content {
@@ -998,23 +1030,6 @@ svg {
   animation-delay: 0.3s;
 }
 
-.mobile-hero-background-container {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  display: none;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.mobile-hero-background-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.6;
-}
-
 @keyframes heroTextFadeIn {
   0% {
     opacity: 0;
@@ -1030,17 +1045,20 @@ svg {
 @keyframes heroSubtitleCharPop {
   0% {
     opacity: 0;
-    transform: translateY(0.5em) scale(0.92);
+    transform: translateY(0.38em) scale(0.92);
+    filter: blur(4px);
   }
 
-  60% {
-    opacity: 1;
-    transform: translateY(-0.08em) scale(1.04);
+  55% {
+    opacity: 0.95;
+    transform: translateY(-0.04em) scale(1.03);
+    filter: blur(0px);
   }
 
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+    filter: blur(0px);
   }
 }
 
@@ -1085,8 +1103,10 @@ svg {
 }
 
 @media (max-width: 1440px) {
+  /* 下限从 3.4rem 降到 1.7rem：桌面端不受影响（5.3vw 远高于下限），
+     窄屏手机则能沿用与桌面同一套缩放公式而不至于单行溢出 */
   .landing-title {
-    font-size: clamp(3.4rem, 5.3vw, 5.1rem);
+    font-size: clamp(1.7rem, 5.3vw, 5.1rem);
   }
 
   .landing-subtitle {
@@ -1095,10 +1115,6 @@ svg {
 }
 
 @media (max-width: 1024px) {
-  :root {
-    --hero-inline-padding: 2rem;
-  }
-
   .landing-content {
     flex-direction: column;
     align-items: center;
@@ -1115,12 +1131,9 @@ svg {
 }
 
 @media (max-width: 900px) {
-  :root {
-    --header-height: 120px;
-  }
-
+  /* 页头左右留白与首屏共用同一变量，保证 Logo、导航与首屏文案对齐 */
   .header {
-    padding: 0 2em;
+    padding: 0 var(--hero-inline-padding);
   }
 
   .header-container {
@@ -1136,15 +1149,6 @@ svg {
     margin-left: auto;
   }
 
-  .brand-wordmark__text {
-    font-size: 1.05rem;
-  }
-
-  .logo::before {
-    width: 180px;
-    height: 120px;
-  }
-
   .landing-wrapper::before,
   .landing-wrapper::after {
     width: 100px;
@@ -1152,98 +1156,22 @@ svg {
 }
 
 @media (max-width: 768px) {
-  :root {
-    --header-height: 100px;
-    --hero-inline-padding: 1.5rem;
-    --hero-target-center-ratio: 0.44;
-    --hero-bottom-gap: clamp(0.35rem, 1.2vh, 1rem);
-  }
-
-  .header {
-    padding: 0 1.5em;
-  }
-
   .header-container {
     justify-content: space-between;
-  }
-
-  .mobile-nav-toggle {
-    min-height: 2.85rem;
-    padding: 0.68rem 0.85rem 0.68rem 0.92rem;
-  }
-
-  .mobile-nav-toggle__label {
-    font-size: 0.74rem;
   }
 
   .mobile-nav-panel {
     width: min(18rem, calc(100vw - 2rem));
   }
 
-  .brand-wordmark__text {
-    font-size: 1rem;
-  }
-
-  .logo::before {
-    width: 160px;
-    height: 110px;
-  }
-
-  .landing-title {
-    font-size: clamp(2.5rem, 6vw, 3.5rem);
-    line-height: 1.05;
-    letter-spacing: -0.045em;
-    text-align: center;
-  }
-
-  .landing-subtitle {
-    max-width: min(100%, 32rem);
-    font-size: clamp(0.96rem, 1.9vw, 1.08rem);
-    line-height: 1.5;
-    text-align: center;
-  }
-
   .landing-content {
     align-items: center;
-  }
-
-
-  .mobile-hero-background-container {
-    display: block;
-  }
-}
-
-@media (max-width: 640px) {
-  .header {
-    padding: 0 1.5em;
   }
 }
 
 @media (max-width: 480px) {
-  :root {
-    --header-height: 90px;
-    --hero-inline-padding: 1rem;
-    --hero-target-center-ratio: 0.48;
-    --hero-bottom-gap: clamp(0.2rem, 0.8vh, 0.75rem);
-  }
-
-  .header {
-    top: 0;
-    padding: 0 1rem;
-  }
-
   .header-container {
     gap: 0.75rem;
-  }
-
-  .mobile-nav-toggle {
-    gap: 0.6rem;
-    min-height: 2.7rem;
-    padding: 0.64rem 0.8rem 0.64rem 0.86rem;
-  }
-
-  .mobile-nav-toggle__label {
-    font-size: 0.7rem;
   }
 
   .mobile-nav-panel {
@@ -1261,48 +1189,5 @@ svg {
 
   .mobile-nav-link__label {
     font-size: 0.94rem;
-  }
-
-  .brand-wordmark__text {
-    font-size: 0.92rem;
-  }
-
-  .logo::before {
-    width: 140px;
-    height: 95px;
-  }
-
-  .landing-title {
-    font-size: clamp(2.05rem, 7.8vw, 2.5rem);
-    line-height: 1.06;
-    letter-spacing: -0.04em;
-  }
-
-  .landing-subtitle {
-    max-width: min(100%, 22rem);
-    font-size: clamp(0.84rem, 3.2vw, 0.94rem);
-    line-height: 1.46;
-  }
-
-}
-
-@media (max-width: 375px) {
-  :root {
-    --header-height: 80px;
-    --hero-inline-padding: 0.8rem;
-  }
-
-  .header {
-    top: 0;
-    padding: 0 0.8rem;
-  }
-
-  .brand-wordmark__text {
-    font-size: 0.84rem;
-  }
-
-  .logo::before {
-    width: 120px;
-    height: 80px;
   }
 }

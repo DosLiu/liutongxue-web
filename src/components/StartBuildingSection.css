@@ -12,16 +12,24 @@
   padding: 0 20px;
 }
 
+/* ===========================================
+   COSMIC AURORA HERO CARD
+   =========================================== */
+
 .start-building-card {
   width: 100%;
   max-width: 1200px;
   user-select: none;
   margin: 0 auto;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(24, 47, 255, 0.6));
-  background-size: 200% 200%;
-  border-radius: 50px;
-  padding: 3.5rem 3rem;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.5);
+  background:
+    linear-gradient(180deg, rgba(20, 13, 38, 0.94) 0%, rgba(10, 6, 22, 0.97) 100%);
+  border: 1px solid rgba(198, 164, 255, 0.22);
+  border-radius: 48px;
+  padding: 3.6rem 3rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 28px 72px -16px rgba(124, 58, 237, 0.38),
+    0 12px 36px -8px rgba(37, 99, 235, 0.22);
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -29,55 +37,127 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
-  transform: translateY(-18%);
+  gap: 1.35rem;
+  /* 上移仅用于收拢与上方区块的间距；用等量负外边距抵消，避免卡片下方留下空白带。
+     各断点数值等价于原先的 translateY(-18% / -12% / -8%)，保持原有视觉位移不变 */
+  --start-building-shift: 2.75rem;
+  transform: translateY(calc(-1 * var(--start-building-shift)));
+  margin-bottom: calc(-1 * var(--start-building-shift));
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
+/* Internal slow-breathing cosmic aurora glow */
 .start-building-card::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background-image: url('/assets/react-bits-grain.webp');
-  filter: brightness(3);
-  background-size: 500px 500px;
-  mix-blend-mode: lighten;
-  background-repeat: repeat;
-  opacity: 1;
+  inset: -2px;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse 65% 55% at 50% -10%, rgba(147, 51, 234, 0.45) 0%, transparent 70%),
+    radial-gradient(circle 380px at 18% 100%, rgba(56, 189, 248, 0.25) 0%, transparent 60%),
+    radial-gradient(circle 380px at 82% 100%, rgba(168, 85, 247, 0.28) 0%, transparent 60%);
+  opacity: 0.9;
   pointer-events: none;
   z-index: 1;
+  animation: cosmicAuroraPulse 9s ease-in-out infinite alternate;
+}
+
+/* Specular top rim light */
+.start-building-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes cosmicAuroraPulse {
+  0% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.cosmic-card-canvas {
+  position: absolute !important;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
 }
 
 .start-building-card > * {
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
 
+/* Crystal starlight title */
 .start-building-title {
   margin: 0;
-  color: rgba(255, 255, 255, 0.98);
-  font-size: clamp(2.75rem, 2.2rem + 1.45vw, 3.35rem);
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.045em;
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: clamp(2.75rem, 2.2rem + 1.45vw, 3.45rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  background: linear-gradient(175deg, #ffffff 0%, #f0f6ff 35%, #dbeafe 70%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 28px rgba(168, 85, 247, 0.35)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
 }
 
+/* Quantum pill button */
 .start-building-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 15rem;
+  width: clamp(12.5rem, 18vw, 15rem);
   max-width: 100%;
-  background: white;
-  border: 1px solid white;
-  color: #7c3aed;
-  padding: 0.6rem 1.1rem;
-  font-size: 1.1rem;
-  font-weight: 500;
-  letter-spacing: -0.2px;
+  padding: 0.72rem 1.6rem;
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   text-align: center;
-  border-radius: 50px;
-  cursor: default;
+  border-radius: 999px;
+  color: #0d071d;
+  background: linear-gradient(180deg, #ffffff 0%, #edf2f9 100%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 8px 24px -4px rgba(168, 85, 247, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+.start-building-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 12px 32px -4px rgba(192, 132, 252, 0.55),
+    0 0 32px rgba(56, 189, 248, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  color: #070312;
+}
+
+/* ===========================================
+   QR CODE HOLOGRAPHIC DOCKS
+   =========================================== */
 
 .contact-qr-grid {
   display: grid;
@@ -97,6 +177,15 @@
   width: 100%;
   max-width: 320px;
   margin: 0 auto;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.contact-qr-card:hover {
+  transform: translateY(-4px);
 }
 
 .contact-qr-image {
@@ -106,17 +195,37 @@
   padding: 1rem;
   background: rgba(255, 255, 255, 0.98);
   border-radius: 28px;
-  box-shadow: 0 14px 50px rgba(7, 4, 24, 0.18);
+  box-shadow:
+    0 16px 48px -12px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
   object-fit: contain;
+  display: block;
+  transition: box-shadow 0.35s ease;
+}
+
+.contact-qr-card:hover .contact-qr-image {
+  box-shadow:
+    0 22px 56px -12px rgba(0, 0, 0, 0.75),
+    0 0 32px rgba(168, 85, 247, 0.25);
 }
 
 .contact-qr-caption {
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 0.84rem;
+  color: rgba(240, 244, 255, 0.82);
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 0.92rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-align: center;
+  transition: color 0.3s ease;
 }
+
+.contact-qr-card:hover .contact-qr-caption {
+  color: #ffffff;
+}
+
+/* ===========================================
+   RESPONSIVE DESIGN
+   =========================================== */
 
 @media (max-width: 1280px) {
   .start-building-container {
@@ -125,21 +234,18 @@
   }
 
   .start-building-card {
-    padding: 2.5rem;
+    --start-building-shift: 2.5rem;
+    padding: 2.8rem 2.2rem;
   }
 
   .contact-qr-grid {
     gap: 2rem;
-    margin-top: 1.05rem;
+    margin-top: 1.1rem;
     padding: 0;
   }
 
   .contact-qr-card {
-    max-width: 300px;
-  }
-
-  .contact-qr-image {
-    width: 100%;
+    max-width: 290px;
   }
 }
 
@@ -153,21 +259,22 @@
   }
 
   .start-building-card {
-    padding: 3rem 2rem;
+    --start-building-shift: 1.5rem;
+    padding: 2.75rem 1.75rem;
+    border-radius: 36px;
     gap: 1.1rem;
-    transform: translateY(-12%);
   }
 
   .start-building-title {
     font-size: 2.35rem;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.015em;
     line-height: 1.12;
   }
 
   .start-building-button {
     width: 12rem;
     max-width: 100%;
-    padding: 0.875rem 1.6rem;
+    padding: 0.72rem 1.4rem;
     font-size: 1rem;
   }
 
@@ -178,12 +285,7 @@
   }
 
   .contact-qr-card {
-    max-width: 320px;
-    margin: 0 auto;
-  }
-
-  .contact-qr-image {
-    width: 100%;
+    max-width: 300px;
   }
 }
 
@@ -197,40 +299,40 @@
   }
 
   .start-building-card {
-    padding: 2.5rem 1.5rem;
+    --start-building-shift: 0.9rem;
+    padding: 2.25rem 1.25rem;
+    border-radius: 28px;
     gap: 0.95rem;
-    transform: translateY(-8%);
   }
 
   .start-building-title {
-    font-size: 2rem;
-    letter-spacing: -0.04em;
-    line-height: 1.14;
+    font-size: 1.95rem;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
   }
 
   .start-building-button {
-    width: 10rem;
+    width: 10.5rem;
     max-width: 100%;
-    padding: 0.75rem 1.35rem;
+    padding: 0.65rem 1.2rem;
     font-size: 0.95rem;
   }
 
   .contact-qr-grid {
-    gap: 1rem;
+    gap: 1.1rem;
     margin-top: 0.7rem;
   }
 
   .contact-qr-card {
-    max-width: 280px;
+    max-width: 270px;
   }
 
   .contact-qr-image {
-    width: 100%;
     padding: 0.8rem;
     border-radius: 22px;
   }
 
   .contact-qr-caption {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 }
