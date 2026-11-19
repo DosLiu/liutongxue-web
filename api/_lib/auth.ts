@@ -254,6 +254,7 @@ const requestJson = async <T>(url: string) => {
 };
 
 export const getAuthConfig = () => {
+  const loginEnabled = normalizeEnvValue(env.AUTH_LOGIN_ENABLED).toLowerCase() === 'true';
   const connectUrl = normalizeEnvValue(env.DAEN_CONNECT_URL) || 'https://u.daenwl.com/connect.php';
   const appId = normalizeEnvValue(env.DAEN_APP_ID);
   const appKey = normalizeEnvValue(env.DAEN_APP_KEY);
@@ -288,9 +289,9 @@ export const getAuthConfig = () => {
     connectUrl,
     dailyLimit,
     enabledTypes,
-    isCallbackReady: missingLoginEnv.length === 0,
+    isCallbackReady: loginEnabled && missingLoginEnv.length === 0,
     isKvConfigured,
-    isLoginReady: missingLoginEnv.length === 0,
+    isLoginReady: loginEnabled && missingLoginEnv.length === 0,
     kv: {
       enabled: kvEnabled,
       kvRestApiToken,
@@ -298,6 +299,7 @@ export const getAuthConfig = () => {
       kvUrl,
       mode: kvMode
     },
+    loginEnabled,
     loginSuccessUrl,
     logoutRedirectUrl,
     missingLoginEnv,
@@ -500,7 +502,7 @@ export const readStateFromRequest = async (req: ApiRequest) => {
 
 export const readSessionFromRequest = async (req: ApiRequest) => {
   const config = getAuthConfig();
-  if (!config.sessionSecret) {
+  if (!config.loginEnabled || !config.sessionSecret) {
     return null;
   }
 

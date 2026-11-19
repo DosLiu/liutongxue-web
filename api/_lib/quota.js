@@ -34,25 +34,19 @@ const getNextResetAt = (date = new Date()) => {
 const getSecondsUntilReset = (resetAt) => Math.max(60, Math.ceil((new Date(resetAt).getTime() - Date.now()) / 1000));
 
 const parseUsageCount = (value) => {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
-  }
-
-  if (typeof value === 'string') {
-    const parsed = Number.parseInt(value, 10);
-    return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
-  }
-
-  return 0;
+  if (value === null) return 0;
+  const parsed = typeof value === 'number' ? value : typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN;
+  if (!Number.isSafeInteger(parsed) || parsed < 0) throw new Error('kv_invalid_usage');
+  return parsed;
 };
 
 const buildQuotaReason = (mode) => {
   if (mode === 'degraded') {
-    return '已登录，今日次数暂时无法确认，本次不会误扣。';
+    return '今日次数暂时无法校验，已暂停真实模型调用，请稍后重试。';
   }
 
   if (mode === 'disabled') {
-    return '已登录，今日次数暂未接通校验，可先继续体验。';
+    return '服务尚未完成次数校验配置，已暂停真实模型调用。';
   }
 
   return '已登录账号按今日次数生效。';
@@ -94,30 +88,32 @@ const buildKvHeaders = (runtime) => ({
 
 const buildKvPipelineUrl = (runtime) => `${trimTrailingSlash(runtime.kv.kvRestApiUrl)}/pipeline`;
 
-const runKvPipeline = async (runtime, commands) => {
-  const response = await fetch(buildKvPipelineUrl(runtime), {
-    method: 'POST',
-    headers: buildKvHeaders(runtime),
-    body: JSON.stringify(commands)
-  });
+export const runKvPipeline = async (runtime, commands) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4000);
+  try {
+    const response = await fetch(buildKvPipelineUrl(runtime), {
+      method: 'POST',
+      headers: buildKvHeaders(runtime),
+      body: JSON.stringify(commands),
+      signal: controller.signal
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => '');
-    throw new Error(`kv_http_${response.status}${errorText ? `:${errorText.slice(0, 160)}` : ''}`);
-  }
+    if (!response.ok) throw new Error(`kv_http_${response.status}`);
 
-  const payload = await response.json();
-  if (!Array.isArray(payload)) {
-    throw new Error('kv_invalid_payload');
-  }
-
-  payload.forEach((item) => {
-    if (item?.error) {
-      throw new Error(`kv_command_error:${item.error}`);
+    const payload = await response.json();
+    if (!Array.isArray(payload) || payload.length !== commands.length) {
+      throw new Error('kv_invalid_payload');
     }
-  });
 
-  return payload;
+    payload.forEach((item) => {
+      if (!item || item.error || !Object.hasOwn(item, 'result')) throw new Error('kv_command_error');
+    });
+
+    return payload;
+  } finally {
+    clearTimeout(timeout);
+  }
 };
 
 const buildQuotaKey = (subject, date = new Date()) => `liutongxue:figure-chat:quota:${getQuotaDateKey(date)}:${subject}`;
@@ -167,20 +163,20 @@ export const getAccountQuotaSnapshot = async (subject) => {
   }
 };
 
-export const reserveAccountQuotaSlot = async (subject) => {
+export const reserveAccountQuotaSlot = async (subject, date = new Date()) => {
   const runtime = getQuotaRuntime();
 
   if (!subject || !runtime.kv.enforced) {
     return {
-      allowed: true,
+      allowed: false,
       reserved: false,
       quota: buildUnavailableAccountQuota(runtime)
     };
   }
 
-  const resetAt = getNextResetAt();
+  const resetAt = getNextResetAt(date);
   const ttlSeconds = getSecondsUntilReset(resetAt);
-  const key = buildQuotaKey(subject);
+  const key = buildQuotaKey(subject, date);
 
   try {
     const [usageResult] = await runKvPipeline(runtime, [
@@ -188,6 +184,7 @@ export const reserveAccountQuotaSlot = async (subject) => {
       ['EXPIRE', key, ttlSeconds]
     ]);
     const used = parseUsageCount(usageResult?.result);
+    if (used < 1) throw new Error('kv_invalid_reservation');
 
     if (used > runtime.dailyLimit) {
       await runKvPipeline(runtime, [
@@ -209,7 +206,7 @@ export const reserveAccountQuotaSlot = async (subject) => {
     };
   } catch {
     return {
-      allowed: true,
+      allowed: false,
       reserved: false,
       quota: buildUnavailableAccountQuota({
         ...runtime,
@@ -222,16 +219,18 @@ export const reserveAccountQuotaSlot = async (subject) => {
   }
 };
 
-export const rollbackAccountQuotaSlot = async (subject) => {
+export const rollbackAccountQuotaSlot = async (subject, date = new Date()) => {
   const runtime = getQuotaRuntime();
 
   if (!subject || !runtime.kv.enforced) {
     return buildUnavailableAccountQuota(runtime);
   }
 
-  const resetAt = getNextResetAt();
+  const resetAt = getNextResetAt(date);
+  // A request that crosses midnight must never decrement the new day's usage.
+  if (new Date(resetAt).getTime() <= Date.now()) return getAccountQuotaSnapshot(subject);
   const ttlSeconds = getSecondsUntilReset(resetAt);
-  const key = buildQuotaKey(subject);
+  const key = buildQuotaKey(subject, date);
 
   try {
     const [usageResult] = await runKvPipeline(runtime, [

@@ -15,6 +15,7 @@ const canonicalBasePath = new URL(canonicalSiteUrl).pathname.replace(/\/+$/, '')
 const requiredEntries = [
   'index.html',
   'figures/index.html',
+  'figures/liu-dongsheng/index.html',
   'figures/steve-jobs/index.html',
   'figures/elon-musk/index.html',
   'figures/zhang-yiming/index.html',
@@ -68,6 +69,9 @@ const sitePathsSource = readFileSync(resolve(repoRoot, 'src/site.ts'), 'utf8');
 const declaredRoutes = new Set(['/']);
 
 for (const match of sitePathsSource.matchAll(/\$\{baseUrl\}([^`]+)`/g)) {
+  declaredRoutes.add(normalizeRoute(match[1]));
+}
+for (const match of sitePathsSource.matchAll(/withBaseUrl\(['"]([^'"]+)['"]\)/g)) {
   declaredRoutes.add(normalizeRoute(match[1]));
 }
 

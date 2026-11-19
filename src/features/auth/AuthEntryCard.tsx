@@ -1,8 +1,10 @@
 import { useAuthEntryState } from './useAuthEntryState';
 
 export default function AuthEntryCard() {
-  const { flash, isAuthenticated, isPrimaryActionDisabled, loginProviders, payload, returnTo, statusLabel, statusTone, summaryText } =
+  const { flash, isAuthenticated, isPrimaryActionDisabled, loginEnabled, loginProviders, payload, returnTo, statusLabel, statusTone, summaryText } =
     useAuthEntryState();
+
+  if (!loginEnabled) return null;
 
   return (
     <aside className="auth-entry-card" aria-labelledby="auth-entry-title">

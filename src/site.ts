@@ -14,6 +14,7 @@ export const sitePaths = {
   scene: withBaseUrl('/scene/'),
   sceneAiLogs: withBaseUrl('/scene/ai-logs/'),
   figures: withBaseUrl('/figures/'),
+  figuresLiuDongsheng: withBaseUrl('/figures/liu-dongsheng/'),
   figuresSteveJobs: withBaseUrl('/figures/steve-jobs/'),
   figuresElonMusk: withBaseUrl('/figures/elon-musk/'),
   figuresZhangYiming: withBaseUrl('/figures/zhang-yiming/'),

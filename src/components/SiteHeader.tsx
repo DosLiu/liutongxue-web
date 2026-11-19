@@ -166,7 +166,7 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
               );
             })}
 
-            <AuthHeaderWidget state={authState} />
+            {authState.loginEnabled && <AuthHeaderWidget state={authState} />}
           </nav>
         </div>
 
@@ -212,7 +212,9 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
                 );
               })}
 
-              <MobileAuthNavItem authState={authState} isParentOpen={isMobileNavOpen} onNavigate={() => setIsMobileNavOpen(false)} />
+              {authState.loginEnabled && (
+                <MobileAuthNavItem authState={authState} isParentOpen={isMobileNavOpen} onNavigate={() => setIsMobileNavOpen(false)} />
+              )}
             </div>
           </div>
         </div>

@@ -100,21 +100,17 @@
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-/* --------------------------------------------------------------------------
-   Second Section: 你的AI岗位搭子
-   -------------------------------------------------------------------------- */
-
-.figures-role-intro {
+.figures-digital-intro {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.95rem;
   width: min(100%, 44rem);
-  margin: clamp(4.5rem, 8vw, 6.2rem) auto clamp(2.8rem, 5vw, 3.8rem);
+  margin: clamp(4.5rem, 8vw, 6.2rem) auto 0;
   text-align: center;
 }
 
-.figures-role-intro__title {
+.figures-digital-intro__title {
   margin: 0;
   font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   font-size: clamp(1.9rem, 3.3vw, 2.6rem);
@@ -129,13 +125,35 @@
   filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6));
 }
 
-.figures-role-intro__subtitle {
+.figures-digital-intro__subtitle {
   margin: 0;
   max-width: 36rem;
   color: rgba(224, 234, 248, 0.78);
   font-size: clamp(0.96rem, 1.25vw, 1.06rem);
   line-height: 1.68;
   letter-spacing: 0.02em;
+}
+
+.figures-digital-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: clamp(11.5rem, 18.5vw, 14.5rem);
+  margin: clamp(1.85rem, 4vw, 2.85rem) auto 0;
+}
+
+.figures-entry__avatar.figures-digital-placeholder__avatar {
+  border-style: dashed;
+  background: radial-gradient(circle at 50% 35%, rgba(56, 189, 248, 0.1), rgba(255, 255, 255, 0.03) 70%);
+}
+
+.figures-digital-placeholder__icon {
+  width: 42%;
+  height: 42%;
+  stroke: rgba(186, 230, 253, 0.65);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* --------------------------------------------------------------------------
@@ -149,10 +167,6 @@
   gap: clamp(2.2rem, 4.5vw, 4rem);
   width: min(100%, 64rem);
   margin: 0 auto;
-}
-
-.figures-grid--role-placeholders {
-  margin-top: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -296,6 +310,10 @@
   .figures-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(0.6rem, 2.4vw, 1.2rem);
+  }
+
+  .figures-digital-placeholder {
+    width: min(100%, 7.8rem);
   }
 
   .figures-entry,

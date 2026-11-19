@@ -29,7 +29,8 @@ export default async function handler(req, res) {
             configured: config.isKvConfigured,
             mode: config.kv.mode
         },
-        loginProviders: config.enabledTypes.map((type) => ({
+        loginEnabled: config.loginEnabled,
+        loginProviders: (config.loginEnabled ? config.enabledTypes : []).map((type) => ({
             label: type === 'qq' ? 'QQ 登录' : type === 'baidu' ? '百度登录' : `${type} 登录`,
             type,
             url: `/api/auth/login?type=${encodeURIComponent(type)}`
@@ -37,12 +38,14 @@ export default async function handler(req, res) {
         loginReady: config.isLoginReady,
         loginUrl: '/api/auth/login',
         logoutUrl: '/api/auth/logout',
-        message: status === 'disabled'
+        message: !config.loginEnabled
+            ? '当前开放游客体验。'
+            : status === 'disabled'
             ? buildConfigErrorMessage(config.missingLoginEnv)
             : status === 'authenticated'
                 ? quota?.reason || '已登录，可继续对话。'
-                : '当前未登录，可先体验 5 次；登录后每日可聊 10 次。',
-        missingEnv: config.missingLoginEnv,
+                : `游客可先体验 5 次，登录后每天可聊 ${config.dailyLimit} 次。`,
+        missingEnv: config.loginEnabled ? config.missingLoginEnv : [],
         provider: 'daen',
         quota,
         status,

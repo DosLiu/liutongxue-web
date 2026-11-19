@@ -29,6 +29,7 @@ export type AccountQuotaReservation = {
 };
 
 export function getQuotaRuntime(): QuotaRuntime;
+export function runKvPipeline(runtime: QuotaRuntime, commands: unknown[][]): Promise<{result: unknown}[]>;
 export function getAccountQuotaSnapshot(subject: string): Promise<AccountQuotaSnapshot>;
-export function reserveAccountQuotaSlot(subject: string): Promise<AccountQuotaReservation>;
-export function rollbackAccountQuotaSlot(subject: string): Promise<AccountQuotaSnapshot>;
+export function reserveAccountQuotaSlot(subject: string, date?: Date): Promise<AccountQuotaReservation>;
+export function rollbackAccountQuotaSlot(subject: string, date?: Date): Promise<AccountQuotaSnapshot>;

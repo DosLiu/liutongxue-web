@@ -9,7 +9,7 @@
 当前站点主要包含 3 类内容：
 
 - 首页 `/`：站点主视觉、核心模块、联系区
-- 人物页 `/figures/`，以及当前已落地的 6 个对话页（3 个人物：乔布斯 / 马斯克 / 张一鸣；3 个岗位 AI：客服助理 / 销售助理 / 口播短视频助理）
+- 人物页 `/figures/`，以及 7 个对话页（3 个人物、3 个岗位 AI 和刘东生数字分身）
 - Scene 页 `/scene/`，以及当前已落地的 3 个日志集合页、13 个日志详情页
 
 项目以稳定维护和发布展示型站点为主；人物聊天链路同时保留后端模型接口与前端 fallback 演示回复，用于接口异常或未接通时兜底。
@@ -128,6 +128,18 @@ npm run dev
 >
 > `api/auth/*` 同样是 Serverless 入口：本地默认没有登录链路，头部登录组件会提示“暂时无法确认登录状态”，属预期现象。
 
+### 刘东生数字分身
+
+- 对话入口为 `/figures/liu-dongsheng/`，延用现有人物对话界面。
+- 服务端通过 `DIGITAL_HUMAN_GITHUB_TOKEN` 读取私有仓库 `DosLiu/liudongsheng-skill` 的 `main` 分支，固定读取 `SKILL.md`、`references/profile.md`、`references/evidence.md`，不跟随文档链接读取其他文件。令牌只放服务端环境变量，不能使用 `VITE_` 前缀。
+- 每个服务实例在有请求时约每 5 分钟检查一次更新；三份文件使用同一个 Git 提交版本。网络暂时故障时，同一实例可回退到至多 24 小时内的上次成功版本；检查时发现权限失效则不回退。实例重启后缓存不保留。
+- 三份资料会发送给配置的模型服务来生成回答，不会打入前端构建产物。发布前需确认资料适合用于对外对话。
+- 本地 `npm run dev` 只提供页面，无法使用 Vercel 上的 Secret 或 Serverless API；需要可用的后端才能进行真实对话。真实模型连接与 Vercel 令牌需要部署后验证。
+- 游客的 `localStorage` 保留为次数显示缓存；服务端使用签名的 HttpOnly Cookie 识别游客，并在 KV 中累计校验 5 次，所有人物共享。游客标识有效期 1 年，未使用每日重置。模型调用失败会退回预留次数，第 5 次可正常返回，第 6 次会被拒绝。
+- 游客真实对话需要 `AUTH_SESSION_SECRET`（至少 32 个字符）、`AUTH_KV_ENABLED=true`、`KV_REST_API_URL` 和 `KV_REST_API_TOKEN`。缺少配置或无法读取存储时暂停游客真实模型调用，不误扣次数。浏览器需允许本站 Cookie；首次请求可自动完成一次标识握手重试。
+- 清除 `localStorage` 无法清掉服务端已记录的次数。清除所有站点数据、换浏览器或游客标识到期后仍可能获得新标识；本次没有引入 IP 限流，也不能据此认定已经杜绝恶意多身份访问。浏览器已有的剩余次数显示仍保留，不把它作为服务端授权依据。
+- 登录限额在 KV 未启用、配置不完整、计数请求失败或数据异常时暂停真实模型调用，返回 HTTP 503、`error=quota_unavailable`。正常用完每日额度返回 HTTP 429，避免把暂时无法校验误报为次数用完；模型失败仍会尝试退回预留次数。
+
 ### 生产构建
 
 ```bash
@@ -155,7 +167,7 @@ npm run check
 等价于：
 
 ```bash
-npm run build && npm run check:smoke
+npm run build && npm run check:smoke && npm run check:digital-human && npm run check:chat-review && npm run check:guest-quota
 ```
 
 ### 仅做 smoke check
@@ -757,7 +769,7 @@ README 中提到的本地开发、构建与 smoke check 已经在第 4 章写明
 | `AUTH_LOGIN_SUCCESS_URL` / `AUTH_LOGOUT_REDIRECT_URL` | 否 | `api/_lib/auth.js` | 登录成功 / 退出后的回站地址 | 默认 `/figures/`；从具体人物页发起登录会优先回跳原页面。 |
 | `AUTH_DAILY_LIMIT` | 否 | `api/_lib/auth.js`、`api/_lib/quota.js` | 已登录账号的人物对话每日限额 | 默认 10。 |
 | `AUTH_KV_ENABLED` | 启用账号限额时必填 | `api/_lib/quota.js` | 是否启用账号每日限额 | 需与下面两个 KV REST 变量同时配置。 |
-| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | 启用账号限额时必填 | `api/_lib/quota.js` | Upstash / Vercel KV REST 凭证 | 未完整配置时返回 `quota.mode=unavailable`，前端显示“今日次数待确认”，不误导为已生效。 |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | 启用账号限额时必填 | `api/_lib/quota.js` | Upstash / Vercel KV REST 凭证 | 未完整配置或计数异常时返回 `quota.mode=unavailable`，暂停真实模型调用。 |
 | `KV_URL` | 否 | — | 可选，保留给其他 KV 用途 | 人物对话限额当前只走 REST。 |
 
 ### 10.2 几种常见运行场景
@@ -811,9 +823,11 @@ VITE_CANONICAL_SITE_URL=https://web.liutongxue.com.cn
 npm run check
 ```
 
-### 10.3 登录与每日限额链路
+### 10.3 游客体验与登录限额
 
-当前登录体系基于“大恩聚合登录”（OAuth 承接 QQ / 百度），由 Vercel Serverless 承载：
+登录暂时关闭。`AUTH_LOGIN_ENABLED` 缺省为关闭，桌面与移动导航不显示登录入口，旧登录接口和登录会话暂停使用。游客真实对话仍需 `AUTH_SESSION_SECRET`、`AUTH_KV_ENABLED=true`、`KV_REST_API_URL`、`KV_REST_API_TOKEN`。
+
+确认聚合登录服务可用并配置好凭证和回调地址后，可以设置 `AUTH_LOGIN_ENABLED=true` 恢复。旧的 QQ / 百度登录由 Vercel Serverless 接入大恩聚合登录。
 
 | 环节 | 位置 |
 | --- | --- |
@@ -827,9 +841,9 @@ npm run check
 当前行为约定：
 
 - 登录流程：`/api/auth/login?type=qq|baidu` 写入签名 state cookie 并 302 到大恩 → 大恩回调 `/api/auth/callback` → 校验 state、换取用户资料 → 写入 HMAC 签名的 session cookie → 按 `return_to` 回跳原页面（带 `?auth=signed-in` / `auth-error` 提示）
-- 未登录：每设备可体验 5 次（前端 localStorage，所有角色共享 `liutongxue-figure-chat-remaining`）
+- 游客：通过签名 Cookie 识别，服务端在 KV 中记录 5 次体验，所有人物共享。
 - 已登录：每账号每日 10 次（`AUTH_DAILY_LIMIT`），按上海时区零点重置；服务端经 KV REST 按 subject 扣减，`api/chat.ts` 在调用模型前先预留额度，模型失败会回滚
-- KV 未完整配置时：接口返回 `quota.mode=unavailable`，前端显示“今日次数待确认”，不会误报额度已生效
+- KV 未完整配置或计数失败时：真实模型请求返回 HTTP 503 和 `quota.mode=unavailable`，前端提示暂时无法校验次数；正常额度耗尽返回 HTTP 429
 - `src/features/auth/AuthEntryCard.tsx` 当前没有被任何页面引用（登录入口已收进头部导航），属于保留的历史组件
 
 ### 10.4 人物聊天链路的当前约定

@@ -31,7 +31,7 @@ type SnapshotDefinition = {
   faq?: SnapshotFaq[];
 };
 
-type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant' | 'video-script-assistant';
+type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant' | 'video-script-assistant' | 'liu-dongsheng';
 
 type FigureSeoDefinition = {
   id: FigureId;
@@ -46,6 +46,9 @@ type FigureSeoDefinition = {
   keywords: string[];
   faq: SnapshotFaq[];
 };
+
+const isJobFigure = (figure: FigureSeoDefinition) =>
+  figure.id === 'customer-service' || figure.id === 'sales-assistant' || figure.id === 'video-script-assistant';
 
 type SceneSeoDefinition = {
   key: SceneLogKey;
@@ -66,6 +69,19 @@ const sceneCollections: Record<SceneLogKey, SceneLogCollection> = {
 };
 
 const figureSeoDefinitions: FigureSeoDefinition[] = [
+  {
+    id: 'liu-dongsheng',
+    path: '/figures/liu-dongsheng/',
+    name: '刘同学的数字分身',
+    personName: '刘同学',
+    title: '刘同学的数字分身 · Liutongxue',
+    description: '与刘同学的 AI 数字分身交流工作方法、经历和思考。',
+    heading: '刘同学的数字分身',
+    lead: '我的想法、经历与思考，在这里继续和你对话。这里的回答由 AI 根据本人整理的资料生成。',
+    focusSummary: ['适合讨论工作协作、AI 工作流、团队交接和交付判断。', '个人经历以已提供的资料为依据，资料不足时保留未知。'],
+    keywords: ['刘同学', '数字分身', 'AI 工作流'],
+    faq: [{ question: '这里的回答来自真人吗？', answer: '回答由 AI 根据刘同学整理的工作资料生成，不能作为本人即时表态或承诺。' }]
+  },
   {
     id: 'steve-jobs',
     path: '/figures/steve-jobs/',
@@ -248,6 +264,7 @@ const figureSeoDefinitions: FigureSeoDefinition[] = [
   }
 ];
 
+const figureIndexSeoDefinitions = figureSeoDefinitions.filter((figure) => !isJobFigure(figure) && figure.id !== 'liu-dongsheng');
 const figureSeoByPath = Object.fromEntries(figureSeoDefinitions.map((figure) => [figure.path, figure])) as Record<string, FigureSeoDefinition>;
 const figureSeoById = Object.fromEntries(figureSeoDefinitions.map((figure) => [figure.id, figure])) as Record<FigureId, FigureSeoDefinition>;
 
@@ -372,11 +389,16 @@ const buildFigureIndexPage = (): SnapshotDefinition => ({
     },
     {
       title: '当前可体验的人物入口',
-      items: figureSeoDefinitions.map((figure) => ({
+      items: figureIndexSeoDefinitions.map((figure) => ({
         title: figure.heading,
         href: figure.path,
         description: figure.focusSummary[0]
       }))
+    },
+    {
+      title: '一个持续进化中的我',
+      paragraphs: ['我的想法、经历与思考，在这里继续和你对话。'],
+      items: [{ title: '刘同学的数字分身', href: '/figures/liu-dongsheng/', description: '与刘同学的 AI 数字分身交流工作方法、经历和思考。' }]
     }
   ],
   faq: [
@@ -801,9 +823,6 @@ const createWebsiteReference = (canonicalSiteUrl: string) => ({
 const getFigureReferenceName = (figure: FigureSeoDefinition) =>
   figure.personName === figure.name ? figure.name : `${figure.personName}（${figure.name}）`;
 
-const isJobFigure = (figure: FigureSeoDefinition) =>
-  figure.id === 'customer-service' || figure.id === 'sales-assistant' || figure.id === 'video-script-assistant';
-
 const createFigureReferencePerson = (figure: FigureSeoDefinition) =>
   isJobFigure(figure)
     ? {
@@ -946,7 +965,7 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           '@type': 'ItemList',
           '@id': `${absoluteUrl}#itemlist`,
           name: 'Liutongxue AI 人物对话实验入口',
-          itemListElement: figureSeoDefinitions.map((figure, index) => ({
+          itemListElement: [...figureIndexSeoDefinitions, figureSeoById['liu-dongsheng']].map((figure, index) => ({
             '@type': 'ListItem',
             position: index + 1,
             name: figure.heading,

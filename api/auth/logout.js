@@ -1,4 +1,4 @@
-import { buildClearedSessionCookie, buildLogoutRedirectUrl } from '../_lib/auth.js';
+import { buildClearedSessionCookie, buildLogoutRedirectUrl, getAuthConfig } from '../_lib/auth.js';
 import { applyCors, handleOptionsRequest, json, methodNotAllowed, redirect } from '../_lib/http.js';
 export default async function handler(req, res) {
     applyCors(req, res);
@@ -8,6 +8,10 @@ export default async function handler(req, res) {
     }
     if (req.method !== 'GET' && req.method !== 'POST') {
         methodNotAllowed(res);
+        return;
+    }
+    if (!getAuthConfig().loginEnabled) {
+        json(res, 503, { error: 'login_disabled', message: '登录暂未开放，可使用游客模式。' });
         return;
     }
     const clearedCookie = buildClearedSessionCookie(req);

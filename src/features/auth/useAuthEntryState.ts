@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 export type AuthPayload = {
   authenticated: boolean;
   dailyLimit: number;
+  loginEnabled: boolean;
   loginProviders: Array<{
     label: string;
     type: string;
@@ -166,8 +167,9 @@ export function useAuthEntryState() {
       : payload?.status === 'signed_out'
         ? 'auth-entry-card__status--default'
         : 'auth-entry-card__status--muted';
-  const isAuthenticated = payload?.status === 'authenticated' && Boolean(payload.user);
-  const isPrimaryActionDisabled = isLoading || (!payload?.loginReady && payload?.status !== 'authenticated');
+  const loginEnabled = payload?.loginEnabled === true;
+  const isAuthenticated = loginEnabled && payload.status === 'authenticated' && Boolean(payload.user);
+  const isPrimaryActionDisabled = isLoading || !loginEnabled || (!payload.loginReady && !isAuthenticated);
   const returnTo = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '/figures/';
   const summaryText = errorMessage
     ? errorMessage
@@ -192,6 +194,7 @@ export function useAuthEntryState() {
     isAuthenticated,
     isLoading,
     isPrimaryActionDisabled,
+    loginEnabled,
     loginProviders,
     payload,
     returnTo,

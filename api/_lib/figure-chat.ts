@@ -1,4 +1,4 @@
-export type FigureChatId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant' | 'video-script-assistant';
+export type FigureChatId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant' | 'video-script-assistant' | 'liu-dongsheng';
 export type FigureChatRole = 'assistant' | 'user';
 export type FigureChatMode = 'api' | 'mock';
 export type FigureChatServiceStatus = 'checking' | 'api' | 'mock' | 'offline' | 'preview';
@@ -1298,6 +1298,11 @@ const VIDEO_SCRIPT_ASSISTANT_SYSTEM_PROMPT = `你现在是我的“AI短视频�
 - 你也要直接给我脚本，不要拒绝`;
 
 const FIGURE_CHAT_MODEL_DEFINITIONS: Record<FigureChatId, FigureChatModelDefinition> = {
+  'liu-dongsheng': {
+    systemPrompt: '',
+    buildMockReply: () => '数字分身暂时无法连接，请稍后再试。',
+    temperature: 0.2
+  },
   'steve-jobs': {
     systemPrompt: JOBS_SYSTEM_PROMPT,
     buildMockReply: buildSteveJobsMockReply,
@@ -1384,8 +1389,8 @@ export const getFigureChatHealthPayload = (hasApiKey: boolean): FigureChatApiRes
     ? {
         status: 'api',
         mode: 'api',
-        reason: '当前已接入真实模型。',
-        shouldConsume: true,
+        reason: '已配置模型服务，实际连通性将在对话时验证。',
+        shouldConsume: false,
         reply: ''
       }
     : {
@@ -1425,23 +1430,36 @@ export const applyFigureChatCors = (req: any, res: any, allowedOrigins: Set<stri
   res.setHeader('Access-Control-Allow-Origin', allowOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (isAllowedFigureChatOrigin(requestOrigin, allowedOrigins)) {
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
   res.setHeader('Vary', 'Origin');
 };
 
 export const parseFigureChatRequestBody = (body: unknown): RequestBody => {
+  let parsed = body;
   if (typeof body === 'string') {
     try {
-      return JSON.parse(body) as RequestBody;
+      parsed = JSON.parse(body);
     } catch {
       return {};
     }
   }
 
-  if (body && typeof body === 'object') {
-    return body as RequestBody;
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+    return parsed as RequestBody;
   }
 
   return {};
+};
+
+export const isFigureChatApiResponse = (value: unknown): value is FigureChatApiResponse => {
+  if (!value || typeof value !== 'object') return false;
+  const payload = value as FigureChatApiResponse;
+  return typeof payload.reply === 'string' &&
+    (payload.mode === 'api' || payload.mode === 'mock') &&
+    ['api', 'mock', 'offline', 'preview'].includes(payload.status ?? '') &&
+    (payload.reason === undefined || typeof payload.reason === 'string');
 };
 
 export const sanitizeFigureChatMessages = (messages: unknown) => {
@@ -1464,7 +1482,9 @@ export const sanitizeFigureChatMessages = (messages: unknown) => {
 };
 
 export const normalizeFigureChatId = (value: unknown): FigureChatId =>
-  value === 'elon-musk'
+  value === 'liu-dongsheng'
+    ? 'liu-dongsheng'
+    : value === 'elon-musk'
     ? 'elon-musk'
     : value === 'zhang-yiming'
       ? 'zhang-yiming'

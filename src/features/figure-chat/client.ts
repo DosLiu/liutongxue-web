@@ -2,7 +2,8 @@ import { type FigureChatConfig, type FigureChatResolvedStatus, type FigureChatRo
 
 export const FIGURE_CHAT_INPUT_MAX_LENGTH = 400;
 export const FIGURE_CHAT_HEALTHCHECK_TIMEOUT_MS = 5000;
-export const FIGURE_CHAT_REQUEST_TIMEOUT_MS = 18000;
+// Includes knowledge refresh, quota storage, model response and any quota rollback.
+export const FIGURE_CHAT_REQUEST_TIMEOUT_MS = 40000;
 
 const FIGURE_CHAT_DEBUG_PARAM = 'debug-unlimited';
 const FIGURE_CHAT_DEBUG_ALLOWED = import.meta.env.DEV;
@@ -95,7 +96,7 @@ export const getFigureChatQuotaText = (
   mode: 'device' | 'daily' | 'unavailable' = scope === 'account' ? 'daily' : 'device'
 ) => {
   if (isDeveloperUnlimited) {
-    return '开发调试：不限次数';
+    return '开发调试：界面不限，仍受服务端限制';
   }
 
   if (scope === 'account') {
@@ -105,6 +106,8 @@ export const getFigureChatQuotaText = (
 
     return `今日剩余：${remaining}/${limit}`;
   }
+
+  if (mode === 'unavailable' || remaining === null) return `体验次数：待确认/${limit}`;
 
   return `体验次数：${remaining ?? limit}/${limit}`;
 };

@@ -29,6 +29,10 @@ export default async function handler(req, res) {
         return;
     }
     const config = getAuthConfig();
+    if (!config.loginEnabled) {
+        json(res, 503, { error: 'login_disabled', message: '登录暂未开放，可使用游客模式。' });
+        return;
+    }
     if (!config.isLoginReady) {
         json(res, 503, {
             error: 'auth_config_missing',

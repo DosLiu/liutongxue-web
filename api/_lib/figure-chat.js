@@ -1088,6 +1088,11 @@ const VIDEO_SCRIPT_ASSISTANT_SYSTEM_PROMPT = `你现在是我的“AI短视频�
 如果我只给你一句主题：
 - 你也要直接给我脚本，不要拒绝`;
 const FIGURE_CHAT_MODEL_DEFINITIONS = {
+    'liu-dongsheng': {
+        systemPrompt: '',
+        buildMockReply: () => '数字分身暂时无法连接，请稍后再试。',
+        temperature: 0.2
+    },
     'steve-jobs': {
         systemPrompt: JOBS_SYSTEM_PROMPT,
         buildMockReply: buildSteveJobsMockReply,
@@ -1144,8 +1149,8 @@ export const getFigureChatHealthPayload = (hasApiKey) => hasApiKey
     ? {
         status: 'api',
         mode: 'api',
-        reason: '当前已接入真实模型。',
-        shouldConsume: true,
+        reason: '已配置模型服务，实际连通性将在对话时验证。',
+        shouldConsume: false,
         reply: ''
     }
     : {
@@ -1179,21 +1184,33 @@ export const applyFigureChatCors = (req, res, allowedOrigins) => {
     res.setHeader('Access-Control-Allow-Origin', allowOrigin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (isAllowedFigureChatOrigin(requestOrigin, allowedOrigins)) {
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
     res.setHeader('Vary', 'Origin');
 };
 export const parseFigureChatRequestBody = (body) => {
+    let parsed = body;
     if (typeof body === 'string') {
         try {
-            return JSON.parse(body);
+            parsed = JSON.parse(body);
         }
         catch {
             return {};
         }
     }
-    if (body && typeof body === 'object') {
-        return body;
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed;
     }
     return {};
+};
+export const isFigureChatApiResponse = (value) => {
+    if (!value || typeof value !== 'object') return false;
+    const payload = value;
+    return typeof payload.reply === 'string' &&
+        (payload.mode === 'api' || payload.mode === 'mock') &&
+        ['api', 'mock', 'offline', 'preview'].includes(payload.status ?? '') &&
+        (payload.reason === undefined || typeof payload.reason === 'string');
 };
 export const sanitizeFigureChatMessages = (messages) => {
     if (!Array.isArray(messages)) {
@@ -1213,17 +1230,19 @@ export const sanitizeFigureChatMessages = (messages) => {
         .filter((message) => message.content)
         .slice(-12);
 };
-export const normalizeFigureChatId = (value) => value === 'elon-musk'
-    ? 'elon-musk'
-    : value === 'zhang-yiming'
-        ? 'zhang-yiming'
-        : value === 'customer-service'
-            ? 'customer-service'
-            : value === 'sales-assistant'
-                ? 'sales-assistant'
-                : value === 'video-script-assistant'
-                    ? 'video-script-assistant'
-                    : 'steve-jobs';
+export const normalizeFigureChatId = (value) => value === 'liu-dongsheng'
+    ? 'liu-dongsheng'
+    : value === 'elon-musk'
+        ? 'elon-musk'
+        : value === 'zhang-yiming'
+            ? 'zhang-yiming'
+            : value === 'customer-service'
+                ? 'customer-service'
+                : value === 'sales-assistant'
+                    ? 'sales-assistant'
+                    : value === 'video-script-assistant'
+                        ? 'video-script-assistant'
+                        : 'steve-jobs';
 export const resolveFigureChatServiceStatus = (status, mode, fallbackStatus = 'offline') => {
     if (status === 'api' || status === 'mock' || status === 'offline' || status === 'preview') {
         return status;

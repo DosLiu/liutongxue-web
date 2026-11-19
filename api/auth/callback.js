@@ -11,9 +11,10 @@ export default async function handler(req, res) {
         return;
     }
     const config = getAuthConfig();
-    const callbackQuery = getCallbackQuery(req);
-    const clearedStateCookie = buildClearedStateCookie(req);
-    const redirectUrl = await buildPostAuthRedirectUrl(req, callbackQuery.error ? 'auth-error' : 'signed-in');
+    if (!config.loginEnabled) {
+        json(res, 503, { error: 'login_disabled', message: '登录暂未开放，可使用游客模式。' });
+        return;
+    }
     if (!config.isCallbackReady) {
         json(res, 503, {
             error: 'auth_config_missing',
@@ -23,6 +24,9 @@ export default async function handler(req, res) {
         });
         return;
     }
+    const callbackQuery = getCallbackQuery(req);
+    const clearedStateCookie = buildClearedStateCookie(req);
+    const redirectUrl = await buildPostAuthRedirectUrl(req, callbackQuery.error ? 'auth-error' : 'signed-in');
     if (callbackQuery.error) {
         redirect(res, 302, `${redirectUrl}&provider_error=${encodeURIComponent(callbackQuery.error)}`, [clearedStateCookie]);
         return;

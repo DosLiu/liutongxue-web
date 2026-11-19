@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "check:smoke": "node tools/smoke-check.mjs",
-    "check": "npm run build && npm run check:smoke",
+    "check:digital-human": "node --test tools/test-digital-human.mjs",
+    "check:chat-review": "node --test tools/test-chat-review.mjs",
+    "check:guest-quota": "node --test tools/test-guest-quota.mjs",
+    "check:account-quota": "node --test tools/test-account-quota.mjs",
+    "check": "npm run build && npm run check:smoke && npm run check:digital-human && npm run check:chat-review && npm run check:guest-quota && npm run check:account-quota",
     "preview": "vite preview"
   },
   "dependencies": {
