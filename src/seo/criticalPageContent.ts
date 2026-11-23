@@ -397,8 +397,8 @@ const buildFigureIndexPage = (): SnapshotDefinition => ({
     },
     {
       title: '一个持续进化中的我',
-      paragraphs: ['我的想法、经历与思考，在这里继续和你对话。'],
-      items: [{ title: '刘同学的数字分身', href: '/figures/liu-dongsheng/', description: '与刘同学的 AI 数字分身交流工作方法、经历和思考。' }]
+      paragraphs: ['把我走过的路，和想过的事，跨越时空与你交谈'],
+      items: [{ title: '刘同学', href: '/figures/liu-dongsheng/', description: '与刘同学的 AI 数字分身交流工作方法、经历和思考。' }]
     }
   ],
   faq: [

@@ -101,7 +101,7 @@ export default function FiguresPage() {
           <h2 id="figures-digital-intro-title" className="figures-digital-intro__title">
             一个持续进化中的我
           </h2>
-          <p className="figures-digital-intro__subtitle">我的想法、经历与思考，在这里继续和你对话。</p>
+          <p className="figures-digital-intro__subtitle">把我走过的路，和想过的事，跨越时空与你交谈</p>
 
           <a className="figures-entry figures-entry--active figures-digital-placeholder" href={sitePaths.figuresLiuDongsheng} aria-label="进入刘同学的数字分身对话">
             <div className="figures-entry__visual-shell" aria-hidden="true">
@@ -113,7 +113,7 @@ export default function FiguresPage() {
                 </svg>
               </div>
             </div>
-            <span className="figures-entry__name">刘同学的数字分身</span>
+            <span className="figures-entry__name">刘同学</span>
           </a>
         </section>
       </main>
