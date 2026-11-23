@@ -1,5 +1,12 @@
 import { isFigureChatApiResponse, type FigureChatApiResponse, type RequestBody } from '../../../api/_lib/figure-chat.js';
 
+export async function requestFigureChatHealth(apiUrl: string, signal: AbortSignal) {
+  const response = await fetch(apiUrl, { method: 'GET', credentials: 'include', signal });
+  const payload = await response.json().catch(() => null);
+  if (!response.ok || !isFigureChatApiResponse(payload)) throw new Error('Invalid chat health response');
+  return payload;
+}
+
 export async function requestFigureChat(apiUrl: string, body: RequestBody, signal: AbortSignal) {
   const send = async () => {
     const response = await fetch(apiUrl, {

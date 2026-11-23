@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import SiteHeader from '../../components/SiteHeader';
 import { sitePaths } from '../../site';
 import {
@@ -16,8 +16,8 @@ import {
   setFigureChatStoredRemaining
 } from './client';
 import { getFigureChatApiUrl } from './runtime';
-import { isFigureChatApiResponse } from './core';
-import { requestFigureChat } from './request';
+import { type FigureChatQuota } from './core';
+import { requestFigureChat, requestFigureChatHealth } from './request';
 import {
   type FigureChatConfig,
   resolveFigureChatServiceStatus,
@@ -25,6 +25,8 @@ import {
   type FigureChatServiceStatus
 } from './shared';
 import './FigureChatPage.css';
+
+const GUEST_QUOTA_REFRESH_RETRY_MS = 15000;
 
 type ChatMessage = {
   id: string;
@@ -57,6 +59,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   const [quotaMode, setQuotaMode] = useState<'device' | 'daily' | 'unavailable'>('device');
   const [quotaLimit, setQuotaLimit] = useState(config.freeLimit);
   const [remaining, setRemaining] = useState<number | null>(() => getFigureChatInitialRemaining(config));
+  const [guestQuotaResetAt, setGuestQuotaResetAt] = useState<number | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<FigureChatServiceStatus>('checking');
   const [hasModelReply, setHasModelReply] = useState(false);
@@ -64,7 +67,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   const [statusNotice, setStatusNotice] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const requestStartedRef = useRef(false);
+  const requestCountRef = useRef(0);
   const sendingRef = useRef(false);
   const guestQuotaLoadedRef = useRef(false);
   const normalizedInput = useMemo(() => normalizeUserInput(input), [input]);
@@ -75,7 +78,24 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   );
   const quotaText = getFigureChatQuotaText(config, isDeveloperUnlimited, remaining, quotaLimit, quotaScope, quotaMode);
   const statusMeta = getFigureChatStatusMeta(serviceStatus);
-  const quotaExhaustedText = quotaScope === 'account' ? '今日对话次数已用完' : '免费体验次数已用完';
+  const quotaExhaustedText = quotaScope === 'account'
+    ? '今日对话次数已用完'
+    : quotaMode === 'daily' ? '今日体验次数已用完，北京时间 0 点恢复' : '免费体验次数已用完';
+
+  const applyServerQuota = useCallback((quota: FigureChatQuota) => {
+    setQuotaScope(quota.scope);
+    setQuotaMode(quota.mode);
+    setQuotaLimit((current) => quota.limit > 0 ? quota.limit : current);
+    setRemaining(quota.remaining ?? null);
+
+    if (quota.scope === 'account') {
+      setGuestQuotaResetAt(null);
+    } else {
+      guestQuotaLoadedRef.current = true;
+      const resetAt = Date.parse(quota.resetAt ?? '');
+      if (Number.isFinite(resetAt)) setGuestQuotaResetAt(resetAt);
+    }
+  }, []);
 
   useEffect(() => {
     textareaRef.current?.focus();
@@ -102,7 +122,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
         }
 
         const payload = (await response.json()) as AuthStatePayload;
-        if (aborted || requestStartedRef.current || payload.loginEnabled !== true) {
+        if (aborted || requestCountRef.current > 0 || payload.loginEnabled !== true) {
           return;
         }
 
@@ -112,6 +132,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
           setQuotaMode(payload.quota?.mode ?? 'unavailable');
           setQuotaLimit(nextLimit);
           setRemaining(payload.quota?.remaining ?? null);
+          setGuestQuotaResetAt(null);
           setStatusNotice(payload.quota?.mode === 'unavailable' ? payload.quota.reason || '' : '');
           return;
         }
@@ -123,7 +144,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
         setRemaining(getFigureChatInitialRemaining(config));
         setStatusNotice('');
       } catch {
-        if (!aborted && !requestStartedRef.current && !guestQuotaLoadedRef.current) {
+        if (!aborted && requestCountRef.current === 0 && !guestQuotaLoadedRef.current) {
           setQuotaScope('device');
           setQuotaMode('device');
           setQuotaLimit(config.freeLimit);
@@ -156,42 +177,15 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
       try {
         const healthUrl = new URL(apiUrl, window.location.href);
         if (isDigitalHuman) healthUrl.searchParams.set('figureId', config.id);
-        const response = await fetch(healthUrl, {
-          method: 'GET',
-          credentials: 'include',
-          signal: controller.signal
-        });
-
-        if (cancelled || requestStartedRef.current) {
-          return;
-        }
-
-        if (!response.ok) {
-          setServiceStatus('offline');
-          return;
-        }
-
-        const payload = await response.json().catch(() => null);
-        if (cancelled || requestStartedRef.current) return;
-        if (!isFigureChatApiResponse(payload)) {
-          setServiceStatus('offline');
-          return;
-        }
-        if (payload.quota?.scope === 'device') {
-          guestQuotaLoadedRef.current = true;
-          const guestRemaining = payload.quota.remaining === null ? null : Math.min(payload.quota.remaining, getFigureChatInitialRemaining(config));
-          setQuotaScope('device');
-          setQuotaMode(payload.quota.mode);
-          setQuotaLimit(payload.quota.limit);
-          setRemaining(guestRemaining);
-          if (guestRemaining !== null) setFigureChatStoredRemaining(config, guestRemaining, payload.quota.limit);
-        }
+        const payload = await requestFigureChatHealth(healthUrl.toString(), controller.signal);
+        if (cancelled || requestCountRef.current > 0) return;
+        if (payload.quota?.scope === 'device') applyServerQuota(payload.quota);
         setServiceStatus(resolveFigureChatServiceStatus(payload.status, payload.mode, 'offline'));
         if (payload.quota?.mode === 'unavailable' || (isDigitalHuman && (payload.status === 'offline' || payload.reason?.includes('上次成功读取')))) {
           setStatusNotice(payload.reason || '数字分身暂时无法连接。');
         }
       } catch {
-        if (!cancelled && !requestStartedRef.current) {
+        if (!cancelled && requestCountRef.current === 0) {
           setServiceStatus('offline');
         }
       } finally {
@@ -206,7 +200,72 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
       controller.abort();
       window.clearTimeout(timeoutId);
     };
-  }, [config.id]);
+  }, [applyServerQuota, config.id]);
+
+  useEffect(() => {
+    const apiUrl = getFigureChatApiUrl();
+    if (guestQuotaResetAt === null || !apiUrl) return;
+
+    let cancelled = false;
+    let timerId: number | undefined;
+    let pending: AbortController | null = null;
+
+    const scheduleRefresh = (delay: number) => {
+      window.clearTimeout(timerId);
+      timerId = window.setTimeout(() => void refreshQuota(), delay);
+    };
+
+    const refreshQuota = async () => {
+      if (cancelled || pending) return;
+      if (sendingRef.current) {
+        scheduleRefresh(1000);
+        return;
+      }
+
+      const requestCount = requestCountRef.current;
+      const controller = new AbortController();
+      pending = controller;
+      const timeoutId = window.setTimeout(() => controller.abort(), FIGURE_CHAT_HEALTHCHECK_TIMEOUT_MS);
+      try {
+        const { quota } = await requestFigureChatHealth(apiUrl, controller.signal);
+        if (cancelled) return;
+        // A chat request that started during this read owns the newer balance.
+        if (requestCount !== requestCountRef.current) {
+          scheduleRefresh(1000);
+          return;
+        }
+
+        const resetAt = Date.parse(quota?.resetAt ?? '');
+        if (quota && (quota.scope === 'account' || resetAt > Math.max(Date.now(), guestQuotaResetAt))) {
+          applyServerQuota(quota);
+          setError('');
+          setStatusNotice('');
+          return;
+        }
+      } catch {
+        // Keep the displayed balance until a fresh server response arrives.
+      } finally {
+        window.clearTimeout(timeoutId);
+        pending = null;
+      }
+
+      if (!cancelled) scheduleRefresh(GUEST_QUOTA_REFRESH_RETRY_MS);
+    };
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible' && Date.now() >= guestQuotaResetAt) scheduleRefresh(0);
+    };
+
+    scheduleRefresh(Math.max(0, guestQuotaResetAt - Date.now()));
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timerId);
+      pending?.abort();
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+    };
+  }, [applyServerQuota, guestQuotaResetAt]);
 
   const handleClear = () => {
     setMessages([]);
@@ -224,7 +283,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
     }
 
     if (isQuotaExhausted) {
-      setError(quotaScope === 'account' ? '当前账号今日对话次数已用完。' : '本设备的免费体验次数已用完。');
+      setError(`${quotaExhaustedText}。`);
       return;
     }
 
@@ -237,7 +296,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
     const requestMessages = [...messages, userMessage].map(({ role, content: text }) => ({ role, content: text }));
     const apiUrl = getFigureChatApiUrl();
     sendingRef.current = true;
-    requestStartedRef.current = true;
+    requestCountRef.current++;
 
     setMessages((current) => [...current, userMessage]);
     setInput('');
@@ -264,16 +323,8 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
         if (payload?.quota) {
           nextQuotaScope = payload.quota.scope;
           nextQuotaLimit = payload.quota.limit > 0 ? payload.quota.limit : quotaLimit;
-          setQuotaScope(payload.quota.scope);
-          setQuotaMode(payload.quota.mode);
-          setQuotaLimit(nextQuotaLimit);
-          const nextRemaining = payload.quota.scope === 'device' && payload.quota.remaining !== null
-            ? Math.min(payload.quota.remaining, getFigureChatInitialRemaining(config)) : payload.quota.remaining ?? null;
-          setRemaining(nextRemaining);
-          if (payload.quota.scope === 'device') {
-            hasServerGuestQuota = true;
-            if (nextRemaining !== null) setFigureChatStoredRemaining(config, nextRemaining, nextQuotaLimit);
-          }
+          applyServerQuota(payload.quota);
+          hasServerGuestQuota = payload.quota.scope === 'device';
         }
 
         if (response.status === 429 || payload?.error === 'quota_exhausted' || payload?.error === 'quota_unavailable' || payload?.error === 'guest_session_required' || payload?.error === 'guest_quota_unavailable') {

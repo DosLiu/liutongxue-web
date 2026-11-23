@@ -44,7 +44,7 @@ export default async function handler(req, res) {
             ? buildConfigErrorMessage(config.missingLoginEnv)
             : status === 'authenticated'
                 ? quota?.reason || '已登录，可继续对话。'
-                : `游客可先体验 5 次，登录后每天可聊 ${config.dailyLimit} 次。`,
+                : `游客每天可体验 5 次，登录后每天可聊 ${config.dailyLimit} 次。`,
         missingEnv: config.loginEnabled ? config.missingLoginEnv : [],
         provider: 'daen',
         quota,

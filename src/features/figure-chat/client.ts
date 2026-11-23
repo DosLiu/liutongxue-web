@@ -99,7 +99,7 @@ export const getFigureChatQuotaText = (
     return '开发调试：界面不限，仍受服务端限制';
   }
 
-  if (scope === 'account') {
+  if (scope === 'account' || mode === 'daily') {
     if (mode === 'unavailable' || remaining === null) {
       return `今日次数：待确认/${limit}`;
     }

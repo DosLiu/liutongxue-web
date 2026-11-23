@@ -1,7 +1,7 @@
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { getAuthConfig } from './auth.js';
 import { buildSetCookie, getCookieHeader, isSecureRequest, parseCookies } from './http.js';
-import { getQuotaRuntime, runKvPipeline } from './quota.js';
+import { getNextResetAt, getQuotaDateKey, getQuotaRuntime, getSecondsUntilReset, runKvPipeline } from './quota.js';
 
 const COOKIE_NAME = 'liutongxue_guest';
 const IDENTITY_LIFETIME_MS = 365 * 24 * 60 * 60 * 1000;
@@ -25,7 +25,7 @@ if redis.call('HDEL', KEYS[1], ARGV[1]) == 1 then
 end
 return used`;
 
-const keyFor = (identity) => `liutongxue:figure-chat:guest:${identity.id}`;
+const keyFor = (identity, date) => `liutongxue:figure-chat:guest:${getQuotaDateKey(date)}:${identity.id}`;
 const signatureFor = (id, expiresAt, secret) => createHmac('sha256', secret).update(`guest:${id}:${expiresAt}`).digest('hex');
 const getSecret = () => env.AUTH_SESSION_SECRET?.trim() || '';
 const parseUsed = (value) => {
@@ -36,15 +36,15 @@ const parseUsed = (value) => {
 };
 
 export const getUnavailableGuestQuota = () => ({
-  scope: 'device', mode: 'unavailable', limit: GUEST_LIMIT, remaining: null,
+  scope: 'device', mode: 'unavailable', limit: GUEST_LIMIT, remaining: null, resetAt: null,
   exhausted: false, enforced: false, reason: '游客体验次数暂时无法校验，请稍后重试。'
 });
 
-const snapshotFromUsed = (used) => ({
-  scope: 'device', mode: 'device', limit: GUEST_LIMIT,
+const snapshotFromUsed = (used, resetAt) => ({
+  scope: 'device', mode: 'daily', limit: GUEST_LIMIT, resetAt,
   remaining: Math.max(0, GUEST_LIMIT - used), exhausted: used >= GUEST_LIMIT, enforced: true,
   reason: used >= GUEST_LIMIT
-    ? `游客的 5 次体验已用完。${getAuthConfig().isLoginReady ? '请登录后继续对话。' : ''}`
+    ? `游客今日的 ${GUEST_LIMIT} 次体验已用完，北京时间 0 点恢复。${getAuthConfig().isLoginReady ? '请登录后继续对话。' : ''}`
     : '游客体验次数由服务端校验。'
 });
 
@@ -71,12 +71,13 @@ export function readOrCreateGuestIdentity(req, res) {
 }
 
 export async function getGuestQuotaSnapshot(identity) {
-  if (!identity || identity.expiresAt <= Date.now()) return getUnavailableGuestQuota();
+  const date = new Date();
+  if (!identity || identity.expiresAt <= date.getTime()) return getUnavailableGuestQuota();
   const runtime = getQuotaRuntime();
   if (!runtime.kv.enforced) return getUnavailableGuestQuota();
   try {
-    const [result] = await runKvPipeline(runtime, [['HGET', keyFor(identity), 'used']]);
-    return snapshotFromUsed(parseUsed(result.result));
+    const [result] = await runKvPipeline(runtime, [['HGET', keyFor(identity, date), 'used']]);
+    return snapshotFromUsed(parseUsed(result.result), getNextResetAt(date));
   } catch {
     return getUnavailableGuestQuota();
   }
@@ -84,19 +85,22 @@ export async function getGuestQuotaSnapshot(identity) {
 
 export async function reserveGuestQuotaSlot(identity) {
   const unavailable = () => ({ allowed: false, quota: getUnavailableGuestQuota() });
-  if (!identity || identity.expiresAt <= Date.now()) return unavailable();
+  const date = new Date();
+  if (!identity || identity.expiresAt <= date.getTime()) return unavailable();
   const runtime = getQuotaRuntime();
   if (!runtime.kv.enforced) return unavailable();
   const ticket = randomUUID();
-  const ttl = Math.max(1, Math.ceil((identity.expiresAt - Date.now()) / 1000));
+  const key = keyFor(identity, date);
+  const resetAt = getNextResetAt(date);
+  const ttl = getSecondsUntilReset(resetAt);
   try {
-    const [response] = await runKvPipeline(runtime, [['EVAL', RESERVE_SCRIPT, 1, keyFor(identity), GUEST_LIMIT, ticket, ttl]]);
+    const [response] = await runKvPipeline(runtime, [['EVAL', RESERVE_SCRIPT, 1, key, GUEST_LIMIT, ticket, ttl]]);
     if (!Array.isArray(response.result) || response.result.length !== 2 || ![0, 1].includes(response.result[0])) throw new Error('Invalid reservation');
     const [allowed, used] = response.result;
     const count = parseUsed(used);
     if ((allowed === 1 && (count < 1 || count > GUEST_LIMIT)) || (allowed === 0 && count < GUEST_LIMIT)) throw new Error('Invalid reservation count');
-    const quota = snapshotFromUsed(count);
-    return { allowed: allowed === 1, quota, reservation: allowed === 1 ? { identity, ticket } : undefined };
+    const quota = snapshotFromUsed(count, resetAt);
+    return { allowed: allowed === 1, quota, reservation: allowed === 1 ? { identity, ticket, key, resetAt } : undefined };
   } catch {
     // The write may have succeeded before the connection failed; never call the model when uncertain.
     return unavailable();
@@ -107,8 +111,10 @@ export async function rollbackGuestQuotaSlot(reservation) {
   const runtime = getQuotaRuntime();
   if (!runtime.kv.enforced) return getUnavailableGuestQuota();
   try {
-    const [response] = await runKvPipeline(runtime, [['EVAL', ROLLBACK_SCRIPT, 1, keyFor(reservation.identity), reservation.ticket]]);
-    return snapshotFromUsed(parseUsed(response.result));
+    const { identity, key, resetAt, ticket } = reservation;
+    const [response] = await runKvPipeline(runtime, [['EVAL', ROLLBACK_SCRIPT, 1, key, ticket]]);
+    if (Date.parse(resetAt) <= Date.now()) return getGuestQuotaSnapshot(identity);
+    return snapshotFromUsed(parseUsed(response.result), resetAt);
   } catch {
     return getUnavailableGuestQuota();
   }

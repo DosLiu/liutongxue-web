@@ -244,9 +244,12 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
+    const replyQuota = guestReservation && Date.parse(guestReservation.resetAt) <= Date.now()
+      ? await getGuestQuotaSnapshot(guestReservation.identity)
+      : accountQuota;
     res.status(200).json(
       buildFigureChatResponse({
-        quota: accountQuota,
+        quota: replyQuota,
         reply: finalReply,
         mode: 'api',
         status: 'api',

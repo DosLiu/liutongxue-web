@@ -4,6 +4,9 @@ import { requestFigureChat } from '../src/features/figure-chat/request.ts';
 import { reserveGuestQuotaSlot, rollbackGuestQuotaSlot, readOrCreateGuestIdentity } from '../api/_lib/guest-quota.js';
 
 test('guest quota is enforced before model calls and remains separate from account quota', async (t) => {
+  const midnight = new Date('2026-01-31T16:00:00.000Z');
+  const nextMidnight = '2026-02-01T16:00:00.000Z';
+  t.mock.timers.enable({ apis: ['Date'], now: midnight.getTime() - 1000 });
   const savedFetch = globalThis.fetch;
   const keys = ['OPENAI_API_KEY', 'OPENAI_BASE_URL', 'AUTH_LOGIN_ENABLED', 'AUTH_SESSION_SECRET', 'AUTH_KV_ENABLED', 'KV_REST_API_URL', 'KV_REST_API_TOKEN', 'AUTH_DAILY_LIMIT'];
   const savedEnv = Object.fromEntries(keys.map(key => [key, process.env[key]]));
@@ -42,6 +45,7 @@ test('guest quota is enforced before model calls and remains separate from accou
   const accountCounts = new Map();
   let storageFailure = false;
   let providerMode = 'ok';
+  let modelReplyTime = null;
   let modelCalls = 0;
   let browserCookie = '';
   let browserCalls = 0;
@@ -69,7 +73,7 @@ test('guest quota is enforced before model calls and remains separate from accou
         let used = Number(hash.get('used') || 0);
         if (script.startsWith('-- guest-reserve-v1')) {
           if (used >= first) return { result: [0, used] };
-          assert.ok(ttl > 0);
+          assert.ok(ttl > 0 && ttl <= 86400, 'daily usage records expire within one day');
           hash.set('used', ++used); hash.set(second, '1'); hashes.set(key, hash);
           return { result: [1, used] };
         }
@@ -81,6 +85,7 @@ test('guest quota is enforced before model calls and remains separate from accou
     }
     assert.equal(url.href, 'https://model.invalid/v1/chat/completions');
     modelCalls++;
+    if (modelReplyTime !== null) t.mock.timers.setTime(modelReplyTime);
     if (providerMode === 'error') return new Response('private provider error', { status: 500 });
     if (providerMode === 'timeout') throw Object.assign(new Error('timeout'), { name: 'AbortError' });
     return Response.json({ choices: [{ message: { content: providerMode === 'empty' ? '' : '模拟模型回复' } }] });
@@ -90,6 +95,12 @@ test('guest quota is enforced before model calls and remains separate from accou
   assert.equal(modelCalls, 0, 'requests that discard the guest cookie cannot call the model');
 
   const cookie = await guestCookie();
+  const guest = readOrCreateGuestIdentity({ headers: { cookie } }, { setHeader() {} }).identity;
+  hashes.set(`liutongxue:figure-chat:guest:${guest.id}`, new Map([['used', 5]]));
+  const firstDailyQuota = (await invoke('GET', cookie)).body.quota;
+  assert.equal(firstDailyQuota.remaining, 5, 'existing guests start with the new daily allowance');
+  assert.equal(firstDailyQuota.mode, 'daily');
+  assert.equal(firstDailyQuota.resetAt, midnight.toISOString());
   for (let i = 0; i < 5; i++) {
     const result = await invoke('POST', cookie);
     assert.equal(result.status, 200);
@@ -163,4 +174,27 @@ test('guest quota is enforced before model calls and remains separate from accou
   assert.equal(signedIn.status, 200, 'logging in switches an exhausted guest to its account quota');
   assert.equal(signedIn.body.quota.scope, 'account');
   assert.equal(signedIn.body.quota.remaining, 9);
+
+  const crossingCookie = await guestCookie();
+  const crossingIdentity = readOrCreateGuestIdentity({ headers: { cookie: crossingCookie } }, { setHeader() {} }).identity;
+  const priorDayReservation = await reserveGuestQuotaSlot(crossingIdentity);
+  assert.equal(priorDayReservation.quota.remaining, 4);
+
+  modelReplyTime = midnight.getTime();
+  const crossingReply = await invoke('POST', crossingCookie);
+  modelReplyTime = null;
+  assert.equal(crossingReply.body.shouldConsume, true);
+  assert.equal(crossingReply.body.quota.remaining, 5, 'a reply after midnight reports the new day’s balance');
+  assert.equal(crossingReply.body.quota.resetAt, nextMidnight);
+
+  const newDay = await invoke('GET', cookie);
+  assert.equal(newDay.body.quota.remaining, 5, 'the exhausted guest gets five new attempts at midnight');
+  assert.equal(newDay.body.quota.resetAt, nextMidnight);
+  assert.equal(newDay.headers['Set-Cookie'], undefined, 'the same guest identity continues into the new day');
+  const newDayReply = await invoke('POST', crossingCookie, { figureId: 'customer-service' });
+  assert.equal(newDayReply.body.quota.remaining, 4);
+  const refundAfterMidnight = await rollbackGuestQuotaSlot(priorDayReservation.reservation);
+  assert.equal(refundAfterMidnight.remaining, 4, 'refunding a prior day’s reservation does not increase the new day’s balance');
+  assert.equal(refundAfterMidnight.resetAt, nextMidnight);
+  assert.equal(hashes.get(priorDayReservation.reservation.key).get('used'), 1, 'the refund is applied to its original day');
 });

@@ -21,17 +21,17 @@ const getShanghaiCalendarParts = (date = new Date()) => {
   };
 };
 
-const getQuotaDateKey = (date = new Date()) => {
+export const getQuotaDateKey = (date = new Date()) => {
   const { year, month, day } = getShanghaiCalendarParts(date);
   return `${year}-${padNumber(month)}-${padNumber(day)}`;
 };
 
-const getNextResetAt = (date = new Date()) => {
+export const getNextResetAt = (date = new Date()) => {
   const { year, month, day } = getShanghaiCalendarParts(date);
   return new Date(Date.UTC(year, month - 1, day + 1, 0, 0, 0) - SHANGHAI_OFFSET_MS).toISOString();
 };
 
-const getSecondsUntilReset = (resetAt) => Math.max(60, Math.ceil((new Date(resetAt).getTime() - Date.now()) / 1000));
+export const getSecondsUntilReset = (resetAt) => Math.max(60, Math.ceil((new Date(resetAt).getTime() - Date.now()) / 1000));
 
 const parseUsageCount = (value) => {
   if (value === null) return 0;

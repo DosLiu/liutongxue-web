@@ -87,7 +87,7 @@ export default function FiguresPage() {
               顶级思维面对面
             </h1>
             <p className="figures-subtitle">与行业传奇，展开一场跨时空的深度对话</p>
-            <p className="figures-auth-hint">游客可体验 5 次对话</p>
+            <p className="figures-auth-hint">游客每天可体验 5 次对话</p>
           </div>
         </section>
 
