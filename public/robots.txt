@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
 
-# 正式口径：https://web.liutongxue.com.cn（Vercel 托管；原 www.liutongxue.com.cn 已归简历网站使用）
-Sitemap: https://web.liutongxue.com.cn/sitemap.xml
-Host: web.liutongxue.com.cn
+# 正式口径：https://ai.liutongxue.com.cn（Vercel 托管；原 www.liutongxue.com.cn 已归简历网站使用）
+Sitemap: https://ai.liutongxue.com.cn/sitemap.xml
+Host: ai.liutongxue.com.cn
