@@ -1,5 +1,6 @@
 import { ChangeEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import SiteHeader from '../../components/SiteHeader';
+import SiteFooter from '../../components/SiteFooter';
 import { sitePaths } from '../../site';
 import {
   createFigureChatLocalFallback,
@@ -32,23 +33,6 @@ type ChatMessage = {
   id: string;
   role: FigureChatRole;
   content: string;
-};
-
-type AuthStatePayload = {
-  authenticated: boolean;
-  dailyLimit: number;
-  loginEnabled: boolean;
-  quota?: {
-    enforced?: boolean;
-    limit: number;
-    mode: 'daily' | 'unavailable';
-    reason?: string;
-    remaining: number | null;
-    scope: 'account';
-  } | null;
-  user: null | {
-    subject: string;
-  };
 };
 
 export default function FigureChatPage({ config }: { config: FigureChatConfig }) {
@@ -104,61 +88,6 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages]);
-
-  useEffect(() => {
-    let aborted = false;
-
-    const loadAuthState = async () => {
-      try {
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include',
-          headers: {
-            Accept: 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`auth_me_${response.status}`);
-        }
-
-        const payload = (await response.json()) as AuthStatePayload;
-        if (aborted || requestCountRef.current > 0 || payload.loginEnabled !== true) {
-          return;
-        }
-
-        if (payload.authenticated && payload.user?.subject) {
-          const nextLimit = payload.quota?.limit && payload.quota.limit > 0 ? payload.quota.limit : payload.dailyLimit > 0 ? payload.dailyLimit : config.freeLimit;
-          setQuotaScope('account');
-          setQuotaMode(payload.quota?.mode ?? 'unavailable');
-          setQuotaLimit(nextLimit);
-          setRemaining(payload.quota?.remaining ?? null);
-          setGuestQuotaResetAt(null);
-          setStatusNotice(payload.quota?.mode === 'unavailable' ? payload.quota.reason || '' : '');
-          return;
-        }
-
-        if (guestQuotaLoadedRef.current) return;
-        setQuotaScope('device');
-        setQuotaMode('device');
-        setQuotaLimit(config.freeLimit);
-        setRemaining(getFigureChatInitialRemaining(config));
-        setStatusNotice('');
-      } catch {
-        if (!aborted && requestCountRef.current === 0 && !guestQuotaLoadedRef.current) {
-          setQuotaScope('device');
-          setQuotaMode('device');
-          setQuotaLimit(config.freeLimit);
-          setRemaining(getFigureChatInitialRemaining(config));
-        }
-      }
-    };
-
-    void loadAuthState();
-
-    return () => {
-      aborted = true;
-    };
-  }, [config]);
 
   useEffect(() => {
     const apiUrl = getFigureChatApiUrl();
@@ -427,7 +356,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
                 <path d="M7.5 2.25L3.75 6L7.5 9.75" />
               </svg>
             </span>
-            <span>返回人物入口</span>
+            <span>返回硅基同事</span>
           </a>
 
           <section className="jobs-chat-hero" aria-labelledby="jobs-chat-title">
@@ -508,6 +437,8 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
           </section>
         </div>
       </main>
+
+      <SiteFooter />
     </>
   );
 }

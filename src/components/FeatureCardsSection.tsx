@@ -23,7 +23,7 @@ export default function FeatureCardsSection() {
 
           <div className="feature-card card4">
             <h2>50+</h2>
-            <h3>线下智友座谈</h3>
+            <h3>AI主题交流</h3>
           </div>
 
           <div className="feature-card card5">

@@ -1,7 +1,6 @@
 .jobs-chat-page {
   position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
+  flex: 1 0 auto;
   overflow: hidden;
   background: var(--bg-body);
 }

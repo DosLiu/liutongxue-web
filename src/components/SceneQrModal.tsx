@@ -1,9 +1,16 @@
 import { useEffect, useRef } from 'react';
-import type { SceneProjectCard } from '../constants/sceneProjects';
 import './SceneQrModal.css';
 
+type QrModalTarget = {
+  title: string;
+  qr?: {
+    caption: string;
+    imageSrc?: string;
+  };
+};
+
 type SceneQrModalProps = {
-  block: SceneProjectCard | null;
+  block: QrModalTarget | null;
   onClose: () => void;
 };
 

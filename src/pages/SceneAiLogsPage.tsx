@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import SiteHeader from '../components/SiteHeader';
+import SiteFooter from '../components/SiteFooter';
 import { loadAllSceneLogEntries, type SceneLogListItem } from '../data/scene/runtime';
 import type { SceneLogKey } from '../data/scene/types';
 import './ScenePage.css';
@@ -57,10 +58,11 @@ export default function SceneAiLogsPage() {
         <div className="scene-log-page__edge scene-log-page__edge--right" aria-hidden="true" />
 
         <div className="scene-log-shell scene-log-shell--resident">
-          <section className="scene-log-hero" aria-labelledby="scene-ai-logs-title">
+          <section className="scene-log-hero scene-log-hero--stacked" aria-labelledby="scene-ai-logs-title">
             <h1 id="scene-ai-logs-title" className="scene-log-title scene-log-title--single">
               AI 工作日志
             </h1>
+            <p className="section-subtitle">AI 团队的真实工作记录</p>
           </section>
 
           <section className="scene-log-timeline scene-log-timeline--compact scene-log-timeline--resident" aria-labelledby="scene-ai-logs-list-title">
@@ -128,6 +130,8 @@ export default function SceneAiLogsPage() {
           </section>
         </div>
       </main>
+
+      <SiteFooter />
     </>
   );
 }

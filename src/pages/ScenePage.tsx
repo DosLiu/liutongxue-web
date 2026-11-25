@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import SiteHeader from '../components/SiteHeader';
+import SiteFooter from '../components/SiteFooter';
 import SceneQrModal from '../components/SceneQrModal';
+import { MaintenanceTapeOverlay } from '../components/ProjectCardMockup';
 import { SCENE_PROJECT_CARDS, type SceneProjectCard } from '../constants/sceneProjects';
 import { getLatestSceneLog, sceneCollectionList } from '../data/scene';
 import './ScenePage.css';
@@ -15,7 +17,7 @@ const buildCardViews = (): ProjectCardView[] => {
   const latestLog = latestLogs[0];
 
   return SCENE_PROJECT_CARDS.map((card) => {
-    if (card.id === 'ai-work-logs' && latestLog) {
+    if (card.id === 'ai-work-logs' && !card.underMaintenance && latestLog) {
       return {
         ...card,
         footerLabel: '最新动态',
@@ -33,14 +35,20 @@ type ProjectCardProps = {
 };
 
 function ProjectCard({ card, onOpenQr }: ProjectCardProps) {
+  const isMaintenance = Boolean(card.underMaintenance);
   const isExternal = card.href ? /^https?:\/\//i.test(card.href) : false;
+
+  if (card.isPlaceholder) {
+    return <div className="scene-card scene-card--placeholder" aria-label="新项目占位框" />;
+  }
+
   const body = (
     <>
       <h2 className="scene-card__title">{card.title}</h2>
       <p className="scene-card__description">{card.description || '介绍文案待补充。'}</p>
 
       <div className="scene-card__footer">
-        <div className="scene-card__log-preview">
+        <div className={`scene-card__log-preview${isMaintenance ? ' scene-card__log-preview--disabled' : ''}`}>
           {card.footerLabel ? (
             <span className="scene-card__log-meta">
               <span className="scene-card__log-date">{card.footerLabel}</span>
@@ -51,6 +59,15 @@ function ProjectCard({ card, onOpenQr }: ProjectCardProps) {
       </div>
     </>
   );
+
+  if (isMaintenance) {
+    return (
+      <div className="scene-card scene-card--maintenance" aria-disabled="true">
+        <div className="card-body-dimmed">{body}</div>
+        <MaintenanceTapeOverlay />
+      </div>
+    );
+  }
 
   if (card.qr) {
     return (
@@ -98,7 +115,7 @@ export default function ScenePage() {
             <div className="scene-hero__glow" aria-hidden="true" />
             <div className="scene-hero__content">
               <h1 id="scene-title" className="scene-title">案发现场</h1>
-              <p className="scene-subtitle">三支持续运行的 AI 队伍，和它们交付的真实项目。</p>
+              <p className="scene-subtitle">作品与实证 · 每个项目都能点进去验证</p>
             </div>
           </section>
 
@@ -109,6 +126,8 @@ export default function ScenePage() {
           </section>
         </div>
       </main>
+
+      <SiteFooter />
 
       <SceneQrModal block={qrCard} onClose={() => setQrCard(null)} />
     </>

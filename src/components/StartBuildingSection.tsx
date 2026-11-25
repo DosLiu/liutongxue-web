@@ -5,7 +5,7 @@ import './StartBuildingSection.css';
 
 export default function StartBuildingSection() {
   return (
-    <section className="start-building-section" aria-labelledby="start-building-title">
+    <section id="contact" className="start-building-section" aria-labelledby="start-building-title">
       <div className="start-building-container">
         <div className="start-building-card">
           <CosmicCardCanvas />

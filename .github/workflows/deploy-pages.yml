@@ -17,9 +17,9 @@ concurrency:
 env:
   # GitHub Pages 镜像访问地址（项目页格式：https://<owner>.github.io/<repo>/）
   VITE_SITE_URL: https://dosliu.github.io/liutongxue-web/
-  # 正式站点口径：web.liutongxue.com.cn（Vercel 托管，根路径部署）
+  # 正式站点口径：ai.liutongxue.com.cn（Vercel 托管，根路径部署）
   # Pages 与正式域名不一致，镜像产物自动注入整站 noindex，canonical / og:url 指向正式地址
-  VITE_CANONICAL_SITE_URL: https://web.liutongxue.com.cn
+  VITE_CANONICAL_SITE_URL: https://ai.liutongxue.com.cn
   # 项目页部署必须带 base 路径
   PAGES_BASE: /liutongxue-web/
 

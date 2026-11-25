@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import SiteHeader from '../components/SiteHeader';
+import SiteFooter from '../components/SiteFooter';
 import { getSceneDetailPath, type SceneLogCollection } from '../data/scene';
 import './ScenePage.css';
 
@@ -79,6 +80,8 @@ export default function SceneTeamLogPage({ collection }: SceneTeamLogPageProps) 
           </section>
         </div>
       </main>
+
+      <SiteFooter />
     </>
   );
 }

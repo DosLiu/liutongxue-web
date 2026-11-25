@@ -1,7 +1,6 @@
 .scene-page {
   position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
+  flex: 1 0 auto;
   overflow: hidden;
   background: var(--bg-body);
 }
@@ -77,8 +76,6 @@
   flex-direction: column;
   width: 100%;
   max-width: var(--page-content-max);
-  min-height: var(--hero-viewport-height, 100vh);
-  min-height: var(--hero-viewport-height, 100svh);
   margin: 0 auto;
   padding-inline: var(--page-gutter);
 }
@@ -210,8 +207,8 @@
 
 .scene-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(1rem, 1.35vw, 1.3rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.2rem, 1.8vw, 1.6rem);
   margin-top: 0;
 }
 
@@ -224,6 +221,7 @@
 
 .scene-card {
   display: flex;
+  min-width: 0;
   min-height: clamp(18.5rem, 22vw, 20.5rem);
   flex-direction: column;
   border: 1px solid transparent;
@@ -290,7 +288,7 @@
   opacity: 1;
 }
 
-.scene-card > *,
+.scene-card > :not(.maintenance-tape-overlay),
 .scene-log-panel > *,
 .scene-archive-panel > * {
   position: relative;
@@ -439,8 +437,7 @@
 
 .scene-log-page {
   position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
+  flex: 1 0 auto;
   overflow: hidden;
   background:
     radial-gradient(circle at top, rgba(82, 39, 255, 0.13), transparent 34%),
@@ -1166,4 +1163,64 @@ button.scene-card {
   color: #fff;
   border-color: rgba(219, 187, 255, 0.55);
   background: rgba(192, 171, 223, 0.16);
+}
+
+/* 标题 + 副标题纵向排列 */
+.scene-log-hero--stacked {
+  flex-direction: column;
+}
+
+/* /scene/ 检修态卡片（恢复原纯文字卡片风格，与首页同步采用 46% 视觉中心宽腰带） */
+
+.scene-card--maintenance {
+  cursor: not-allowed;
+  background:
+    linear-gradient(180deg, rgba(16, 12, 24, 0.96), rgba(12, 9, 20, 0.94)) padding-box,
+    linear-gradient(135deg, rgba(245, 158, 11, 0.34), rgba(198, 164, 255, 0.14)) border-box;
+}
+
+.scene-card--maintenance:hover {
+  background:
+    linear-gradient(180deg, rgba(16, 12, 24, 0.96), rgba(12, 9, 20, 0.94)) padding-box,
+    linear-gradient(135deg, rgba(245, 158, 11, 0.38), rgba(198, 164, 255, 0.14)) border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 16px 42px -26px rgba(60, 28, 112, 0.75);
+  transform: none;
+}
+
+.scene-card--maintenance:hover::before {
+  opacity: 0.72;
+}
+
+.scene-card--maintenance:hover::after {
+  opacity: 0.5;
+}
+
+.scene-card__log-preview--disabled .scene-card__log-date {
+  color: rgba(251, 191, 36, 0.8);
+}
+
+.scene-card__log-preview--disabled .scene-card__log-text {
+  color: rgba(255, 255, 255, 0.56);
+}
+
+/* 空内容占位框（2x2 版式预览用） */
+.scene-card--placeholder {
+  background: rgba(16, 12, 24, 0.42);
+  border: 1.5px dashed rgba(198, 164, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  cursor: default;
+}
+
+.scene-card--placeholder:hover {
+  background: rgba(16, 12, 24, 0.42);
+  border-color: rgba(198, 164, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transform: none;
+}
+
+.scene-card--placeholder::before,
+.scene-card--placeholder::after {
+  opacity: 0;
 }

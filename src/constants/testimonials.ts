@@ -22,7 +22,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
   },
   {
     id: 4,
-    text: '技术更新的速度从来都快过人类学习的速度，但你要学的不是所有技术，是怎么用它帮你。',
+    text: '技术更新的速度从来都快过人类学习的速度，但你要学的不是所有技术，是怎么用它帮你',
     handle: '@搬砖哥'
   },
   {
@@ -47,7 +47,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
   },
   {
     id: 9,
-    text: 'AI具身是一代人一次的机会',
+    text: '具身AI是一代人一次的机会',
     handle: '@黄仁勋'
   },
   {

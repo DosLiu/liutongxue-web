@@ -1,4 +1,5 @@
 import SiteHeader from '../components/SiteHeader';
+import SiteFooter from '../components/SiteFooter';
 import './ScenePage.css';
 
 type SceneLogDetailPageProps = {
@@ -40,7 +41,7 @@ export default function SceneLogDetailPage({
             </h1>
           </section>
 
-          <section className="scene-log-detail__media" aria-label="日志配图预留区">
+          <section className="scene-log-detail__media" aria-label="日志配图">
             {imageSrc ? (
               <>
                 <img
@@ -80,6 +81,8 @@ export default function SceneLogDetailPage({
           </article>
         </div>
       </main>
+
+      <SiteFooter />
     </>
   );
 }

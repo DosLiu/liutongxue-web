@@ -85,8 +85,8 @@ const injectRootSnapshot = (html: string, pathname: string) => {
   return html.replace('<div id="root"></div>', `<div id="root">${snapshotHtml}</div>`);
 };
 
-// 正式口径：web.liutongxue.com.cn（Vercel 托管；原 www.liutongxue.com.cn 已归简历网站使用，GitHub Pages 为不收录镜像）
-const canonicalSiteUrl = trimTrailingSlash(process.env.VITE_CANONICAL_SITE_URL || 'https://web.liutongxue.com.cn');
+// 正式口径：ai.liutongxue.com.cn（Vercel 托管；原 jianli.liutongxue.com.cn 已归简历网站使用，GitHub Pages 为不收录镜像）
+const canonicalSiteUrl = trimTrailingSlash(process.env.VITE_CANONICAL_SITE_URL || 'https://ai.liutongxue.com.cn');
 const siteUrl = trimTrailingSlash(process.env.VITE_SITE_URL || canonicalSiteUrl);
 // 可选开关：VITE_FORCE_NOINDEX=1 可强制整站 noindex（当前部署未启用）
 const isNonCanonicalBuild = siteUrl !== canonicalSiteUrl || process.env.VITE_FORCE_NOINDEX === '1';
@@ -151,8 +151,73 @@ export default defineConfig({
             {
               tag: 'link',
               attrs: {
+                rel: 'icon',
+                type: 'image/svg+xml',
+                href: '/favicon.svg'
+              },
+              injectTo: 'head'
+            },
+            {
+              tag: 'meta',
+              attrs: {
+                name: 'theme-color',
+                content: '#060010'
+              },
+              injectTo: 'head'
+            },
+            {
+              tag: 'meta',
+              attrs: {
+                name: 'author',
+                content: '刘同学 (Liutongxue)'
+              },
+              injectTo: 'head'
+            },
+            ...(seoMeta.keywords
+              ? [
+                  {
+                    tag: 'meta',
+                    attrs: {
+                      name: 'keywords',
+                      content: seoMeta.keywords
+                    },
+                    injectTo: 'head' as const
+                  }
+                ]
+              : []),
+            {
+              tag: 'link',
+              attrs: {
                 rel: 'canonical',
                 href: absoluteUrl
+              },
+              injectTo: 'head'
+            },
+            {
+              tag: 'link',
+              attrs: {
+                rel: 'alternate',
+                hreflang: 'zh-CN',
+                href: absoluteUrl
+              },
+              injectTo: 'head'
+            },
+            {
+              tag: 'link',
+              attrs: {
+                rel: 'alternate',
+                hreflang: 'x-default',
+                href: absoluteUrl
+              },
+              injectTo: 'head'
+            },
+            {
+              tag: 'link',
+              attrs: {
+                rel: 'alternate',
+                type: 'text/plain',
+                href: buildAbsoluteUrl(canonicalSiteUrl, '/llms.txt'),
+                title: 'LLMs.txt'
               },
               injectTo: 'head'
             },
@@ -315,6 +380,18 @@ export default defineConfig({
                     attrs: {
                       property: 'article:section',
                       content: seoMeta.articleSection
+                    },
+                    injectTo: 'head' as const
+                  }
+                ]
+              : []),
+            ...(!isNonCanonicalBuild
+              ? [
+                  {
+                    tag: 'meta',
+                    attrs: {
+                      name: 'robots',
+                      content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
                     },
                     injectTo: 'head' as const
                   }

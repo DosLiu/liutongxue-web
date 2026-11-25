@@ -137,7 +137,11 @@
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-a.tool-showcase-card {
+a.tool-showcase-card,
+button.tool-showcase-card {
+  width: 100%;
+  color: inherit;
+  text-align: left;
   cursor: pointer;
 }
 
@@ -173,290 +177,6 @@ a.tool-showcase-card {
 }
 
 /* ===========================================
-   MOCKUP VISUAL AREA
-   =========================================== */
-
-.tool-card-mockup-wrapper {
-  width: 100%;
-  height: 148px;
-  margin-bottom: 1.15rem;
-  border-radius: 0.85rem;
-  overflow: hidden;
-  background: #090a0f;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
-  display: flex;
-  flex-direction: column;
-}
-
-/* --- Terminal Mockup --- */
-.tool-mockup--terminal {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #08090d;
-}
-
-.mockup-terminal-head {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.mockup-terminal-dots {
-  display: flex;
-  gap: 0.3rem;
-}
-
-.mockup-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-
-.mockup-dot--red { background: #ef4444; opacity: 0.8; }
-.mockup-dot--yellow { background: #f59e0b; opacity: 0.8; }
-.mockup-dot--green { background: #10b981; opacity: 0.8; }
-
-.mockup-terminal-title {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.45);
-}
-
-.mockup-terminal-body {
-  padding: 0.7rem 0.85rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.74rem;
-  line-height: 1.5;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.term-prompt { color: #818cf8; }
-.term-path { color: #38bdf8; }
-.term-dim { color: rgba(255, 255, 255, 0.5); }
-.term-highlight { color: #f1f5f9; display: flex; align-items: center; gap: 0.35rem; }
-.term-success { color: #34d399; }
-.term-cursor {
-  display: inline-block;
-  width: 5px;
-  height: 12px;
-  background: #38bdf8;
-  animation: cursorBlink 1s step-end infinite;
-}
-
-@keyframes cursorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-/* --- Browser Mockup --- */
-.tool-mockup--browser {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #090a0f;
-}
-
-.mockup-browser-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.45rem 0.75rem;
-  background: rgba(255, 255, 255, 0.035);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.mockup-browser-url-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  font-size: 0.68rem;
-}
-
-.mockup-lock-icon { font-size: 0.62rem; opacity: 0.6; }
-.mockup-url { color: rgba(255, 255, 255, 0.7); }
-
-.mockup-pill-badge {
-  font-size: 0.64rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  background: rgba(99, 102, 241, 0.15);
-  color: #a5b4fc;
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  font-weight: 600;
-}
-
-.mockup-pill-badge--cyan {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-  border-color: rgba(56, 189, 248, 0.24);
-}
-
-.mockup-browser-body {
-  padding: 0.8rem 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}
-
-.mockup-browser-layout {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.mockup-skeleton-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(56, 189, 248, 0.25));
-}
-
-.mockup-skeleton-rows {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.mockup-skeleton-row {
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.09);
-  width: 80%;
-}
-
-.mockup-skeleton-row--bold {
-  height: 8px;
-  background: rgba(255, 255, 255, 0.22);
-  width: 50%;
-}
-
-.mockup-skeleton-row--short { width: 35%; }
-
-.mockup-banner-chip {
-  align-self: flex-start;
-  font-size: 0.68rem;
-  padding: 0.22rem 0.55rem;
-  border-radius: 4px;
-  background: rgba(52, 211, 153, 0.1);
-  color: #34d399;
-  border: 1px solid rgba(52, 211, 153, 0.2);
-}
-
-/* --- Applet Mockup --- */
-.tool-mockup--applet {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #080a11;
-  padding: 0.6rem 0.85rem;
-}
-
-.mockup-applet-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.6rem;
-}
-
-.mockup-applet-action {
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.mockup-applet-body {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  height: 100%;
-}
-
-.mockup-boba-cup {
-  position: relative;
-  width: 44px;
-  height: 64px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.mockup-boba-straw {
-  position: absolute;
-  top: -8px;
-  right: 14px;
-  width: 4px;
-  height: 20px;
-  background: #fb7185;
-  border-radius: 2px;
-  transform: rotate(12deg);
-}
-
-.mockup-boba-cup-inner {
-  width: 100%;
-  height: 100%;
-  border-radius: 6px 6px 12px 12px;
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.04);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.mockup-boba-liquid {
-  width: 100%;
-  height: 70%;
-  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
-  opacity: 0.75;
-  border-radius: 0 0 10px 10px;
-}
-
-.mockup-boba-pearls {
-  position: absolute;
-  bottom: 4px;
-  display: flex;
-  gap: 3px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.mockup-boba-pearls .pearl {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #451a03;
-}
-
-.mockup-applet-texts {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.mockup-applet-tag {
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: #f1f5f9;
-}
-
-.mockup-applet-sub {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.55);
-}
-
-/* ===========================================
    CARD CONTENT
    =========================================== */
 
@@ -468,36 +188,6 @@ a.tool-showcase-card {
   flex-direction: column;
   justify-content: space-between;
   gap: 0.75rem;
-}
-
-.tool-card-meta-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.tool-card-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #34d399;
-}
-
-.tool-status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 6px rgba(52, 211, 153, 0.8);
-}
-
-.tool-card-tag {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 0.01em;
 }
 
 .tool-card-title {
@@ -554,6 +244,30 @@ a.tool-showcase-card {
 
 .tool-showcase-card:hover .tool-action-arrow {
   transform: translateX(4px);
+}
+
+/* 检修中卡片：禁用交互与悬浮抬起 */
+.tool-showcase-card--maintenance {
+  cursor: not-allowed;
+  border-color: rgba(245, 158, 11, 0.22);
+}
+
+.tool-showcase-card--maintenance:hover {
+  background: var(--bg-card, #11131a);
+  border-color: rgba(245, 158, 11, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 16px 36px -18px rgba(0, 0, 0, 0.7);
+  transform: translateY(0);
+}
+
+.tool-showcase-card--maintenance:hover::before {
+  opacity: 0;
+}
+
+.tool-card-footer-action--disabled,
+.tool-showcase-card--maintenance:hover .tool-card-footer-action--disabled {
+  color: rgba(255, 255, 255, 0.48);
 }
 
 /* ===========================================
@@ -680,4 +394,23 @@ a.tool-showcase-card {
   .tool-card-title {
     font-size: 1.05rem;
   }
+}
+
+/* 空内容占位框（版式预览用） */
+.tool-showcase-card--placeholder {
+  background: rgba(17, 19, 26, 0.42);
+  border: 1.5px dashed rgba(168, 126, 255, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  cursor: default;
+}
+
+.tool-showcase-card--placeholder:hover {
+  background: rgba(17, 19, 26, 0.42);
+  border-color: rgba(168, 126, 255, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transform: translateY(0);
+}
+
+.tool-showcase-card--placeholder:hover::before {
+  opacity: 0;
 }

@@ -139,7 +139,7 @@
     0 8px 24px -4px rgba(168, 85, 247, 0.4),
     0 2px 8px rgba(0, 0, 0, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  cursor: pointer;
+  cursor: default;
   position: relative;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -335,4 +335,9 @@
   .contact-qr-caption {
     font-size: 0.85rem;
   }
+}
+
+/* 导航「与我链接」锚点：跳转时避开固定页头 */
+#contact {
+  scroll-margin-top: calc(var(--header-height, 80px) + 1rem);
 }

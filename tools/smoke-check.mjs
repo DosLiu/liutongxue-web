@@ -4,9 +4,9 @@ import { dirname, relative, resolve } from 'node:path';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, '..');
-// 正式口径：web.liutongxue.com.cn（Vercel 托管；原 www.liutongxue.com.cn 已归简历网站使用，GitHub Pages 为不收录镜像）
-const siteUrl = (process.env.VITE_SITE_URL || 'https://web.liutongxue.com.cn').replace(/\/+$/, '');
-const canonicalSiteUrl = (process.env.VITE_CANONICAL_SITE_URL || 'https://web.liutongxue.com.cn').replace(/\/+$/, '');
+// 正式口径：ai.liutongxue.com.cn（Vercel 托管；原 jianli.liutongxue.com.cn 已归简历网站使用，GitHub Pages 为不收录镜像）
+const siteUrl = (process.env.VITE_SITE_URL || 'https://ai.liutongxue.com.cn').replace(/\/+$/, '');
+const canonicalSiteUrl = (process.env.VITE_CANONICAL_SITE_URL || 'https://ai.liutongxue.com.cn').replace(/\/+$/, '');
 // 可选开关 VITE_FORCE_NOINDEX=1，与 vite.config 的强制 noindex 行为保持一致（当前部署未启用）
 const isNonCanonicalBuild = siteUrl !== canonicalSiteUrl || process.env.VITE_FORCE_NOINDEX === '1';
 // Pages 镜像口径的 canonical 域名自带子路径（如 /liutongxue-web）时，解析 sitemap 需要先剥掉
@@ -184,7 +184,7 @@ const createMockApiResponse = () => {
 try {
   const { default: chatHandler } = await import(pathToFileURL(resolve(repoRoot, 'api/chat.ts')).href);
   const { getAuthConfig } = await import(pathToFileURL(resolve(repoRoot, 'api/_lib/auth.js')).href);
-  // 浏览器的 CORS Origin 只含 scheme+host（如 https://web.liutongxue.com.cn），不带子路径
+  // 浏览器的 CORS Origin 只含 scheme+host（如 https://ai.liutongxue.com.cn），不带子路径
   const requestOrigin = new URL(siteUrl).origin;
   const expectedAllowOrigins = new Set([requestOrigin, new URL(canonicalSiteUrl).origin, siteUrl, canonicalSiteUrl]);
 
@@ -256,12 +256,12 @@ try {
     const previousCallbackUrl = process.env.DAEN_AUTH_CALLBACK_URL;
 
     try {
-      process.env.DAEN_AUTH_CALLBACK_URL = 'https://web.liutongxue.com.cn/api/daen?route=callback';
+      process.env.DAEN_AUTH_CALLBACK_URL = 'https://ai.liutongxue.com.cn/api/daen?route=callback';
       const callbackUrl = getAuthConfig().callbackUrl;
       const usesCanonicalPathInExample =
         envExampleSource.includes('/api/auth/callback') && !envExampleSource.includes('/api/daen?route=callback');
 
-      if (callbackUrl !== 'https://web.liutongxue.com.cn/api/auth/callback' || !usesCanonicalPathInExample) {
+      if (callbackUrl !== 'https://ai.liutongxue.com.cn/api/auth/callback' || !usesCanonicalPathInExample) {
         failures.push(
           `auth callback 归一化异常:\n${JSON.stringify({ callbackUrl, usesCanonicalPathInExample }, null, 2)}`
         );

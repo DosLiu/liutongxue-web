@@ -22,7 +22,9 @@ export const sitePaths = {
   figuresSalesAssistant: withBaseUrl('/figures/sales-assistant/'),
   figuresVideoScriptAssistant: withBaseUrl('/figures/video-script-assistant/'),
   sceneLogs,
-  contact: 'mailto:hello@liutongxue.com'
+  // 首页「与我链接」二维码区块锚点（用字符串拼接，避免被 smoke-check 当作独立路由）
+  contact: baseUrl + '#contact',
+  resumeSite: 'https://jianli.liutongxue.com.cn/'
 } as const;
 
 export const getSceneCollectionHref = (sceneKey: SceneLogKey) => withBaseUrl(getSceneCollectionPath(sceneKey));
@@ -33,7 +35,10 @@ export const getSceneDetailHref = (sceneKey: SceneLogKey, publishedAt: string) =
 export const siteNavItems = [
   { label: '首页', key: 'home', href: sitePaths.home },
   { label: '案发现场', key: 'scene', href: sitePaths.scene },
-  { label: '具身AI', key: 'contact', href: sitePaths.contact }
+  { label: '硅基同事', key: 'figures', href: sitePaths.figures }
 ] as const;
 
 export type SiteNavKey = (typeof siteNavItems)[number]['key'];
+
+// 导航右侧高亮按钮：跳转到首页「与我链接」二维码区块
+export const siteContactCta = { label: '与我链接', href: sitePaths.contact } as const;

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
-  <title id="title">Liutongxue share image</title>
-  <desc id="desc">Liutongxue：AI 人物实验与项目日志</desc>
+  <title id="title">Liutongxue 分享图</title>
+  <desc id="desc">Liutongxue：刘同学的 AI 项目合集站（案发现场 × 硅基同事）</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#070210"/>
@@ -21,7 +21,7 @@
     </linearGradient>
   </defs>
 
-  <rect width="1200" height="630" rx="32" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#bg)"/>
   <rect width="1200" height="630" fill="url(#glowA)"/>
   <rect width="1200" height="630" fill="url(#glowB)"/>
 
@@ -32,31 +32,30 @@
     <path d="M40 560 H1160" stroke="#ffffff" stroke-opacity="0.08"/>
   </g>
 
-  <g transform="translate(72 78)">
-    <rect x="0" y="0" width="238" height="36" rx="18" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.12"/>
-    <text x="18" y="24" fill="#e6eefc" font-size="18" font-family="PingFang SC, SF Pro Display, Helvetica Neue, Arial, sans-serif" letter-spacing="0.4">www.liutongxue.com.cn</text>
+  <g transform="translate(72 82)">
+    <rect x="0" y="0" width="236" height="38" rx="19" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.14"/>
+    <text x="20" y="25" fill="#e6eefc" font-size="18" font-family="Microsoft YaHei, PingFang SC, Segoe UI, Arial, sans-serif" letter-spacing="0.4">ai.liutongxue.com.cn</text>
 
-    <text x="0" y="170" fill="#ffffff" font-size="86" font-weight="700" font-family="SF Pro Display, Inter, Helvetica Neue, Arial, sans-serif" letter-spacing="-2">Liutongxue</text>
-    <text x="0" y="236" fill="#d7e4ff" font-size="34" font-family="PingFang SC, SF Pro Display, Helvetica Neue, Arial, sans-serif">AI 人物实验 × 项目日志</text>
+    <text x="0" y="168" fill="#ffffff" font-size="84" font-weight="700" font-family="Segoe UI, Inter, Helvetica Neue, Arial, sans-serif" letter-spacing="-2">Liutongxue</text>
+    <text x="0" y="236" fill="#d7e4ff" font-size="34" font-weight="600" font-family="Microsoft YaHei, PingFang SC, sans-serif">刘同学的 AI 项目合集站</text>
 
-    <text x="0" y="332" fill="#edf2ff" font-size="24" font-family="PingFang SC, SF Pro Display, Helvetica Neue, Arial, sans-serif">figures 是人物实验，scene 是项目自己公开的一手日志。</text>
-    <text x="0" y="374" fill="#b8c7e6" font-size="22" font-family="PingFang SC, SF Pro Display, Helvetica Neue, Arial, sans-serif">中文语境 · canonical 域名：www.liutongxue.com.cn</text>
+    <text x="0" y="330" fill="#edf2ff" font-size="24" font-family="Microsoft YaHei, PingFang SC, sans-serif">案发现场（作品与实证）× 硅基同事（在线 AI 对话）</text>
+    <text x="0" y="374" fill="#b8c7e6" font-size="21" font-family="Microsoft YaHei, PingFang SC, sans-serif">正式站：ai.liutongxue.com.cn · 个人简历：jianli.liutongxue.com.cn</text>
   </g>
 
-  <g transform="translate(834 112)">
-    <rect x="0" y="0" width="286" height="406" rx="30" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.12"/>
-    <rect x="24" y="28" width="238" height="70" rx="20" fill="#0b1221" fill-opacity="0.72" stroke="#ffffff" stroke-opacity="0.08"/>
-    <text x="48" y="58" fill="#9fb8ff" font-size="16" font-family="SF Pro Display, Helvetica Neue, Arial, sans-serif">SITE</text>
-    <text x="48" y="84" fill="#ffffff" font-size="22" font-weight="600" font-family="PingFang SC, SF Pro Display, Helvetica Neue, Arial, sans-serif">实验入口与工作现场</text>
+  <g transform="translate(808 106)">
+    <rect x="0" y="0" width="320" height="418" rx="30" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.12"/>
 
-    <rect x="24" y="126" width="238" height="98" rx="22" fill="#0b1221" fill-opacity="0.64" stroke="#ffffff" stroke-opacity="0.08"/>
-    <text x="48" y="160" fill="#8ed9ff" font-size="16" font-family="SF Pro Display, Helvetica Neue, Arial, sans-serif">FIGURES</text>
-    <text x="48" y="192" fill="#ffffff" font-size="20" font-weight="600" font-family="PingFang SC, SF Pro Display, Helvetica Neue, Arial, sans-serif">受公开人物表达风格启发的</text>
-    <text x="48" y="220" fill="#ffffff" font-size="20" font-weight="600" font-family="PingFang SC, SF Pro Display, Helvetica Neue, Arial, sans-serif">对话实验</text>
+    <rect x="24" y="28" width="272" height="104" rx="20" fill="#0b1221" fill-opacity="0.72" stroke="#ffffff" stroke-opacity="0.08"/>
+    <text x="46" y="60" fill="#9fb8ff" font-size="15" font-weight="600" font-family="Segoe UI, Arial, sans-serif">SCENE · 案发现场</text>
+    <text x="46" y="92" fill="#ffffff" font-size="20" font-weight="600" font-family="Microsoft YaHei, PingFang SC, sans-serif">可亲自验证的 AI 交付作品</text>
 
-    <rect x="24" y="252" width="238" height="126" rx="22" fill="#0b1221" fill-opacity="0.64" stroke="#ffffff" stroke-opacity="0.08"/>
-    <text x="48" y="286" fill="#c7a8ff" font-size="16" font-family="SF Pro Display, Helvetica Neue, Arial, sans-serif">SCENE</text>
-    <text x="48" y="318" fill="#ffffff" font-size="20" font-weight="600" font-family="PingFang SC, SF Pro Display, Helvetica Neue, Arial, sans-serif">项目自己公开的</text>
-    <text x="48" y="346" fill="#ffffff" font-size="20" font-weight="600" font-family="PingFang SC, SF Pro Display, Helvetica Neue, Arial, sans-serif">协作记录与工作现场</text>
+    <rect x="24" y="156" width="272" height="104" rx="20" fill="#0b1221" fill-opacity="0.68" stroke="#ffffff" stroke-opacity="0.08"/>
+    <text x="46" y="188" fill="#8ed9ff" font-size="15" font-weight="600" font-family="Segoe UI, Arial, sans-serif">FIGURES · 硅基同事</text>
+    <text x="46" y="220" fill="#ffffff" font-size="20" font-weight="600" font-family="Microsoft YaHei, PingFang SC, sans-serif">虚拟名人与刘同学数字分身</text>
+
+    <rect x="24" y="284" width="272" height="104" rx="20" fill="#0b1221" fill-opacity="0.64" stroke="#ffffff" stroke-opacity="0.08"/>
+    <text x="46" y="316" fill="#c7a8ff" font-size="15" font-weight="600" font-family="Segoe UI, Arial, sans-serif">RESUME · 个人简历</text>
+    <text x="46" y="348" fill="#ffffff" font-size="19" font-weight="600" font-family="Segoe UI, Arial, sans-serif">jianli.liutongxue.com.cn</text>
   </g>
 </svg>

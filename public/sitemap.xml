@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<!-- 正式口径：https://ai.liutongxue.com.cn（Vercel 托管；原 www.liutongxue.com.cn 已归简历网站使用） -->
+<!-- 正式口径：https://ai.liutongxue.com.cn（Vercel 托管；原 jianli.liutongxue.com.cn 已归简历网站使用） -->
   <url>
     <loc>https://ai.liutongxue.com.cn/</loc>
-    <lastmod>2026-04-04</lastmod>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://ai.liutongxue.com.cn/figures/</loc>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://ai.liutongxue.com.cn/figures/liu-dongsheng/</loc>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://ai.liutongxue.com.cn/figures/steve-jobs/</loc>
@@ -31,7 +33,7 @@
   </url>
   <url>
     <loc>https://ai.liutongxue.com.cn/scene/</loc>
-    <lastmod>2026-04-04</lastmod>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://ai.liutongxue.com.cn/scene/ai-logs/</loc>

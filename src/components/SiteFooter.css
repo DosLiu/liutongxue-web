@@ -55,6 +55,25 @@
   line-height: 1;
 }
 
+/* 页脚「简历网站」外链 */
+.footer-link {
+  color: rgba(196, 181, 253, 0.9);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: #fff;
+}
+
+.footer-link:focus-visible {
+  outline: 2px solid rgba(191, 228, 255, 0.85);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .footer-copyright {
   margin: 0;
   color: rgba(161, 148, 184, 0.7);
@@ -93,6 +112,10 @@
 
   .footer-description {
     font-size: 0.8rem;
+  }
+
+  .footer-link {
+    font-size: 0.85rem;
   }
 
   .footer-copyright {

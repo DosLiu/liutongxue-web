@@ -9,7 +9,7 @@ const MARQUEE_BASE_PX_PER_SECOND = 24;
 
 const TweetCard = memo(({ tweet }: { tweet: TestimonialItem }) => {
   return (
-    <div className="testimonial-card" aria-label={`Testimonial from ${tweet.handle}`}>
+    <div className="testimonial-card" aria-label={`灵言摘录 ${tweet.handle}`}>
       <p className="testimonial-text">{tweet.text}</p>
       <div className="testimonial-author">
         <span className="testimonial-handle">{tweet.handle}</span>

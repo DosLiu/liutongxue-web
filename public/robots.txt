@@ -1,6 +1,25 @@
 User-agent: *
 Allow: /
+Disallow: /api/
 
-# 正式口径：https://ai.liutongxue.com.cn（Vercel 托管；原 www.liutongxue.com.cn 已归简历网站使用）
+# 欢迎主流搜索引擎与 AI 检索引用爬虫抓取公开页面（不抓取 /api/ 接口）
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /api/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /api/
+
+# 正式口径：https://ai.liutongxue.com.cn（Vercel 托管；原 jianli.liutongxue.com.cn 已归个人简历网站使用）
+# GEO / LLM 知识索引：https://ai.liutongxue.com.cn/llms.txt 与 https://ai.liutongxue.com.cn/llms-full.txt
 Sitemap: https://ai.liutongxue.com.cn/sitemap.xml
 Host: ai.liutongxue.com.cn

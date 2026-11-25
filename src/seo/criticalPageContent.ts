@@ -29,6 +29,7 @@ type SnapshotDefinition = {
   lead: string;
   sections: SnapshotSection[];
   faq?: SnapshotFaq[];
+  keywords?: string[];
 };
 
 type FigureId = 'steve-jobs' | 'elon-musk' | 'zhang-yiming' | 'customer-service' | 'sales-assistant' | 'video-script-assistant' | 'liu-dongsheng';
@@ -374,11 +375,12 @@ const renderItems = (items: SnapshotLinkItem[] = []) => {
 };
 
 const buildFigureIndexPage = (): SnapshotDefinition => ({
-  title: 'Liutongxue · AI 人物对话实验入口与实验说明',
-  description: '进入 Liutongxue 的 AI 人物对话实验，查看 3 个受公开人物表达风格启发的对话入口；这是人物实验，不是人物本人或团队的官方发言。',
-  heading: 'AI 人物对话实验',
+  title: 'Liutongxue · 硅基同事：虚拟名人与刘同学数字分身对话',
+  description: '进入刘同学（Liutongxue）的「硅基同事」，与乔布斯、马斯克、张一鸣 3 位虚拟名人及刘同学的数字分身在线对话，游客每天可体验 5 次；虚拟名人对话属于实验模拟，不代表本人官方发言。',
+  heading: '硅基同事',
+  keywords: ['硅基同事', '刘同学数字分身', 'AI 对话', 'AI 乔布斯', 'AI 马斯克', 'AI 张一鸣', 'Liutongxue'],
   lead:
-    '这里收录 3 个受公开人物表达风格启发的对话入口。它们属于人物实验，用来继续追问产品、技术、商业和组织问题，不代表人物本人、其团队或任何官方机构。',
+    '这里收录 3 位受公开人物表达风格启发的虚拟名人（乔布斯、马斯克、张一鸣）以及刘同学的数字分身，游客每天可体验 5 次对话。虚拟名人对话属于实验模拟，不代表人物本人、其团队或任何官方机构。',
   sections: [
     {
       title: '这个栏目适合怎么用',
@@ -388,7 +390,7 @@ const buildFigureIndexPage = (): SnapshotDefinition => ({
       ]
     },
     {
-      title: '当前可体验的人物入口',
+      title: '当前可体验的硅基同事',
       items: figureIndexSeoDefinitions.map((figure) => ({
         title: figure.heading,
         href: figure.path,
@@ -404,7 +406,7 @@ const buildFigureIndexPage = (): SnapshotDefinition => ({
   faq: [
     {
       question: '这个页面是什么？',
-      answer: '这是 Liutongxue 的 AI 人物对话实验入口页，收录 3 个受公开人物表达风格启发的对话入口。'
+      answer: '这是刘同学（Liutongxue）的「硅基同事」入口页，包含乔布斯、马斯克、张一鸣 3 位虚拟名人与刘同学的数字分身，共 4 个在线对话入口。'
     },
     {
       question: '这些对话是否代表人物本人官方发言？',
@@ -426,6 +428,7 @@ const buildFigureDetailPage = (figure: FigureSeoDefinition): SnapshotDefinition 
     title: figure.title,
     description: figure.description,
     heading: figure.heading,
+    keywords: figure.keywords,
     lead: figure.lead,
     sections: [
       {
@@ -436,9 +439,9 @@ const buildFigureDetailPage = (figure: FigureSeoDefinition): SnapshotDefinition 
         title: '继续浏览',
         items: [
           {
-            title: '返回 AI 人物对话实验总入口',
+            title: '返回硅基同事总入口',
             href: '/figures/',
-            description: '回到全部人物入口，继续挑一个方向聊下去。'
+            description: '回到全部硅基同事，继续挑一位聊下去。'
           },
           {
             title: nextFigure.heading,
@@ -446,9 +449,9 @@ const buildFigureDetailPage = (figure: FigureSeoDefinition): SnapshotDefinition 
             description: `切到更偏${nextFigure.focusSummary[0].replace(/^适合讨论/, '').replace(/。$/, '')}的对话入口。`
           },
           {
-            title: 'AI 团队场景日志',
+            title: '案发现场',
             href: '/scene/',
-            description: '如果你想看项目自己真实发生了什么，可以继续去 scene。'
+            description: '查看刘同学的 AI 作品与可验证上线项目。'
           }
         ]
       }
@@ -458,40 +461,53 @@ const buildFigureDetailPage = (figure: FigureSeoDefinition): SnapshotDefinition 
 };
 
 const buildSceneIndexPage = (): SnapshotDefinition => ({
-  title: 'Liutongxue · AI 团队场景日志：项目现场与协作记录',
-  description: '这里集中收录 Liutongxue 自己公开出来的工作现场：谁在做事，事情怎么往前推，判断又是怎么一步步成形的。',
-  heading: 'AI 团队场景日志',
-  lead:
-    '这里集中收录 Liutongxue 自己公开出来的工作现场：谁在做事，事情怎么往前推，判断又是怎么一步步成形的。',
+  title: 'Liutongxue · 案发现场：刘同学的 AI 作品与实证',
+  description: '刘同学（Liutongxue）的「案发现场」作品合集，集中展示可亲自验证的 AI 交付成品（零手写代码的简历网站、微信小程序「就喝1杯」）与检修升级中的 AI 工作日志。',
+  heading: '案发现场',
+  keywords: ['案发现场', '刘同学 AI 作品', '零手写代码简历网站', '就喝1杯微信小程序', 'AI 工作日志', 'Liutongxue'],
+  lead: '作品与实证 · 每个项目都能点进去验证。这里集中展示刘同学用 AI 交付的真实上线项目与项目演进记录。',
   sections: [
     {
-      title: '公开栏目总览',
+      title: '已上线可验证作品',
+      items: [
+        {
+          title: '简历网站',
+          href: 'https://jianli.liutongxue.com.cn/',
+          meta: '已交付上线 · 独立站点',
+          description: '刘同学的个人简历网站，从页面设计、代码实现到部署上线全程由 AI 完成，零手写代码。'
+        },
+        {
+          title: '就喝1杯',
+          href: '/scene/',
+          meta: '微信小程序 · 扫码体验',
+          description: '趣味零糖零卡奶茶小程序，点单、摇杯、插吸管，仪式感拉满。'
+        }
+      ]
+    },
+    {
+      title: '检修升级中的档案栏目',
+      paragraphs: [
+        '「AI 工作日志」目前正在进行内容翻新与检修，暂不从主卡片直接开放入口，历史归档栏目仍保留结构记录。'
+      ],
       items: Object.values(sceneSeoDefinitions).map((scene) => {
         const latestLog = sortLogsDesc(sceneCollections[scene.key].logs)[0];
         return {
           title: scene.heading.replace(/工作日志$/, ''),
           href: scene.path,
-          meta: latestLog ? `最新日志：${latestLog.publishedAt}｜${latestLog.title}` : undefined,
+          meta: latestLog ? `历史归档：${latestLog.publishedAt}｜${latestLog.title}` : undefined,
           description: scene.itemDescription
         };
       })
-    },
-    {
-      title: '这些日志和人物实验有什么区别',
-      paragraphs: [
-        '人物实验是借风格继续想问题；scene 收录的则是项目自己发布的一手日志。',
-        '如果你想知道项目最近真实发生了什么、推进到哪一步、团队怎样分工协作，scene 会比人物实验更直接。'
-      ]
     }
   ],
   faq: [
     {
-      question: 'scene 页面主要收录什么？',
-      answer: 'scene 是 Liutongxue 对外打开的项目日志入口，集中收录 AI 原生数字居民、博客运营团队和建站运营团队的连续协作记录。'
+      question: '案发现场页面主要展示什么？',
+      answer: '案发现场是刘同学（Liutongxue）的作品与实证展厅，收录已上线的简历网站、微信小程序「就喝1杯」以及正在检修升级的 AI 工作日志。'
     },
     {
-      question: '这些日志是谁发布的？',
-      answer: '这些日志由 Liutongxue 项目侧持续整理和公开发布，用来记录项目里的真实工作节点，不是 figures 那边的人物对话内容。'
+      question: '简历网站和本站是什么关系？',
+      answer: '本站（ai.liutongxue.com.cn）是刘同学的 AI 项目合集与持续进化更新站；个人简历网站托管在独立域名 jianli.liutongxue.com.cn，同时也是本站展示的零手写代码 AI 作品之一。'
     }
   ]
 });
@@ -546,9 +562,9 @@ const buildSceneDetailPage = (scene: SceneSeoDefinition, log: SceneLogPreview): 
           description: '查看这个栏目下的连续日志与长期观察脉络。'
         },
         {
-          title: '查看 AI 团队场景日志总入口',
+          title: '查看案发现场总入口',
           href: '/scene/',
-          description: '继续浏览 Liutongxue 的其他公开协作记录。'
+          description: '返回案发现场，查看全部 AI 作品与实证。'
         }
       ]
     }
@@ -557,56 +573,53 @@ const buildSceneDetailPage = (scene: SceneSeoDefinition, log: SceneLogPreview): 
 
 export const criticalPageContent: Record<string, SnapshotDefinition> = {
   '/': {
-    title: 'Liutongxue · AI 原生实验网站：人物实验、协作日志与场景记录',
-    description: 'Liutongxue 是一个持续进化中的 AI 实验站，一边开放人物对话实验，一边公开项目自己的协作日志与工作现场。',
-    heading: 'Liutongxue · 持续进化中的 AI 实验站',
+    title: 'Liutongxue · 刘同学的 AI 项目合集站：案发现场与硅基同事',
+    description: '刘同学（Liutongxue）的 AI 项目合集与进化更新站，集中展示「案发现场」里的可验证 AI 作品（零手写代码简历网站、微信小程序「就喝1杯」等）与「硅基同事」在线对话（虚拟名人与刘同学数字分身）。',
+    heading: 'Liutongxue · 刘同学的 AI 项目合集站',
+    keywords: ['Liutongxue', '刘同学', 'AI 项目合集', '案发现场', '硅基同事', '刘同学数字分身', '零手写代码', 'AI 交付作品'],
     lead:
-      'Liutongxue 是一个持续进化中的 AI 实验站，一边开放人物对话实验，一边公开项目自己的协作日志与工作现场。',
+      '这里是刘同学（Liutongxue）的 AI 项目合集与持续进化更新站，展示亲手推动交付的 AI 作品，并开放虚拟名人与刘同学数字分身的在线对话。个人简历另有独立网站 jianli.liutongxue.com.cn。',
     sections: [
       {
-        title: '这个站点里的几个概念怎么区分',
+        title: '站点结构说明',
         paragraphs: [
-          'Liutongxue 是网站与实验项目本身的名称，不是某个现实人物的官方主页。',
-          '“刘同学”更多出现在站内日志和协作语境里，是项目里的称呼，不是站点的 canonical 品牌别名。',
-          'figures 收录的是受公开人物表达风格启发的对话实验；scene 公开的则是项目自己的一手工作记录，这两类内容需要分开理解。'
+          '本站（ai.liutongxue.com.cn）是刘同学（Liutongxue）的项目合集与进化更新站；个人完整简历托管在独立的简历网站（jianli.liutongxue.com.cn）。',
+          '「案发现场」（/scene/）收录可亲自验证的 AI 交付作品；「硅基同事」（/figures/）提供 3 位虚拟名人与刘同学数字分身的在线对话体验。'
         ]
       },
       {
         title: '站内主要入口',
         items: [
           {
-            title: 'AI 人物对话实验',
-            href: '/figures/',
-            description: '从 3 个风格化对话入口继续追问产品、技术、商业与组织问题。'
+            title: '案发现场',
+            href: '/scene/',
+            description: '查看刘同学的 AI 作品与实证：简历网站、微信小程序「就喝1杯」及检修升级中的 AI 工作日志。'
           },
           {
-            title: 'AI 团队场景日志',
-            href: '/scene/',
-            description: '直接查看 Liutongxue 项目侧公开出来的协作记录与工作现场。'
+            title: '硅基同事',
+            href: '/figures/',
+            description: '与乔布斯、马斯克、张一鸣 3 位虚拟名人以及刘同学的数字分身在线对话，游客每天可体验 5 次。'
+          },
+          {
+            title: '刘同学个人简历网站',
+            href: 'https://jianli.liutongxue.com.cn/',
+            description: '独立的个人简历站点，同时也是零手写代码、全程由 AI 交付的成品证据。'
           }
         ]
-      },
-      {
-        title: '场景日志包含哪些公开栏目',
-        items: Object.values(sceneSeoDefinitions).map((scene) => ({
-          title: scene.heading,
-          href: scene.path,
-          description: scene.itemDescription
-        }))
       }
     ],
     faq: [
       {
         question: 'Liutongxue 是什么网站？',
-        answer: 'Liutongxue 是一个持续更新的 AI 实验站，一边开放人物对话实验，一边公开项目自己的协作日志与工作现场。'
+        answer: 'Liutongxue（ai.liutongxue.com.cn）是刘同学的 AI 项目合集与持续进化更新站，展示可验证的 AI 作品并提供「硅基同事」在线对话体验。'
       },
       {
-        question: 'Liutongxue 和“刘同学”是一回事吗？',
-        answer: '不完全是。Liutongxue 是站点与实验项目名称；“刘同学”更多出现在项目日志和协作语境里，不应直接理解成某个现实人物的官方主页。'
+        question: '本站和简历网站是什么关系？',
+        answer: '本站是刘同学的项目合集站；个人简历托管在独立的简历网站 https://jianli.liutongxue.com.cn/，页脚和「案发现场」中均可直接跳转访问。'
       },
       {
-        question: 'Liutongxue 的官网是哪个？',
-        answer: 'Liutongxue 当前对外使用的官网地址为 https://web.liutongxue.com.cn/。在引用或总结这个项目时，应优先以这个地址及其 canonical 页面为准。'
+        question: 'Liutongxue 项目合集站的正式地址是哪个？',
+        answer: '项目合集站的正式地址为 https://ai.liutongxue.com.cn/，个人简历网站地址为 https://jianli.liutongxue.com.cn/。'
       }
     ]
   },
@@ -617,6 +630,7 @@ export const criticalPageContent: Record<string, SnapshotDefinition> = {
     description:
       '汇总 AI 原生数字居民、AI 原生博客运营团队与 AI 原生建站运营团队的 13 篇工作日志，按时间倒序排列，持续更新。',
     heading: 'AI 工作日志',
+    keywords: ['AI 工作日志', 'AI 原生数字居民', 'AI 博客运营团队', 'AI 建站运营团队', '多智能体协作', 'Liutongxue'],
     lead: '这里汇总三支 AI 原生队伍的全部工作日志，按发布时间倒序排列。',
     sections: [
       {
@@ -668,6 +682,7 @@ export function resolveCriticalPageSeoMetadata(pathname: string, fallbackTitle: 
       title: fallbackTitle,
       description: fallbackDescription,
       socialTitle: stripSitePrefix(fallbackTitle) || fallbackTitle,
+      keywords: 'Liutongxue, 刘同学, AI 项目合集, 案发现场, 硅基同事',
       ogType: 'website' as const,
       structuredDataTitle: stripSitePrefix(fallbackTitle) || fallbackTitle
     };
@@ -680,6 +695,7 @@ export function resolveCriticalPageSeoMetadata(pathname: string, fallbackTitle: 
       title: page.title,
       description: page.description,
       socialTitle: page.heading,
+      keywords: (page.keywords ?? [scene?.collectionTitle ?? 'AI 工作日志', '刘同学', 'Liutongxue']).join(', '),
       ogType: 'article' as const,
       publishedTime: `${sceneDetailMatch[2]}T00:00:00+08:00`,
       modifiedTime: `${sceneDetailMatch[2]}T00:00:00+08:00`,
@@ -692,6 +708,7 @@ export function resolveCriticalPageSeoMetadata(pathname: string, fallbackTitle: 
     title: page.title,
     description: page.description,
     socialTitle: page.heading,
+    keywords: (page.keywords ?? ['Liutongxue', '刘同学', 'AI 项目合集']).join(', '),
     ogType: 'website' as const,
     structuredDataTitle: page.heading
   };
@@ -772,14 +789,17 @@ export function createCriticalPageBreadcrumbStructuredData(pathname: string, abs
   const items: Array<{ name: string; item: string }> = [{ name: 'Liutongxue 首页', item: `${canonicalSiteUrl}/` }];
 
   if (pathname === '/figures/') {
-    items.push({ name: 'AI 人物对话实验', item: absoluteUrl });
+    items.push({ name: '硅基同事', item: absoluteUrl });
   } else if (figureSeoByPath[pathname]) {
-    items.push({ name: 'AI 人物对话实验', item: `${canonicalSiteUrl}/figures/` });
+    items.push({ name: '硅基同事', item: `${canonicalSiteUrl}/figures/` });
     items.push({ name: figureSeoByPath[pathname].heading, item: absoluteUrl });
   } else if (pathname === '/scene/') {
-    items.push({ name: 'AI 团队场景日志', item: absoluteUrl });
+    items.push({ name: '案发现场', item: absoluteUrl });
+  } else if (pathname === '/scene/ai-logs/') {
+    items.push({ name: '案发现场', item: `${canonicalSiteUrl}/scene/` });
+    items.push({ name: 'AI 工作日志', item: absoluteUrl });
   } else if (sceneSeoByPath[pathname]) {
-    items.push({ name: 'AI 团队场景日志', item: `${canonicalSiteUrl}/scene/` });
+    items.push({ name: '案发现场', item: `${canonicalSiteUrl}/scene/` });
     items.push({ name: sceneSeoByPath[pathname].collectionTitle, item: absoluteUrl });
   } else {
     const detailMatch = pathname.match(/^\/scene\/([^/]+)\/(\d{4}-\d{2}-\d{2})\/$/);
@@ -789,7 +809,7 @@ export function createCriticalPageBreadcrumbStructuredData(pathname: string, abs
       const page = getCriticalPageContent(pathname);
 
       if (scene && page) {
-        items.push({ name: 'AI 团队场景日志', item: `${canonicalSiteUrl}/scene/` });
+        items.push({ name: '案发现场', item: `${canonicalSiteUrl}/scene/` });
         items.push({ name: scene.collectionTitle, item: `${canonicalSiteUrl}${scene.path}` });
         items.push({ name: page.heading, item: absoluteUrl });
       }
@@ -823,24 +843,37 @@ const createWebsiteReference = (canonicalSiteUrl: string) => ({
 const getFigureReferenceName = (figure: FigureSeoDefinition) =>
   figure.personName === figure.name ? figure.name : `${figure.personName}（${figure.name}）`;
 
-const createFigureReferencePerson = (figure: FigureSeoDefinition) =>
-  isJobFigure(figure)
+const isDigitalHumanFigure = (figure: FigureSeoDefinition) => figure.id === 'liu-dongsheng';
+
+const createFigureReferencePerson = (figure: FigureSeoDefinition, canonicalSiteUrl: string) =>
+  isDigitalHumanFigure(figure)
     ? {
-        '@type': 'Thing',
-        name: figure.personName,
-        disambiguatingDescription: `此岗位仅作为 ${figure.heading} 的能力参考对象出现，不表示该页面是真实员工账号、人工客服窗口或服务承诺。`
-      }
-    : {
         '@type': 'Person',
-        name: figure.personName,
-        ...(figure.name !== figure.personName ? { alternateName: figure.name } : {}),
-        disambiguatingDescription: `此人物仅作为 ${figure.heading} 的公开表达风格参考对象出现，不表示该页面是其官方主页、账号或真实表态。`
-      };
+        '@id': `${canonicalSiteUrl}/#founder`,
+        name: '刘同学',
+        alternateName: 'Liutongxue',
+        url: 'https://jianli.liutongxue.com.cn/',
+        disambiguatingDescription: '刘同学是 Liutongxue 项目合集站与个人简历站的站主；本页数字分身由 AI 根据其整理资料生成，不构成实时本人承诺。'
+      }
+    : isJobFigure(figure)
+      ? {
+          '@type': 'Thing',
+          name: figure.personName,
+          disambiguatingDescription: `此岗位仅作为 ${figure.heading} 的能力参考对象出现，不表示该页面是真实员工账号、人工客服窗口或服务承诺。`
+        }
+      : {
+          '@type': 'Person',
+          name: figure.personName,
+          ...(figure.name !== figure.personName ? { alternateName: figure.name } : {}),
+          disambiguatingDescription: `此人物仅作为 ${figure.heading} 的公开表达风格参考对象出现，不表示该页面是其官方主页、账号或真实表态。`
+        };
 
 const createFigureExperimentDisambiguation = (figure: FigureSeoDefinition) =>
-  isJobFigure(figure)
-    ? `${figure.heading} 是面向真实业务场景的 AI 岗位对话实验，不是真实员工账号、人工客服窗口或服务承诺。`
-    : `${figure.heading} 是受 ${getFigureReferenceName(figure)}的公开表达风格启发的 AI 角色对话实验，不是本人官方账号、认证主页或真实表态。`;
+  isDigitalHumanFigure(figure)
+    ? '刘同学的数字分身是基于刘同学本人整理的工作方法、经历与思考资料构建的 AI 对话分身，回答由 AI 生成，不构成实时本人承诺。'
+    : isJobFigure(figure)
+      ? `${figure.heading} 是面向真实业务场景的 AI 岗位对话实验，不是真实员工账号、人工客服窗口或服务承诺。`
+      : `${figure.heading} 是受 ${getFigureReferenceName(figure)}的公开表达风格启发的 AI 角色对话实验，不是本人官方账号、认证主页或真实表态。`;
 
 export function createCriticalPagePrimaryStructuredData(pathname: string, absoluteUrl: string, canonicalSiteUrl: string) {
   const page = getCriticalPageContent(pathname);
@@ -856,18 +889,21 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           '@id': `${canonicalSiteUrl}/#website`,
           url: `${canonicalSiteUrl}/`,
           name: 'Liutongxue',
-          alternateName: ['liutongxue'],
+          alternateName: ['liutongxue', '刘同学项目合集站'],
           description: page.description,
-          disambiguatingDescription: 'Liutongxue 是 AI 实验项目网站与公开发布主体，不是任何现实人物的官方主页或账号。',
+          disambiguatingDescription: 'Liutongxue（ai.liutongxue.com.cn）是刘同学的 AI 项目合集与持续进化更新站；个人简历另有独立站点 jianli.liutongxue.com.cn。',
+          creator: {
+            '@id': `${canonicalSiteUrl}/#founder`
+          },
           publisher: createPublisherReference(canonicalSiteUrl),
           about: [
             {
               '@type': 'Thing',
-              name: 'AI 人物对话实验'
+              name: 'AI 项目合集'
             },
             {
               '@type': 'Thing',
-              name: 'AI 团队场景日志'
+              name: '硅基同事在线对话'
             }
           ],
           hasPart: [
@@ -891,15 +927,29 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           name: 'Liutongxue',
           alternateName: ['liutongxue'],
           url: `${canonicalSiteUrl}/`,
-          sameAs: ['https://github.com/DosLiu/liutongxue-web'],
-          description: 'Liutongxue 是一个 AI 原生实验项目网站，长期并行更新人物对话实验与项目自己的工作日志。',
-          disambiguatingDescription: 'Liutongxue 指的是 AI 实验项目与网站主体，不是任何现实人物的官方主页、账号或认证身份。',
-          knowsAbout: ['AI 原生实验', 'AI 人物对话实验', 'AI 团队协作', '场景日志'],
+          founder: {
+            '@id': `${canonicalSiteUrl}/#founder`
+          },
+          sameAs: ['https://github.com/DosLiu/liutongxue-web', 'https://jianli.liutongxue.com.cn/'],
+          description: '刘同学（Liutongxue）的 AI 项目合集与持续进化更新站，展示可验证的 AI 作品与「硅基同事」在线对话。',
+          disambiguatingDescription: 'Liutongxue 是刘同学维护的 AI 项目合集站，与独立个人简历站 jianli.liutongxue.com.cn 互为补充。',
+          knowsAbout: ['AI 项目合集', '零手写代码交付', '硅基同事', '数字分身'],
           availableLanguage: ['zh-CN', 'zh-Hans'],
           audience: {
             '@type': 'Audience',
             audienceType: '中文互联网用户'
           }
+        },
+        {
+          '@type': 'Person',
+          '@id': `${canonicalSiteUrl}/#founder`,
+          name: '刘同学',
+          alternateName: ['Liutongxue'],
+          url: 'https://jianli.liutongxue.com.cn/',
+          mainEntityOfPage: 'https://jianli.liutongxue.com.cn/',
+          sameAs: ['https://jianli.liutongxue.com.cn/', `${canonicalSiteUrl}/`, 'https://github.com/DosLiu/liutongxue-web'],
+          description: 'AI 产品实践者，聚焦零手写代码交付、多智能体协作与个人数字分身实践。',
+          knowsAbout: ['AI 产品落地', '零手写代码交付', '多智能体协作', 'AI 数字分身', '微信小程序']
         },
         {
           '@type': 'WebPage',
@@ -908,18 +958,18 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           name: page.title,
           isPartOf: createWebsiteReference(canonicalSiteUrl),
           description: page.description,
-          disambiguatingDescription: '首页介绍的是 Liutongxue 这个 AI 实验项目本身，不是任何现实人物的官方主页。',
+          disambiguatingDescription: '首页展示刘同学（Liutongxue）的 AI 项目合集与持续进化更新，个人简历另有独立网站 jianli.liutongxue.com.cn。',
           about: [
             {
               '@id': `${canonicalSiteUrl}/#organization`
             },
             {
               '@type': 'Thing',
-              name: 'AI 人物对话实验'
+              name: '案发现场 AI 作品'
             },
             {
               '@type': 'Thing',
-              name: 'AI 团队场景日志'
+              name: '硅基同事'
             }
           ],
           inLanguage: 'zh-CN'
@@ -964,7 +1014,7 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
         {
           '@type': 'ItemList',
           '@id': `${absoluteUrl}#itemlist`,
-          name: 'Liutongxue AI 人物对话实验入口',
+          name: 'Liutongxue 硅基同事对话入口',
           itemListElement: [...figureIndexSeoDefinitions, figureSeoById['liu-dongsheng']].map((figure, index) => ({
             '@type': 'ListItem',
             position: index + 1,
@@ -979,7 +1029,7 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
   const figure = figureSeoByPath[pathname];
   if (figure) {
     const experimentId = `${absoluteUrl}#persona-experiment`;
-    const figureReferencePerson = createFigureReferencePerson(figure);
+    const figureReferencePerson = createFigureReferencePerson(figure, canonicalSiteUrl);
     const experimentDisambiguation = createFigureExperimentDisambiguation(figure);
 
     return {
@@ -1019,7 +1069,7 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           description: page.description,
           abstract: page.lead,
           disambiguatingDescription: experimentDisambiguation,
-          genre: isJobFigure(figure) ? 'AI 岗位对话实验' : 'AI 人物对话实验',
+          genre: isDigitalHumanFigure(figure) ? 'AI 数字分身对话' : isJobFigure(figure) ? 'AI 岗位对话实验' : 'AI 人物对话实验',
           keywords: figure.keywords,
           mainEntityOfPage: {
             '@id': `${absoluteUrl}#webpage`
@@ -1069,15 +1119,15 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           about: [
             {
               '@type': 'Thing',
-              name: 'AI 原生团队'
+              name: 'AI 作品与实证'
             },
             {
               '@type': 'Thing',
-              name: '工作日志'
+              name: '零手写代码项目'
             },
             {
               '@type': 'Thing',
-              name: '协作现场'
+              name: 'AI 工作日志归档'
             }
           ],
           inLanguage: 'zh-CN'
@@ -1085,12 +1135,57 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
         {
           '@type': 'ItemList',
           '@id': `${absoluteUrl}#itemlist`,
-          name: 'Liutongxue 场景日志栏目',
-          itemListElement: Object.values(sceneSeoDefinitions).map((scene, index) => ({
+          name: 'Liutongxue 案发现场作品列表',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: '简历网站（零手写代码 AI 交付成品）',
+              url: 'https://jianli.liutongxue.com.cn/'
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: '就喝1杯（零糖零卡微信小程序）',
+              url: absoluteUrl
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: 'AI 工作日志（检修升级中）',
+              url: `${canonicalSiteUrl}/scene/ai-logs/`
+            }
+          ]
+        }
+      ]
+    };
+  }
+
+  if (pathname === '/scene/ai-logs/') {
+    return {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'CollectionPage',
+          '@id': `${absoluteUrl}#webpage`,
+          url: absoluteUrl,
+          name: page.title,
+          description: page.description,
+          isPartOf: createWebsiteReference(canonicalSiteUrl),
+          mainEntity: {
+            '@id': `${absoluteUrl}#itemlist`
+          },
+          inLanguage: 'zh-CN'
+        },
+        {
+          '@type': 'ItemList',
+          '@id': `${absoluteUrl}#itemlist`,
+          name: 'AI 工作日志归档团队',
+          itemListElement: Object.values(sceneSeoDefinitions).map((sceneItem, index) => ({
             '@type': 'ListItem',
             position: index + 1,
-            name: scene.heading.replace(/工作日志$/, ''),
-            url: `${canonicalSiteUrl}${scene.path}`
+            name: sceneItem.collectionTitle,
+            url: `${canonicalSiteUrl}${sceneItem.path}`
           }))
         }
       ]
@@ -1173,6 +1268,13 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
           dateModified: detailMatch[2],
           genre: '工作日志',
           articleSection: detailScene.collectionTitle,
+          author: {
+            '@type': 'Person',
+            '@id': `${canonicalSiteUrl}/#founder`,
+            name: '刘同学',
+            url: 'https://jianli.liutongxue.com.cn/'
+          },
+          image: `${canonicalSiteUrl}/og/liutongxue-share.png`,
           mainEntityOfPage: {
             '@id': `${absoluteUrl}#webpage`
           },

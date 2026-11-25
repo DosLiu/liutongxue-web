@@ -1,4 +1,5 @@
 import SiteHeader from '../components/SiteHeader';
+import SiteFooter from '../components/SiteFooter';
 import steveJobsAvatar from '../assets/figures/steve-jobs.jpg';
 import elonMuskAvatar from '../assets/figures/elon-musk.jpg';
 import zhangYimingAvatar from '../assets/figures/zhang-yiming.jpg';
@@ -47,7 +48,7 @@ function FigureEntryItem({ entry }: { entry: FigureEntry }) {
     <a
       className="figures-entry figures-entry--active"
       href={entry.href}
-      aria-label={`进入 ${entry.name} 人物入口`}
+      aria-label={`进入 ${entry.name} 对话`}
     >
       <div className="figures-entry__visual-shell">
         <div className="figures-entry__glow-backdrop" aria-hidden="true" />
@@ -91,7 +92,7 @@ export default function FiguresPage() {
           </div>
         </section>
 
-        <section className="figures-grid" aria-label="人物入口列表">
+        <section className="figures-grid" aria-label="硅基同事列表">
           {figureEntries.map((entry) => (
             <FigureEntryItem key={entry.id} entry={entry} />
           ))}
@@ -117,6 +118,8 @@ export default function FiguresPage() {
           </a>
         </section>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

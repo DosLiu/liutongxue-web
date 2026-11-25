@@ -56,7 +56,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'liu-dongsheng': {
     id: 'liu-dongsheng',
     title: '刘同学的数字分身',
-    description: '我的想法、经历与思考，在这里继续和你对话。',
+    description: '我的想法、经历与思考，在这里继续和你对话。游客每天可体验 5 次对话。',
     assistantLabel: '刘同学的 AI 分身',
     panelAriaLabel: '刘同学数字分身对话区域',
     storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
@@ -66,7 +66,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'steve-jobs': {
     id: 'steve-jobs',
     title: '乔布斯',
-    description: '一个轻量化具身 AI 乔布斯，不保存聊天记录。游客每天可体验 5 次对话。',
+    description: '一个轻量化 AI 乔布斯，游客每天可体验 5 次对话。',
     assistantLabel: '虚拟乔布斯',
     panelAriaLabel: '虚拟乔布斯对话区域',
     storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
@@ -77,7 +77,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'elon-musk': {
     id: 'elon-musk',
     title: '马斯克',
-    description: '一个轻量化具身 AI 马斯克，不保存聊天记录。游客每天可体验 5 次对话。',
+    description: '一个轻量化 AI 马斯克，游客每天可体验 5 次对话。',
     assistantLabel: '虚拟马斯克',
     panelAriaLabel: '虚拟马斯克对话区域',
     storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
@@ -88,7 +88,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'zhang-yiming': {
     id: 'zhang-yiming',
     title: '张一鸣',
-    description: '一个轻量化具身 AI 张一鸣，不保存聊天记录。游客每天可体验 5 次对话。',
+    description: '一个轻量化 AI 张一鸣，游客每天可体验 5 次对话。',
     assistantLabel: '虚拟张一鸣',
     panelAriaLabel: '虚拟张一鸣对话区域',
     storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
@@ -99,7 +99,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'customer-service': {
     id: 'customer-service',
     title: '客服助理',
-    description: '一个轻量化 AI 客服助理，不保存聊天记录。游客每天可体验 5 次对话。',
+    description: '一个轻量化 AI 客服助理，游客每天可体验 5 次对话。',
     assistantLabel: 'AI 客服助理',
     panelAriaLabel: 'AI 客服助理对话区域',
     storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
@@ -110,7 +110,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'sales-assistant': {
     id: 'sales-assistant',
     title: '销售助理',
-    description: '一个轻量化 AI 销售助理，不保存聊天记录。游客每天可体验 5 次对话。',
+    description: '一个轻量化 AI 销售助理，游客每天可体验 5 次对话。',
     assistantLabel: 'AI 销售助理',
     panelAriaLabel: 'AI 销售助理对话区域',
     storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,
@@ -121,7 +121,7 @@ const figureChatConfigs: Record<FigureChatId, FigureChatConfig> = {
   'video-script-assistant': {
     id: 'video-script-assistant',
     title: '口播短视频助理',
-    description: '一个轻量化 AI 口播短视频助理，不保存聊天记录。游客每天可体验 5 次对话。',
+    description: '一个轻量化 AI 口播短视频助理，游客每天可体验 5 次对话。',
     assistantLabel: 'AI 口播短视频助理',
     panelAriaLabel: 'AI 口播短视频助理对话区域',
     storageKey: FIGURE_CHAT_SHARED_STORAGE_KEY,

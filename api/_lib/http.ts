@@ -20,7 +20,7 @@ type CookieOptions = {
 
 const DEFAULT_ALLOWED_ORIGINS = [
   // 站点来源：Vercel 正式站 + GitHub Pages 镜像
-  'https://web.liutongxue.com.cn',
+  'https://ai.liutongxue.com.cn',
   'https://dosliu.github.io',
   'http://localhost:5173',
   'http://127.0.0.1:5173'
