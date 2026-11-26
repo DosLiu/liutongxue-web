@@ -11,7 +11,303 @@ const computeHaloScale = (width: number, height: number) => {
   return Math.min(1, Math.max(MIN_HALO_SCALE, width / height / HALO_REFERENCE_ASPECT));
 };
 
-export default function AntigravityStarfield({ mobile }: { mobile: boolean }) {
+type ParticleFieldOptions = {
+  countX: number;
+  countY: number;
+  gridWidth: number;
+  gridHeight: number;
+  haloScale: number;
+  motionScale: number;
+  haloOnly?: boolean;
+};
+
+function createParticleField({
+  countX, countY, gridWidth, gridHeight, haloScale, motionScale, haloOnly
+}: ParticleFieldOptions) {
+  const count = countX * countY;
+
+  // Instanced Plane Geometry for pill-shaped particles
+  const geometry = new THREE.PlaneGeometry(1, 1);
+
+  const uniforms = {
+    uTime: { value: 0 },
+    uMouse: { value: new THREE.Vector2(0, 0) },
+    uHaloScale: { value: haloScale },
+    uMotionScale: { value: motionScale }
+  };
+
+  const material = new THREE.ShaderMaterial({
+    uniforms,
+    defines: haloOnly ? { HALO_ONLY: 1 } : {},
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.NormalBlending,
+    vertexShader: `
+      uniform float uTime;
+      uniform vec2 uMouse;
+      uniform float uHaloScale;
+      uniform float uMotionScale;
+      varying vec2 vUv;
+      varying float vInfluence;
+      varying vec2 vPos;
+      varying float vRandom;
+      varying float vAngleToMouse;
+
+      attribute vec3 aOffset;
+      attribute float aRandom;
+
+      #define PI 3.14159265359
+
+      // Simplex/Hash noise for organic fluidity
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+      }
+      float noise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        float a = hash(i);
+        float b = hash(i + vec2(1.0, 0.0));
+        float c = hash(i + vec2(0.0, 1.0));
+        float d = hash(i + vec2(1.0, 1.0));
+        return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+      }
+
+      mat2 rotate2d(float angle) {
+        return mat2(cos(angle), sin(angle), -sin(angle), cos(angle));
+      }
+
+      void main() {
+        vUv = uv;
+        vRandom = aRandom;
+        vec3 pos = aOffset;
+
+        // 1. Alive Cosmic Flow Field (Continuous fluid drift)
+        float driftSpeed = uTime * 0.18 * uMotionScale;
+        float dx = sin(driftSpeed + pos.y * 0.4) + sin(driftSpeed * 0.5 + pos.y * 1.5);
+        float dy = cos(driftSpeed + pos.x * 0.4) + cos(driftSpeed * 0.5 + pos.x * 1.5);
+        pos.x += dx * 0.32;
+        pos.y += dy * 0.32;
+
+        // 2. The Medusa Jellyfish Breathing Halo (Broad, Expansive Radius)
+        vec2 relToMouse = pos.xy - uMouse;
+        float distFromMouse = length(relToMouse);
+        float angleToMouse = atan(relToMouse.y, relToMouse.x);
+        vAngleToMouse = angleToMouse;
+
+        // Harmonic breathing cycle (deep, rhythmic expansion)
+        float breathCycle = sin(uTime * 0.85 * uMotionScale);
+        float shapeFactor = noise(vec2(angleToMouse * 2.0, uTime * 0.14 * uMotionScale));
+
+        // Expanded halo radius: scaled by uHaloScale so the visual coverage matches desktop
+        float currentRadius = (3.6 + breathCycle * 0.65 * uMotionScale + shapeFactor * 0.85 * uMotionScale) * uHaloScale;
+
+        // Wide, soft interaction rim falloff
+        float rimWidth = 2.8 * uHaloScale;
+        float rimInfluence = 1.0 - smoothstep(0.0, rimWidth, abs(distFromMouse - currentRadius));
+
+        // Wave push: outwards dynamic displacement (scaled to keep the same look as desktop)
+        vec2 pushDir = normalize(relToMouse + vec2(0.0001, 0.0));
+        float pushAmt = (breathCycle * 0.5 + 0.5) * 0.75 * uHaloScale * uMotionScale;
+        pos.xy += pushDir * pushAmt * rimInfluence;
+
+        // 3D depth wave (z-dimension breathing)
+        pos.z += rimInfluence * 0.65 * sin(uTime * 1.1 * uMotionScale + aRandom * 6.28) * uMotionScale;
+
+        // 3. Substantially Larger Particle Pill Scale & Dynamic Stretch
+        // Base size increased so particles have clear presence & texture
+        float baseSize = 0.028 + sin(uTime * 0.7 * uMotionScale + pos.x * 0.4 + aRandom * 3.14) * 0.006 * uMotionScale;
+        // Substantially amplified active size for high-impact presence
+        float activeSize = 0.115;
+        float currentScale = baseSize + (rimInfluence * activeSize);
+        float stretch = rimInfluence * 0.045;
+
+        vec3 transformed = position;
+        transformed.x *= (currentScale + stretch);
+        transformed.y *= currentScale * 0.88;
+
+        // 4. Radial Orientation towards cursor/gravity center
+        transformed.xy = rotate2d(angleToMouse) * transformed.xy;
+
+        vInfluence = rimInfluence;
+        vPos = pos.xy;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos + transformed, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      uniform float uMotionScale;
+      varying vec2 vUv;
+      varying float vInfluence;
+      varying vec2 vPos;
+      varying float vRandom;
+      varying float vAngleToMouse;
+
+      void main() {
+        #ifdef HALO_ONLY
+          if (vInfluence <= 0.06) discard;
+        #endif
+
+        // Pill shape with soft rounded boundary & inner luminous core
+        vec2 center = vec2(0.5);
+        vec2 p = abs(vUv - center) * 2.0;
+        float d = pow(pow(p.x, 2.5) + pow(p.y, 2.5), 1.0 / 2.5);
+
+        // Soft glowing edge
+        float alpha = 1.0 - smoothstep(0.70, 1.0, d);
+        if (alpha < 0.01) discard;
+
+        // =========================================================
+        // AI \ 科技 \ 宇宙 (High-End AI, Tech & Cosmic Deep Space Palette)
+        // =========================================================
+
+        // 1. Idle State: Crystalline Cosmic Silver-Cyan Nodes (Dormant Neural Net)
+        vec3 idleBase = vec3(0.28, 0.42, 0.62);
+        vec3 idleStarlight = vec3(0.45, 0.58, 0.78);
+        float twinkle = 0.5 + 0.5 * sin(uTime * 1.4 * uMotionScale + vRandom * 6.28);
+        vec3 idleColor = mix(idleBase, idleStarlight, twinkle);
+
+        // 2. Active State: Multi-Spectral Quantum Plasma & Stellar Nebula
+        // - Quantum Cherenkov Cyan (#00F5FF): AI computing power & quantum coherence
+        vec3 cQuantumCyan   = vec3(0.0, 0.96, 1.0);
+        // - Deep Space Nebula Violet (#8A2BE2 / #7C3AED): Event horizon & cosmic mysteries
+        vec3 cCosmicViolet  = vec3(0.54, 0.22, 0.98);
+        // - Supernova Solar Gold (#FFB703): High-energy cosmic star ignition
+        vec3 cSupernovaGold = vec3(1.0, 0.72, 0.06);
+        // - Electric Laser Teal (#00FFA3): Advanced technology matrix
+        vec3 cLaserTeal     = vec3(0.0, 1.0, 0.64);
+        // - Pure Stellar Photon White (#FFFFFF): Intense core energy
+        vec3 cPhotonWhite   = vec3(0.98, 1.0, 1.0);
+
+        // Dynamic angular & spatial color shifting
+        float t = uTime * 0.9;
+        float phaseAngle = vAngleToMouse + t * 0.5;
+        float p1 = sin(phaseAngle * 2.0 + vPos.x * 0.25);
+        float p2 = cos(phaseAngle * 1.5 - vPos.y * 0.25);
+
+        // Harmonic color synthesis across AI & Cosmic spectrums
+        vec3 activeColor = mix(cQuantumCyan, cCosmicViolet, p1 * 0.5 + 0.5);
+        activeColor = mix(activeColor, cLaserTeal, clamp(p2 * 0.5 + 0.2, 0.0, 1.0));
+        activeColor = mix(activeColor, cSupernovaGold, pow(clamp(sin(vPos.x * 0.5 + t) * 0.5 + 0.5, 0.0, 1.0), 3.0) * 0.45);
+
+        // Flash to pure photon white at peak halo influence
+        activeColor = mix(activeColor, cPhotonWhite, pow(vInfluence, 2.0) * 0.6);
+
+        // 3. Final Composite & Dynamic Alpha
+        vec3 finalColor = mix(idleColor, activeColor, smoothstep(0.06, 0.75, vInfluence));
+
+        // Enhanced visibility: idle particles are cleanly visible, active ones blaze with energy
+        float idleAlpha = mix(0.28, 0.45, twinkle);
+        float activeAlpha = mix(0.75, 1.0, smoothstep(0.2, 0.8, vInfluence));
+        float finalAlpha = alpha * mix(idleAlpha, activeAlpha, smoothstep(0.04, 0.65, vInfluence));
+
+        #ifdef HALO_ONLY
+          finalAlpha *= smoothstep(0.06, 0.48, vInfluence);
+        #endif
+        gl_FragColor = vec4(finalColor, finalAlpha);
+      }
+    `
+  });
+
+  // Populate Instanced Mesh Attributes across an expansive grid
+  const offsets = new Float32Array(count * 3);
+  const randoms = new Float32Array(count);
+
+  const jitter = 0.24;
+
+  let idx = 0;
+  for (let y = 0; y < countY; y++) {
+    for (let x = 0; x < countX; x++) {
+      const u = x / (countX - 1);
+      const v = y / (countY - 1);
+
+      let px = (u - 0.5) * gridWidth;
+      let py = (v - 0.5) * gridHeight;
+
+      px += (Math.random() - 0.5) * jitter;
+      py += (Math.random() - 0.5) * jitter;
+
+      offsets[idx * 3] = px;
+      offsets[idx * 3 + 1] = py;
+      offsets[idx * 3 + 2] = 0;
+
+      randoms[idx] = Math.random();
+      idx++;
+    }
+  }
+
+  geometry.setAttribute('aOffset', new THREE.InstancedBufferAttribute(offsets, 3));
+  geometry.setAttribute('aRandom', new THREE.InstancedBufferAttribute(randoms, 1));
+
+  const mesh = new THREE.InstancedMesh(geometry, material, count);
+  return { mesh, uniforms };
+}
+
+export function createMobileHaloRenderer(canvas: HTMLCanvasElement) {
+  let renderer: THREE.WebGLRenderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'low-power'
+    });
+  } catch {
+    return null;
+  }
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.z = 15;
+  const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.position.z;
+  const { mesh, uniforms } = createParticleField({
+    countX: 36,
+    countY: 36,
+    gridWidth: 14,
+    gridHeight: 14,
+    haloScale: 1,
+    motionScale: 1,
+    haloOnly: true
+  });
+  scene.add(mesh);
+  let size = 0;
+  let pixelRatio = 0;
+
+  return {
+    resize(radius: number, devicePixelRatio: number) {
+      // Leave room for the shared halo's fading outer edge.
+      const nextSize = Math.ceil(radius * 4.4);
+      const nextRatio = Math.min(devicePixelRatio, 1.25);
+      if (nextSize <= 0 || (nextSize === size && nextRatio === pixelRatio)) return;
+
+      size = nextSize;
+      pixelRatio = nextRatio;
+      uniforms.uHaloScale.value = radius * visibleHeight / (size * 4);
+      renderer.setDrawingBufferSize(size, size, pixelRatio);
+      canvas.style.width = `${size}px`;
+      canvas.style.height = `${size}px`;
+    },
+    draw(time: number, x: number, y: number) {
+      if (!size) return;
+      uniforms.uTime.value = time;
+      canvas.style.transform = `translate3d(${x - size / 2}px, ${y - size / 2}px, 0)`;
+      renderer.render(scene, camera);
+      canvas.toggleAttribute('hidden', false);
+    },
+    hide() {
+      canvas.toggleAttribute('hidden', true);
+    },
+    dispose() {
+      canvas.hidden = true;
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+      renderer.dispose();
+    }
+  };
+}
+
+export default function AntigravityStarfield() {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -20,7 +316,7 @@ export default function AntigravityStarfield({ mobile }: { mobile: boolean }) {
 
     let width = container.offsetWidth;
     let height = container.offsetHeight;
-    const pixelRatioCap = mobile ? 1.25 : 2;
+    const pixelRatioCap = 2;
     let pixelRatio = Math.min(window.devicePixelRatio, pixelRatioCap);
 
     // --- 1. Scene & Camera Setup ---
@@ -52,222 +348,15 @@ export default function AntigravityStarfield({ mobile }: { mobile: boolean }) {
     container.appendChild(renderer.domElement);
 
     // --- 2. Particle Matrix Parameters ---
-    const countX = mobile ? 76 : 110;
-    const countY = mobile ? 44 : 64;
-    const count = countX * countY;
-
-    // Instanced Plane Geometry for pill-shaped particles
-    const geometry = new THREE.PlaneGeometry(1, 1);
-
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const uniforms = {
-      uTime: { value: 0 },
-      uMouse: { value: new THREE.Vector2(0, 0) },
-      uHaloScale: { value: computeHaloScale(width, height) },
-      uMotionScale: { value: prefersReducedMotion && isNarrowViewport() ? REDUCED_MOTION_SCALE : 1 }
-    };
-
-    const material = new THREE.ShaderMaterial({
-      uniforms,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.NormalBlending,
-      vertexShader: `
-        uniform float uTime;
-        uniform vec2 uMouse;
-        uniform float uHaloScale;
-        uniform float uMotionScale;
-        varying vec2 vUv;
-        varying float vInfluence;
-        varying vec2 vPos;
-        varying float vRandom;
-        varying float vAngleToMouse;
-
-        attribute vec3 aOffset;
-        attribute float aRandom;
-
-        #define PI 3.14159265359
-
-        // Simplex/Hash noise for organic fluidity
-        float hash(vec2 p) {
-          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
-        }
-        float noise(vec2 p) {
-          vec2 i = floor(p);
-          vec2 f = fract(p);
-          f = f * f * (3.0 - 2.0 * f);
-          float a = hash(i);
-          float b = hash(i + vec2(1.0, 0.0));
-          float c = hash(i + vec2(0.0, 1.0));
-          float d = hash(i + vec2(1.0, 1.0));
-          return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-        }
-
-        mat2 rotate2d(float angle) {
-          return mat2(cos(angle), sin(angle), -sin(angle), cos(angle));
-        }
-
-        void main() {
-          vUv = uv;
-          vRandom = aRandom;
-          vec3 pos = aOffset;
-
-          // 1. Alive Cosmic Flow Field (Continuous fluid drift)
-          float driftSpeed = uTime * 0.18 * uMotionScale;
-          float dx = sin(driftSpeed + pos.y * 0.4) + sin(driftSpeed * 0.5 + pos.y * 1.5);
-          float dy = cos(driftSpeed + pos.x * 0.4) + cos(driftSpeed * 0.5 + pos.x * 1.5);
-          pos.x += dx * 0.32;
-          pos.y += dy * 0.32;
-
-          // 2. The Medusa Jellyfish Breathing Halo (Broad, Expansive Radius)
-          vec2 relToMouse = pos.xy - uMouse;
-          float distFromMouse = length(relToMouse);
-          float angleToMouse = atan(relToMouse.y, relToMouse.x);
-          vAngleToMouse = angleToMouse;
-
-          // Harmonic breathing cycle (deep, rhythmic expansion)
-          float breathCycle = sin(uTime * 0.85 * uMotionScale);
-          float shapeFactor = noise(vec2(angleToMouse * 2.0, uTime * 0.14 * uMotionScale));
-
-          // Expanded halo radius: scaled by uHaloScale so the visual coverage matches desktop
-          float currentRadius = (3.6 + breathCycle * 0.65 * uMotionScale + shapeFactor * 0.85 * uMotionScale) * uHaloScale;
-
-          // Wide, soft interaction rim falloff
-          float rimWidth = 2.8 * uHaloScale;
-          float rimInfluence = smoothstep(rimWidth, 0.0, abs(distFromMouse - currentRadius));
-
-          // Wave push: outwards dynamic displacement (scaled to keep the same look as desktop)
-          vec2 pushDir = normalize(relToMouse + vec2(0.0001, 0.0));
-          float pushAmt = (breathCycle * 0.5 + 0.5) * 0.75 * uHaloScale * uMotionScale;
-          pos.xy += pushDir * pushAmt * rimInfluence;
-
-          // 3D depth wave (z-dimension breathing)
-          pos.z += rimInfluence * 0.65 * sin(uTime * 1.1 * uMotionScale + aRandom * 6.28) * uMotionScale;
-
-          // 3. Substantially Larger Particle Pill Scale & Dynamic Stretch
-          // Base size increased so particles have clear presence & texture
-          float baseSize = 0.028 + sin(uTime * 0.7 * uMotionScale + pos.x * 0.4 + aRandom * 3.14) * 0.006 * uMotionScale;
-          // Substantially amplified active size for high-impact presence
-          float activeSize = 0.115;
-          float currentScale = baseSize + (rimInfluence * activeSize);
-          float stretch = rimInfluence * 0.045;
-
-          vec3 transformed = position;
-          transformed.x *= (currentScale + stretch);
-          transformed.y *= currentScale * 0.88;
-
-          // 4. Radial Orientation towards cursor/gravity center
-          transformed.xy = rotate2d(angleToMouse) * transformed.xy;
-
-          vInfluence = rimInfluence;
-          vPos = pos.xy;
-
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos + transformed, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform float uTime;
-        uniform float uMotionScale;
-        varying vec2 vUv;
-        varying float vInfluence;
-        varying vec2 vPos;
-        varying float vRandom;
-        varying float vAngleToMouse;
-
-        void main() {
-          // Pill shape with soft rounded boundary & inner luminous core
-          vec2 center = vec2(0.5);
-          vec2 p = abs(vUv - center) * 2.0;
-          float d = pow(pow(p.x, 2.5) + pow(p.y, 2.5), 1.0 / 2.5);
-          
-          // Soft glowing edge
-          float alpha = 1.0 - smoothstep(0.70, 1.0, d);
-          if (alpha < 0.01) discard;
-
-          // =========================================================
-          // AI \ 科技 \ 宇宙 (High-End AI, Tech & Cosmic Deep Space Palette)
-          // =========================================================
-          
-          // 1. Idle State: Crystalline Cosmic Silver-Cyan Nodes (Dormant Neural Net)
-          vec3 idleBase = vec3(0.28, 0.42, 0.62);
-          vec3 idleStarlight = vec3(0.45, 0.58, 0.78);
-          float twinkle = 0.5 + 0.5 * sin(uTime * 1.4 * uMotionScale + vRandom * 6.28);
-          vec3 idleColor = mix(idleBase, idleStarlight, twinkle);
-
-          // 2. Active State: Multi-Spectral Quantum Plasma & Stellar Nebula
-          // - Quantum Cherenkov Cyan (#00F5FF): AI computing power & quantum coherence
-          vec3 cQuantumCyan   = vec3(0.0, 0.96, 1.0);
-          // - Deep Space Nebula Violet (#8A2BE2 / #7C3AED): Event horizon & cosmic mysteries
-          vec3 cCosmicViolet  = vec3(0.54, 0.22, 0.98);
-          // - Supernova Solar Gold (#FFB703): High-energy cosmic star ignition
-          vec3 cSupernovaGold = vec3(1.0, 0.72, 0.06);
-          // - Electric Laser Teal (#00FFA3): Advanced technology matrix
-          vec3 cLaserTeal     = vec3(0.0, 1.0, 0.64);
-          // - Pure Stellar Photon White (#FFFFFF): Intense core energy
-          vec3 cPhotonWhite   = vec3(0.98, 1.0, 1.0);
-
-          // Dynamic angular & spatial color shifting
-          float t = uTime * 0.9;
-          float phaseAngle = vAngleToMouse + t * 0.5;
-          float p1 = sin(phaseAngle * 2.0 + vPos.x * 0.25);
-          float p2 = cos(phaseAngle * 1.5 - vPos.y * 0.25);
-
-          // Harmonic color synthesis across AI & Cosmic spectrums
-          vec3 activeColor = mix(cQuantumCyan, cCosmicViolet, p1 * 0.5 + 0.5);
-          activeColor = mix(activeColor, cLaserTeal, clamp(p2 * 0.5 + 0.2, 0.0, 1.0));
-          activeColor = mix(activeColor, cSupernovaGold, pow(clamp(sin(vPos.x * 0.5 + t) * 0.5 + 0.5, 0.0, 1.0), 3.0) * 0.45);
-          
-          // Flash to pure photon white at peak halo influence
-          activeColor = mix(activeColor, cPhotonWhite, pow(vInfluence, 2.0) * 0.6);
-
-          // 3. Final Composite & Dynamic Alpha
-          vec3 finalColor = mix(idleColor, activeColor, smoothstep(0.06, 0.75, vInfluence));
-          
-          // Enhanced visibility: idle particles are cleanly visible, active ones blaze with energy
-          float idleAlpha = mix(0.28, 0.45, twinkle);
-          float activeAlpha = mix(0.75, 1.0, smoothstep(0.2, 0.8, vInfluence));
-          float finalAlpha = alpha * mix(idleAlpha, activeAlpha, smoothstep(0.04, 0.65, vInfluence));
-
-          gl_FragColor = vec4(finalColor, finalAlpha);
-        }
-      `
+    const { mesh, uniforms } = createParticleField({
+      countX: 110,
+      countY: 64,
+      gridWidth: 54,
+      gridHeight: 34,
+      haloScale: computeHaloScale(width, height),
+      motionScale: prefersReducedMotion && isNarrowViewport() ? REDUCED_MOTION_SCALE : 1
     });
-
-    // Populate Instanced Mesh Attributes across an expansive grid
-    const offsets = new Float32Array(count * 3);
-    const randoms = new Float32Array(count);
-
-    // Wide world dimensions ensuring particles extend far beyond camera boundaries
-    const gridWidth = 54;
-    const gridHeight = 34;
-    const jitter = 0.24;
-
-    let idx = 0;
-    for (let y = 0; y < countY; y++) {
-      for (let x = 0; x < countX; x++) {
-        const u = x / (countX - 1);
-        const v = y / (countY - 1);
-
-        let px = (u - 0.5) * gridWidth;
-        let py = (v - 0.5) * gridHeight;
-
-        px += (Math.random() - 0.5) * jitter;
-        py += (Math.random() - 0.5) * jitter;
-
-        offsets[idx * 3] = px;
-        offsets[idx * 3 + 1] = py;
-        offsets[idx * 3 + 2] = 0;
-
-        randoms[idx] = Math.random();
-        idx++;
-      }
-    }
-
-    geometry.setAttribute('aOffset', new THREE.InstancedBufferAttribute(offsets, 3));
-    geometry.setAttribute('aRandom', new THREE.InstancedBufferAttribute(randoms, 1));
-
-    const mesh = new THREE.InstancedMesh(geometry, material, count);
     scene.add(mesh);
 
     // --- 3. Pointer & Viscous Drag Tracking ---
@@ -330,8 +419,8 @@ export default function AntigravityStarfield({ mobile }: { mobile: boolean }) {
 
       renderer.setDrawingBufferSize(width, height, pixelRatio);
 
-      material.uniforms.uHaloScale.value = computeHaloScale(width, height);
-      material.uniforms.uMotionScale.value = prefersReducedMotion && isNarrowViewport() ? REDUCED_MOTION_SCALE : 1;
+      uniforms.uHaloScale.value = computeHaloScale(width, height);
+      uniforms.uMotionScale.value = prefersReducedMotion && isNarrowViewport() ? REDUCED_MOTION_SCALE : 1;
     };
 
     const resizeObserver = new ResizeObserver(handleResize);
@@ -342,13 +431,13 @@ export default function AntigravityStarfield({ mobile }: { mobile: boolean }) {
 
     const renderFrame = () => {
       const elapsedTime = clock.getElapsedTime();
-      material.uniforms.uTime.value = elapsedTime;
+      uniforms.uTime.value = elapsedTime;
 
       // Heavy viscous drag: smooth spring interpolation
       const drag = 0.052;
       pointer.currentX += (pointer.targetX - pointer.currentX) * drag;
       pointer.currentY += (pointer.targetY - pointer.currentY) * drag;
-      material.uniforms.uMouse.value.set(pointer.currentX, pointer.currentY);
+      uniforms.uMouse.value.set(pointer.currentX, pointer.currentY);
 
       renderer.render(scene, camera);
     };
@@ -406,8 +495,8 @@ export default function AntigravityStarfield({ mobile }: { mobile: boolean }) {
       window.removeEventListener('touchend', handlePointerLeave);
       resizeObserver.disconnect();
 
-      geometry.dispose();
-      material.dispose();
+      mesh.geometry.dispose();
+      mesh.material.dispose();
       renderer.dispose();
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement.removeChild(renderer.domElement);
@@ -415,7 +504,7 @@ export default function AntigravityStarfield({ mobile }: { mobile: boolean }) {
     };
 
     return cleanup;
-  }, [mobile]);
+  }, []);
 
   return (
     <div

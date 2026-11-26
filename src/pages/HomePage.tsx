@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import FeatureCardsSection from '../components/FeatureCardsSection';
+import MobileStarfield from '../components/MobileStarfield';
 import SiteFooter from '../components/SiteFooter';
 import SiteHeader from '../components/SiteHeader';
 import StartBuildingSection from '../components/StartBuildingSection';
@@ -7,13 +8,15 @@ import TestimonialsSection from '../components/TestimonialsSection';
 import ToolsSection from '../components/ToolsSection';
 import { touchDeviceMediaQuery } from '../device';
 
-const AntigravityStarfield = lazy<(props: { mobile: boolean }) => ReactNode>(() =>
+const AntigravityStarfield = lazy<() => ReactNode>(() =>
   import('../components/AntigravityStarfield').catch(() => ({ default: () => null }))
 );
 
 const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 const DEFAULT_HERO_TARGET_CENTER_RATIO = 0.25;
+const MOBILE_HERO_HEIGHT_RATIO = 0.76;
+const MOBILE_HERO_MIN_HEIGHT = 500;
 const getViewportHeight = (viewport: VisualViewport | null) =>
   Math.max(
     1,
@@ -28,37 +31,34 @@ const getViewportHeight = (viewport: VisualViewport | null) =>
 const getHeroTargetCenterRatio = (root: HTMLElement) =>
   parseFloat(window.getComputedStyle(root).getPropertyValue('--hero-target-center-ratio')) ||
   DEFAULT_HERO_TARGET_CENTER_RATIO;
-const subtitleText = '记录每一次灵感碰撞交响，见证数字生命的无限成长';
-const subtitleChars = Array.from(subtitleText);
-const subtitleLeadingChars = subtitleChars.slice(0, 2);
-const subtitleAnimatedChars = subtitleChars.slice(2);
+const subtitlePhrases = ['记录每一次灵感碰撞交响', '见证数字生命的无限成长'];
+const mobileSubtitleLines = subtitlePhrases.map((phrase) => Array.from(phrase));
+const desktopSubtitleLines = [[...mobileSubtitleLines[0], '，'], mobileSubtitleLines[1]];
+const subtitleLeadingCharCount = 2;
+const mobileHeroMediaQuery = `(max-width: 480px), ${touchDeviceMediaQuery}`;
 
 export default function HomePage() {
   const headerRef = useRef<HTMLElement | null>(null);
   const landingSectionRef = useRef<HTMLElement | null>(null);
   const landingContentRef = useRef<HTMLDivElement | null>(null);
   const heroMainContentRef = useRef<HTMLDivElement | null>(null);
+  const haloAnchorRef = useRef<{ x: number; y: number } | null>(null);
   const [isSubtitleAnimated, setIsSubtitleAnimated] = useState(false);
   const [shouldLoadStarfield, setShouldLoadStarfield] = useState(false);
-  const [starfieldMode, setStarfieldMode] = useState<'full' | 'mobile' | 'static'>('static');
+  const [starfieldMode, setStarfieldMode] = useState<'desktop' | 'mobile' | null>(null);
+  const isMobileHero = starfieldMode === 'mobile';
+  const subtitleLines = isMobileHero ? mobileSubtitleLines : desktopSubtitleLines;
 
   useEffect(() => {
-    const touchDevice = window.matchMedia(touchDeviceMediaQuery);
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mobileHero = window.matchMedia(mobileHeroMediaQuery);
     const update = () => {
-      if (touchDevice.matches && reducedMotion.matches) {
-        setStarfieldMode('static');
-        return;
-      }
-      setStarfieldMode(touchDevice.matches ? 'mobile' : 'full');
+      setStarfieldMode(mobileHero.matches ? 'mobile' : 'desktop');
     };
 
     update();
-    touchDevice.addEventListener?.('change', update);
-    reducedMotion.addEventListener?.('change', update);
+    mobileHero.addEventListener?.('change', update);
     return () => {
-      touchDevice.removeEventListener?.('change', update);
-      reducedMotion.removeEventListener?.('change', update);
+      mobileHero.removeEventListener?.('change', update);
     };
   }, []);
 
@@ -92,6 +92,7 @@ export default function HomePage() {
     let disposed = false;
     const shouldScrollToContact = window.location.hash === '#contact';
     const viewport = window.visualViewport;
+    const mobileHero = window.matchMedia(mobileHeroMediaQuery);
     const starfieldObserver = new IntersectionObserver(
       ([entry]) => {
         if (disposed || !entry.isIntersecting) return;
@@ -106,9 +107,14 @@ export default function HomePage() {
 
       const viewportHeight = getViewportHeight(viewport);
       const headerHeight = Math.max(0, Math.round(header.getBoundingClientRect().height));
-      const shellHeight = Math.max(0, viewportHeight - headerHeight);
+      const viewportShellHeight = Math.max(0, viewportHeight - headerHeight);
+      const sectionHeight = mobileHero.matches
+        ? Math.min(viewportHeight, Math.max(MOBILE_HERO_MIN_HEIGHT, Math.round(viewportHeight * MOBILE_HERO_HEIGHT_RATIO)))
+        : viewportHeight;
+      const shellHeight = Math.max(0, sectionHeight - headerHeight);
 
       root.style.setProperty('--hero-viewport-height', `${viewportHeight}px`);
+      root.style.setProperty('--hero-section-height', `${sectionHeight}px`);
       root.style.setProperty('--hero-header-height', `${headerHeight}px`);
       root.style.setProperty('--hero-shell-height', `${shellHeight}px`);
 
@@ -122,13 +128,22 @@ export default function HomePage() {
       const maxCenterY = shellHeight - paddingBottom - heroHeight / 2;
       const heroTargetCenterRatio = getHeroTargetCenterRatio(root);
       const desiredCenterY = clampNumber(
-        shellHeight * heroTargetCenterRatio,
+        viewportShellHeight * heroTargetCenterRatio,
         minCenterY,
         Math.max(minCenterY, maxCenterY)
       );
       const shiftY = Math.round((desiredCenterY - currentCenterY) * 10) / 10;
 
       root.style.setProperty('--hero-copy-shift-y', `${shiftY}px`);
+
+      if (mobileHero.matches) {
+        const copy = heroMainContent.getBoundingClientRect();
+        const section = landingSection.getBoundingClientRect();
+        haloAnchorRef.current = {
+          x: copy.left - section.left + copy.width / 2,
+          y: copy.top - section.top + copy.height / 2
+        };
+      }
 
       if (isInitialLayout) {
         isInitialLayout = false;
@@ -157,6 +172,7 @@ export default function HomePage() {
     window.addEventListener('pageshow', queueViewportMetrics);
     window.addEventListener('resize', queueViewportMetrics);
     window.addEventListener('orientationchange', queueViewportMetrics);
+    mobileHero.addEventListener?.('change', queueViewportMetrics);
     viewport?.addEventListener('resize', queueViewportMetrics);
     viewport?.addEventListener('scroll', queueViewportMetrics);
 
@@ -168,12 +184,14 @@ export default function HomePage() {
       window.removeEventListener('pageshow', queueViewportMetrics);
       window.removeEventListener('resize', queueViewportMetrics);
       window.removeEventListener('orientationchange', queueViewportMetrics);
+      mobileHero.removeEventListener?.('change', queueViewportMetrics);
       viewport?.removeEventListener('resize', queueViewportMetrics);
       viewport?.removeEventListener('scroll', queueViewportMetrics);
 
       if (frameId !== null) window.cancelAnimationFrame(frameId);
 
       root.style.removeProperty('--hero-viewport-height');
+      root.style.removeProperty('--hero-section-height');
       root.style.removeProperty('--hero-header-height');
       root.style.removeProperty('--hero-shell-height');
       root.style.removeProperty('--hero-copy-shift-y');
@@ -186,10 +204,12 @@ export default function HomePage() {
 
       <main>
         <section ref={landingSectionRef} className="landing-wrapper">
-          {isSubtitleAnimated && shouldLoadStarfield && starfieldMode !== 'static' && (
-            <Suspense fallback={null}>
-              <AntigravityStarfield mobile={starfieldMode === 'mobile'} />
-            </Suspense>
+          {isSubtitleAnimated && shouldLoadStarfield && starfieldMode && (
+            isMobileHero ? <MobileStarfield haloAnchorRef={haloAnchorRef} /> : (
+              <Suspense fallback={null}>
+                <AntigravityStarfield />
+              </Suspense>
+            )
           )}
 
           <div ref={landingContentRef} className="landing-content">
@@ -204,32 +224,33 @@ export default function HomePage() {
 
               <p
                 className={`landing-subtitle${isSubtitleAnimated ? ' landing-subtitle-ready' : ''}`}
-                aria-label={subtitleText}
+                aria-label={subtitlePhrases.join(isMobileHero ? ' ' : '，')}
               >
-                <span className="landing-subtitle-leading" aria-hidden="true">
-                  {subtitleLeadingChars.map((char, index) => (
-                    <span key={`subtitle-leading-${index}`} className="landing-subtitle-leading-char">
-                      {char}
-                    </span>
-                  ))}
-                </span>
-                <span className="landing-subtitle-animated" aria-hidden="true">
-                  {subtitleAnimatedChars.map((char, index) => (
-                    <span
-                      key={`subtitle-char-${index + 2}`}
-                      className="landing-subtitle-char"
-                      style={{ '--subtitle-char-delay': `${(index * 0.3).toFixed(1)}s` } as CSSProperties}
-                    >
-                      {char}
-                    </span>
-                  ))}
-                </span>
+                {subtitleLines.map((line, lineIndex) => (
+                  <span className="landing-subtitle-line" aria-hidden="true" key={lineIndex}>
+                    {line.map((char, charIndex) => {
+                      const index = charIndex + (lineIndex === 0 ? 0 : subtitleLines[0].length);
+                      const isLeadingChar = index < subtitleLeadingCharCount;
+                      return (
+                        <span
+                          key={charIndex}
+                          className={isLeadingChar ? 'landing-subtitle-leading-char' : 'landing-subtitle-char'}
+                          style={isLeadingChar ? undefined : {
+                            '--subtitle-char-delay': `${((index - subtitleLeadingCharCount) * 0.3).toFixed(1)}s`
+                          } as CSSProperties}
+                        >
+                          {char}
+                        </span>
+                      );
+                    })}
+                  </span>
+                ))}
               </p>
             </div>
           </div>
         </section>
 
-        <ToolsSection id="tools" />
+        <ToolsSection id="tools" mobile={isMobileHero} />
         <TestimonialsSection />
         <FeatureCardsSection />
         <StartBuildingSection />

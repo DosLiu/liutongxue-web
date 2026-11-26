@@ -6,6 +6,7 @@ import './ToolsSection.css';
 
 type ToolsSectionProps = {
   id?: string;
+  mobile?: boolean;
 };
 
 type ToolCardProps = {
@@ -130,27 +131,29 @@ function ToolCard({ tool, index, onOpenQr }: ToolCardProps) {
   );
 }
 
-export default function ToolsSection({ id }: ToolsSectionProps) {
+export default function ToolsSection({ id, mobile = false }: ToolsSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
   const [titleVisible, setTitleVisible] = useState(false);
   const [qrTool, setQrTool] = useState<ToolShowcaseItem | null>(null);
 
   useEffect(() => {
+    const target = mobile ? titleRef.current : sectionRef.current;
+    if (!target) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setTitleVisible(true);
+          observer.disconnect();
         }
       },
-      { threshold: 0.3 }
+      { threshold: mobile ? 0 : 0.3 }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    observer.observe(target);
     return () => observer.disconnect();
-  }, []);
+  }, [mobile]);
 
   return (
     <>
@@ -159,7 +162,7 @@ export default function ToolsSection({ id }: ToolsSectionProps) {
           <div className="tools-showcase-spacer tools-showcase-spacer--top" aria-hidden="true" />
 
           <div className={`tools-showcase-header ${titleVisible ? 'visible' : ''}`}>
-            <h2 className="tools-showcase-title">案发现场</h2>
+            <h2 ref={titleRef} className="tools-showcase-title">案发现场</h2>
           </div>
 
           <div className="tools-showcase-spacer tools-showcase-spacer--gap" aria-hidden="true" />

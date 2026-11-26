@@ -31,7 +31,8 @@
   --header-height: 148px;
   --hero-header-height: var(--header-height);
   --hero-viewport-height: 100vh;
-  --hero-shell-height: calc(var(--hero-viewport-height) - var(--hero-header-height));
+  --hero-section-height: var(--hero-viewport-height);
+  --hero-shell-height: calc(var(--hero-section-height) - var(--hero-header-height));
   --hero-copy-shift-y: 0px;
   --hero-target-center-ratio: 0.25;
   --hero-inline-padding: clamp(1.5rem, 4vw, 4rem);
@@ -416,11 +417,40 @@ svg {
   position: relative;
   display: flex;
   align-items: stretch;
-  min-height: var(--hero-viewport-height, 100vh);
-  height: var(--hero-viewport-height, 100vh);
+  min-height: var(--hero-section-height);
+  height: var(--hero-section-height);
   padding-top: var(--hero-header-height, var(--header-height));
   overflow: hidden;
   background: radial-gradient(ellipse 90% 70% at 50% 32%, rgba(10, 14, 26, 0.88) 0%, rgba(4, 5, 10, 0.98) 75%, #030408 100%);
+}
+
+.landing-mobile-starfield {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 75% 42% at 80% 34%, rgba(63, 85, 148, 0.16), transparent 85%),
+    radial-gradient(ellipse 86% 42% at 16% 68%, rgba(82, 65, 133, 0.13), transparent 85%);
+  -webkit-mask-image: linear-gradient(#000 84%, transparent);
+  mask-image: linear-gradient(#000 84%, transparent);
+}
+
+.landing-mobile-halo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-wrapper:has(> .landing-mobile-starfield) {
+    touch-action: pan-y pinch-zoom;
+  }
 }
 
 .landing-wrapper::before,
@@ -430,7 +460,7 @@ svg {
   top: 0;
   z-index: 2;
   width: 300px;
-  height: var(--hero-viewport-height, 100vh);
+  height: var(--hero-section-height);
   pointer-events: none;
 }
 
@@ -453,7 +483,7 @@ svg {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: var(--hero-shell-height, calc(var(--hero-viewport-height, 100vh) - var(--hero-header-height, var(--header-height))));
+  min-height: var(--hero-shell-height);
   max-width: calc(1200px + 6em);
   margin: 0 auto;
   padding: var(--hero-top-gap) var(--hero-inline-padding) var(--hero-bottom-gap);
@@ -519,11 +549,6 @@ svg {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75), 0 0 24px rgba(0, 245, 255, 0.15);
 }
 
-.landing-subtitle-leading,
-.landing-subtitle-animated {
-  display: inline;
-}
-
 .landing-subtitle-leading-char,
 .landing-subtitle-char {
   display: inline-block;
@@ -561,6 +586,12 @@ svg {
   background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(3, 4, 9, 0.7) 0%, rgba(3, 4, 9, 0.35) 55%, transparent 75%);
   pointer-events: none;
   z-index: 5;
+}
+
+@media (max-width: 480px), (hover: none) and (pointer: coarse) {
+  .landing-gradient-blur {
+    top: calc((var(--hero-viewport-height) - var(--hero-header-height)) * 0.48);
+  }
 }
 
 .hero-main-content {
@@ -739,7 +770,22 @@ svg {
   }
 }
 
+@media (width > 480px) and (hover: none) and (pointer: coarse) {
+  .landing-subtitle-line + .landing-subtitle-line {
+    margin-inline-start: 0.6em;
+  }
+}
+
 @media (max-width: 480px) {
+  .landing-subtitle-line {
+    display: block;
+  }
+
+  .landing-wrapper::before,
+  .landing-wrapper::after {
+    width: 14vw;
+  }
+
   .header-container {
     gap: 0.75rem;
   }
