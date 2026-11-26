@@ -1,10 +1,12 @@
-import { ChangeEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FIGURE_CHAT_HISTORY_LIMIT } from '../../../api/_lib/figure-chat-limits.js';
 import SiteHeader from '../../components/SiteHeader';
 import SiteFooter from '../../components/SiteFooter';
 import { sitePaths } from '../../site';
 import {
   createFigureChatLocalFallback,
   createFigureChatMessageId,
+  FIGURE_CHAT_DIGITAL_HUMAN_HEALTHCHECK_TIMEOUT_MS,
   FIGURE_CHAT_HEALTHCHECK_TIMEOUT_MS,
   FIGURE_CHAT_INPUT_MAX_LENGTH,
   FIGURE_CHAT_REQUEST_TIMEOUT_MS,
@@ -16,9 +18,9 @@ import {
   normalizeUserInput,
   setFigureChatStoredRemaining
 } from './client';
-import { getFigureChatApiUrl } from './runtime';
+import { canUseFigureChatStaticFallback, getFigureChatApiUrl } from './runtime';
 import { type FigureChatQuota } from './core';
-import { requestFigureChat, requestFigureChatHealth } from './request';
+import { isStaticChatResponse, requestFigureChat, requestFigureChatHealth } from './request';
 import {
   type FigureChatConfig,
   resolveFigureChatServiceStatus,
@@ -36,50 +38,39 @@ type ChatMessage = {
 };
 
 export default function FigureChatPage({ config }: { config: FigureChatConfig }) {
+  const apiUrl = getFigureChatApiUrl();
+  const allowStaticFallback = canUseFigureChatStaticFallback(apiUrl);
+  const isDigitalHuman = config.id === 'liu-dongsheng';
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isDeveloperUnlimited] = useState(() => getFigureChatDeveloperUnlimited(config));
-  const [quotaScope, setQuotaScope] = useState<'device' | 'account'>('device');
-  const [quotaMode, setQuotaMode] = useState<'device' | 'daily' | 'unavailable'>('device');
-  const [quotaLimit, setQuotaLimit] = useState(config.freeLimit);
-  const [remaining, setRemaining] = useState<number | null>(() => getFigureChatInitialRemaining(config));
-  const [guestQuotaResetAt, setGuestQuotaResetAt] = useState<number | null>(null);
+  const [serverQuota, setServerQuota] = useState<FigureChatQuota>();
+  const [localRemaining, setLocalRemaining] = useState<number | null>(() => apiUrl ? null : getFigureChatInitialRemaining(config));
+  const [shouldCheckService, setShouldCheckService] = useState(Boolean(apiUrl));
   const [isSending, setIsSending] = useState(false);
-  const [serviceStatus, setServiceStatus] = useState<FigureChatServiceStatus>('checking');
+  const [serviceStatus, setServiceStatus] = useState<FigureChatServiceStatus>(apiUrl ? 'checking' : 'offline');
   const [hasModelReply, setHasModelReply] = useState(false);
   const [error, setError] = useState('');
   const [statusNotice, setStatusNotice] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const healthCheckRef = useRef<AbortController | null>(null);
   const requestCountRef = useRef(0);
   const sendingRef = useRef(false);
-  const guestQuotaLoadedRef = useRef(false);
+  const quotaScope = serverQuota?.scope ?? 'device';
+  const quotaMode = serverQuota?.mode ?? 'device';
+  const quotaLimit = serverQuota && serverQuota.limit > 0 ? serverQuota.limit : config.freeLimit;
+  const remaining = serverQuota ? serverQuota.remaining ?? null : localRemaining;
+  const hasServerQuota = Boolean(serverQuota);
+  const guestQuotaResetAt = quotaScope === 'device' ? Date.parse(serverQuota?.resetAt ?? '') : NaN;
   const normalizedInput = useMemo(() => normalizeUserInput(input), [input]);
   const isQuotaExhausted = !isDeveloperUnlimited && remaining !== null && remaining <= 0;
-  const canSend = useMemo(
-    () => normalizedInput.length > 0 && !isQuotaExhausted && !isSending,
-    [normalizedInput, isQuotaExhausted, isSending]
-  );
+  const canSend = normalizedInput.length > 0 && !isQuotaExhausted && !isSending;
   const quotaText = getFigureChatQuotaText(config, isDeveloperUnlimited, remaining, quotaLimit, quotaScope, quotaMode);
   const statusMeta = getFigureChatStatusMeta(serviceStatus);
   const quotaExhaustedText = quotaScope === 'account'
     ? '今日对话次数已用完'
     : quotaMode === 'daily' ? '今日体验次数已用完，北京时间 0 点恢复' : '免费体验次数已用完';
-
-  const applyServerQuota = useCallback((quota: FigureChatQuota) => {
-    setQuotaScope(quota.scope);
-    setQuotaMode(quota.mode);
-    setQuotaLimit((current) => quota.limit > 0 ? quota.limit : current);
-    setRemaining(quota.remaining ?? null);
-
-    if (quota.scope === 'account') {
-      setGuestQuotaResetAt(null);
-    } else {
-      guestQuotaLoadedRef.current = true;
-      const resetAt = Date.parse(quota.resetAt ?? '');
-      if (Number.isFinite(resetAt)) setGuestQuotaResetAt(resetAt);
-    }
-  }, []);
 
   useEffect(() => {
     textareaRef.current?.focus();
@@ -90,50 +81,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
   }, [messages]);
 
   useEffect(() => {
-    const apiUrl = getFigureChatApiUrl();
-    const isDigitalHuman = config.id === 'liu-dongsheng';
-
-    if (!apiUrl) {
-      setServiceStatus('offline');
-      return;
-    }
-
-    let cancelled = false;
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), isDigitalHuman ? 10000 : FIGURE_CHAT_HEALTHCHECK_TIMEOUT_MS);
-
-    const checkApiHealth = async () => {
-      try {
-        const healthUrl = new URL(apiUrl, window.location.href);
-        if (isDigitalHuman) healthUrl.searchParams.set('figureId', config.id);
-        const payload = await requestFigureChatHealth(healthUrl.toString(), controller.signal);
-        if (cancelled || requestCountRef.current > 0) return;
-        if (payload.quota?.scope === 'device') applyServerQuota(payload.quota);
-        setServiceStatus(resolveFigureChatServiceStatus(payload.status, payload.mode, 'offline'));
-        if (payload.quota?.mode === 'unavailable' || (isDigitalHuman && (payload.status === 'offline' || payload.reason?.includes('上次成功读取')))) {
-          setStatusNotice(payload.reason || '数字分身暂时无法连接。');
-        }
-      } catch {
-        if (!cancelled && requestCountRef.current === 0) {
-          setServiceStatus('offline');
-        }
-      } finally {
-        window.clearTimeout(timeoutId);
-      }
-    };
-
-    void checkApiHealth();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-      window.clearTimeout(timeoutId);
-    };
-  }, [applyServerQuota, config.id]);
-
-  useEffect(() => {
-    const apiUrl = getFigureChatApiUrl();
-    if (guestQuotaResetAt === null || !apiUrl) return;
+    if (!apiUrl || (!shouldCheckService && !Number.isFinite(guestQuotaResetAt))) return;
 
     let cancelled = false;
     let timerId: number | undefined;
@@ -141,11 +89,11 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
 
     const scheduleRefresh = (delay: number) => {
       window.clearTimeout(timerId);
-      timerId = window.setTimeout(() => void refreshQuota(), delay);
+      timerId = window.setTimeout(() => void refresh(), delay);
     };
 
-    const refreshQuota = async () => {
-      if (cancelled || pending) return;
+    const refresh = async () => {
+      if (cancelled || pending || document.visibilityState === 'hidden' || !navigator.onLine) return;
       if (sendingRef.current) {
         scheduleRefresh(1000);
         return;
@@ -153,48 +101,78 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
 
       const requestCount = requestCountRef.current;
       const controller = new AbortController();
-      pending = controller;
-      const timeoutId = window.setTimeout(() => controller.abort(), FIGURE_CHAT_HEALTHCHECK_TIMEOUT_MS);
+      pending = healthCheckRef.current = controller;
+      const checkDigitalHuman = shouldCheckService && isDigitalHuman;
+      const healthcheckTimeout = checkDigitalHuman ? FIGURE_CHAT_DIGITAL_HUMAN_HEALTHCHECK_TIMEOUT_MS : FIGURE_CHAT_HEALTHCHECK_TIMEOUT_MS;
+      const timeoutId = window.setTimeout(() => controller.abort(), healthcheckTimeout);
+      const isCurrent = () => !cancelled && requestCount === requestCountRef.current;
+
       try {
-        const { quota } = await requestFigureChatHealth(apiUrl, controller.signal);
-        if (cancelled) return;
-        // A chat request that started during this read owns the newer balance.
-        if (requestCount !== requestCountRef.current) {
-          scheduleRefresh(1000);
+        const healthUrl = new URL(apiUrl, window.location.href);
+        if (checkDigitalHuman) healthUrl.searchParams.set('figureId', config.id);
+        const payload = await requestFigureChatHealth(healthUrl.toString(), controller.signal, allowStaticFallback);
+        if (!isCurrent()) return;
+
+        const quota = payload?.quota;
+        if (!shouldCheckService) {
+          const resetAt = Date.parse(quota?.resetAt ?? '');
+          if (quota?.enforced && (quota.scope === 'account' || resetAt > Math.max(Date.now(), guestQuotaResetAt))) {
+            setServerQuota(quota);
+            setError('');
+            return;
+          }
+          scheduleRefresh(GUEST_QUOTA_REFRESH_RETRY_MS);
           return;
         }
 
-        const resetAt = Date.parse(quota?.resetAt ?? '');
-        if (quota && (quota.scope === 'account' || resetAt > Math.max(Date.now(), guestQuotaResetAt))) {
-          applyServerQuota(quota);
-          setError('');
-          setStatusNotice('');
-          return;
+        if (!payload && hasServerQuota) throw new Error('Missing chat health response');
+        const status = resolveFigureChatServiceStatus(payload?.status, payload?.mode, 'offline');
+        setServiceStatus(status);
+        setStatusNotice(quota?.mode === 'unavailable' || (checkDigitalHuman && payload && (status === 'offline' || payload.reason?.includes('上次成功读取')))
+          ? payload?.reason || quota?.reason || '对话服务暂时不可用，请稍后重试。'
+          : '');
+        if (quota) {
+          setServerQuota(quota);
+        } else if (!hasServerQuota && (!payload || status !== 'offline')) {
+          // A static preview or a legacy API can still use the local demo balance.
+          setLocalRemaining(current => current ?? getFigureChatInitialRemaining(config));
+        }
+
+        if (payload && (status === 'offline' || quota?.mode === 'unavailable')) {
+          scheduleRefresh(GUEST_QUOTA_REFRESH_RETRY_MS);
+        } else {
+          setShouldCheckService(false);
         }
       } catch {
-        // Keep the displayed balance until a fresh server response arrives.
+        if (!isCurrent()) return;
+        if (shouldCheckService) setServiceStatus('offline');
+        scheduleRefresh(GUEST_QUOTA_REFRESH_RETRY_MS);
       } finally {
         window.clearTimeout(timeoutId);
         pending = null;
+        if (healthCheckRef.current === controller) healthCheckRef.current = null;
+        if (!cancelled && !isCurrent()) scheduleRefresh(1000);
       }
-
-      if (!cancelled) scheduleRefresh(GUEST_QUOTA_REFRESH_RETRY_MS);
     };
 
     const refreshWhenVisible = () => {
-      if (document.visibilityState === 'visible' && Date.now() >= guestQuotaResetAt) scheduleRefresh(0);
+      if (document.visibilityState === 'visible' && (shouldCheckService || Date.now() >= guestQuotaResetAt)) {
+        scheduleRefresh(0);
+      }
     };
 
-    scheduleRefresh(Math.max(0, guestQuotaResetAt - Date.now()));
+    scheduleRefresh(shouldCheckService ? 0 : Math.max(0, guestQuotaResetAt - Date.now()));
     document.addEventListener('visibilitychange', refreshWhenVisible);
+    window.addEventListener('online', refreshWhenVisible);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timerId);
       pending?.abort();
       document.removeEventListener('visibilitychange', refreshWhenVisible);
+      window.removeEventListener('online', refreshWhenVisible);
     };
-  }, [applyServerQuota, guestQuotaResetAt]);
+  }, [allowStaticFallback, apiUrl, config, guestQuotaResetAt, hasServerQuota, isDigitalHuman, shouldCheckService]);
 
   const handleClear = () => {
     setMessages([]);
@@ -206,114 +184,107 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
 
   const submitMessage = async () => {
     const content = normalizedInput;
-
-    if (!content || sendingRef.current) {
-      return;
-    }
+    if (!content || sendingRef.current) return;
 
     if (isQuotaExhausted) {
       setError(`${quotaExhaustedText}。`);
       return;
     }
 
-    const userMessage: ChatMessage = {
-      id: createFigureChatMessageId('user'),
-      role: 'user',
-      content
-    };
-
-    const requestMessages = [...messages, userMessage].map(({ role, content: text }) => ({ role, content: text }));
-    const apiUrl = getFigureChatApiUrl();
+    const draft = input;
+    const userMessage: ChatMessage = { id: createFigureChatMessageId('user'), role: 'user', content };
+    const requestMessages = [...messages, userMessage]
+      .filter(({ content: text }) => text.trim())
+      .slice(-FIGURE_CHAT_HISTORY_LIMIT)
+      .map(({ role, content: text }) => ({ role, content: text }));
     sendingRef.current = true;
     requestCountRef.current++;
+    // Keep a concurrent health check from setting another guest cookie or overwriting the new balance.
+    healthCheckRef.current?.abort();
 
     setMessages((current) => [...current, userMessage]);
-    setInput('');
     setError('');
     setStatusNotice('');
     setIsSending(true);
 
-    let { replyText, nextStatus, nextNotice, shouldConsume } = createFigureChatLocalFallback({
-      content,
-      apiUrl,
-      config
-    });
-    let nextQuotaScope = quotaScope;
-    let nextQuotaLimit = quotaLimit;
-    let hasServerGuestQuota = false;
+    const rejectMessage = (reason: string, retryHealth: boolean) => {
+      setMessages(current => current.filter(message => message.id !== userMessage.id));
+      setError(reason);
+      if (retryHealth) {
+        setServiceStatus('offline');
+        setShouldCheckService(true);
+      }
+    };
 
-    if (apiUrl) {
-      const controller = new AbortController();
-      const timeoutId = window.setTimeout(() => controller.abort(), FIGURE_CHAT_REQUEST_TIMEOUT_MS);
-
-      try {
+    const controller = apiUrl ? new AbortController() : null;
+    const timeoutId = controller ? window.setTimeout(() => controller.abort(), FIGURE_CHAT_REQUEST_TIMEOUT_MS) : undefined;
+    try {
+      let { replyText, nextStatus, nextNotice, shouldConsume } = createFigureChatLocalFallback({ content, apiUrl, config });
+      let receivedQuota = false;
+      if (apiUrl && controller) {
         const { response, payload } = await requestFigureChat(apiUrl, { figureId: config.id, messages: requestMessages }, controller.signal);
-
         if (payload?.quota) {
-          nextQuotaScope = payload.quota.scope;
-          nextQuotaLimit = payload.quota.limit > 0 ? payload.quota.limit : quotaLimit;
-          applyServerQuota(payload.quota);
-          hasServerGuestQuota = payload.quota.scope === 'device';
+          receivedQuota = true;
+          setServerQuota(payload.quota);
         }
 
-        if (response.status === 429 || payload?.error === 'quota_exhausted' || payload?.error === 'quota_unavailable' || payload?.error === 'guest_session_required' || payload?.error === 'guest_quota_unavailable') {
-          setError(payload?.reason || payload?.quota?.reason || '当前对话次数已用完。');
-          if (payload?.status === 'offline') setServiceStatus('offline');
-          setStatusNotice(payload?.quota?.mode === 'unavailable' ? payload.quota.reason || '' : '');
-          if (payload?.error === 'quota_unavailable') {
-            setInput(current => current || content);
-            setMessages(current => current.filter(message => message.id !== userMessage.id));
-          }
-          setIsSending(false);
-          sendingRef.current = false;
+        if (response.status === 429 || payload?.error === 'quota_exhausted') {
+          rejectMessage(payload?.reason || payload?.quota?.reason || '当前对话次数已用完。', false);
+          return;
+        }
+        if (payload?.error === 'guest_session_required') {
+          setServiceStatus('offline');
+          setShouldCheckService(false);
+          rejectMessage(payload.reason || '需要启用浏览器 Cookie 才能使用游客体验，请重试。', false);
+          return;
+        }
+        if (payload?.error || payload?.status === 'offline' || (isDigitalHuman && payload?.mode === 'mock')) {
+          rejectMessage(payload.reason || payload.quota?.reason || '对话服务暂时不可用，请稍后重试。', true);
           return;
         }
 
-        if (!response.ok || !payload || (payload.mode === 'api' && !payload.reply.trim())) {
-          throw new Error(`Request failed with ${response.status}`);
+        if (!payload && !hasServerQuota && allowStaticFallback && isStaticChatResponse(response)) {
+          nextStatus = 'offline';
+          setLocalRemaining(current => current ?? getFigureChatInitialRemaining(config));
+          setShouldCheckService(false);
+        } else {
+          if (!response.ok || !payload || (payload.mode === 'api' && !payload.reply.trim())) {
+            throw new Error(`Request failed with ${response.status}`);
+          }
+
+          replyText = normalizeAssistantReply(payload.reply || replyText);
+          setHasModelReply(payload.mode === 'api');
+          nextStatus = resolveFigureChatServiceStatus(payload.status, payload.mode, 'mock');
+          shouldConsume = Boolean(payload.shouldConsume ?? payload.mode === 'api');
+          if (payload.mode === 'mock') nextNotice = payload.reason || nextNotice;
+          else if (isDigitalHuman && payload.reason?.includes('上次成功读取')) nextNotice = payload.reason;
+          else nextNotice = payload.quota?.mode === 'unavailable' ? payload.quota.reason || '' : '';
+          if (payload.quota) setShouldCheckService(payload.quota.mode === 'unavailable');
         }
-
-        replyText = normalizeAssistantReply(payload.reply || replyText);
-        setHasModelReply(payload.mode === 'api');
-        nextStatus = resolveFigureChatServiceStatus(payload.status, payload.mode, 'mock');
-        shouldConsume = Boolean(payload.shouldConsume ?? payload.mode === 'api');
-        nextNotice = payload.mode === 'api'
-          ? config.id === 'liu-dongsheng' && payload.reason?.includes('上次成功读取')
-            ? payload.reason
-            : payload.quota?.scope === 'account' && payload.quota.mode === 'unavailable'
-            ? payload.quota.reason || ''
-            : ''
-          : payload.reason || nextNotice;
-      } catch {
-        nextStatus = 'offline';
-        nextNotice = config.id === 'liu-dongsheng' ? '数字分身暂时无法连接，请稍后再试。' : '当前没连上在线服务，先给你演示回复，不会扣减次数。';
-      } finally {
-        window.clearTimeout(timeoutId);
       }
-    }
 
-    setServiceStatus(nextStatus);
-    setStatusNotice(nextNotice);
-    setMessages((current) => [
-      ...current,
-      {
+      setServiceStatus(nextStatus);
+      setStatusNotice(nextNotice);
+      // Preserve edits made while the request was pending.
+      setInput(current => current === draft ? '' : current);
+      setMessages((current) => [...current, {
         id: createFigureChatMessageId('assistant'),
         role: 'assistant',
         content: replyText
+      }]);
+
+      if (shouldConsume && !hasServerQuota && !receivedQuota && !isDeveloperUnlimited) {
+        const next = Math.max(0, (localRemaining ?? getFigureChatInitialRemaining(config)) - 1);
+        setFigureChatStoredRemaining(config, next);
+        setLocalRemaining(next);
       }
-    ]);
-
-    if (shouldConsume && !hasServerGuestQuota && !isDeveloperUnlimited && nextQuotaScope === 'device') {
-      setRemaining((value) => {
-        const current = typeof value === 'number' ? value : nextQuotaLimit;
-        const next = Math.max(0, current - 1);
-        setFigureChatStoredRemaining(config, next, nextQuotaLimit);
-        return next;
-      });
+    } catch {
+      rejectMessage('暂时无法连接对话服务，请稍后重试。', true);
+    } finally {
+      window.clearTimeout(timeoutId);
+      setIsSending(false);
+      sendingRef.current = false;
     }
-
-    setIsSending(false);
-    sendingRef.current = false;
   };
 
   const handleInputKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -430,7 +401,7 @@ export default function FigureChatPage({ config }: { config: FigureChatConfig })
                 {config.id === 'liu-dongsheng' ? '你正在与 AI 分身对话。问题会发送给模型服务；刷新页面后当前对话会清空。' : '本AI不保存聊天记录，关闭或刷新页面后，对话将自动清空'}
               </p>
               <div className="jobs-chat-form__feedback" id="jobs-chat-feedback" aria-live="polite">
-                {statusNotice ? <p className="jobs-chat-form__notice">{statusNotice}</p> : null}
+                {statusNotice && statusNotice !== error ? <p className="jobs-chat-form__notice">{statusNotice}</p> : null}
                 {error ? <p className="jobs-chat-form__error">{error}</p> : null}
               </div>
             </form>

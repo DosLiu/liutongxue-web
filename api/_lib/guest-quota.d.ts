@@ -5,4 +5,5 @@ export function readOrCreateGuestIdentity(req: any, res: any): { identity: Guest
 export function getUnavailableGuestQuota(): FigureChatQuota;
 export function getGuestQuotaSnapshot(identity: GuestIdentity | null): Promise<FigureChatQuota>;
 export function reserveGuestQuotaSlot(identity: GuestIdentity | null): Promise<{ allowed: boolean; quota: FigureChatQuota; reservation?: GuestReservation }>;
+export function commitGuestQuotaSlot(reservation: GuestReservation): Promise<FigureChatQuota>;
 export function rollbackGuestQuotaSlot(reservation: GuestReservation): Promise<FigureChatQuota>;

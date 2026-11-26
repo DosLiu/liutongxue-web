@@ -1,3 +1,5 @@
+import { QUOTA_REQUEST_TIMEOUT_MS } from './figure-chat-limits.js';
+
 const env = globalThis.process?.env ?? {};
 
 const SHANGHAI_OFFSET_MS = 8 * 60 * 60 * 1000;
@@ -90,7 +92,7 @@ const buildKvPipelineUrl = (runtime) => `${trimTrailingSlash(runtime.kv.kvRestAp
 
 export const runKvPipeline = async (runtime, commands) => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 4000);
+  const timeout = setTimeout(() => controller.abort(), QUOTA_REQUEST_TIMEOUT_MS);
   try {
     const response = await fetch(buildKvPipelineUrl(runtime), {
       method: 'POST',

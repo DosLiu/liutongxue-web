@@ -1,5 +1,8 @@
 import type { SceneLogKey } from './types';
 
+// Set to false and redeploy to reopen the project card and all log URLs.
+export const SCENE_LOGS_UNDER_MAINTENANCE = true;
+
 export const sceneRouteSegments: Record<SceneLogKey, string> = {
   digitalResident: 'digital-resident',
   blogOps: 'blog-ops',
@@ -21,17 +24,16 @@ const stripBaseUrl = (pathname: string, baseUrl: string) => {
   const prefix = normalizeBaseUrl(baseUrl);
   const normalizedPath = pathname.startsWith('/') ? pathname : `/${pathname}`;
 
-  if (prefix && normalizedPath.startsWith(prefix)) {
-    const stripped = normalizedPath.slice(prefix.length);
-    return stripped.startsWith('/') ? stripped : `/${stripped}`;
+  if (prefix && (normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`))) {
+    return normalizedPath.slice(prefix.length) || '/';
   }
 
   return normalizedPath;
 };
 
 const normalizeRoutePath = (pathname: string, baseUrl = '/') => {
-  const stripped = stripBaseUrl(pathname, baseUrl).replace(/\/+$/, '') || '/';
-  return stripped === '/' ? '/' : `${stripped}/`;
+  const stripped = stripBaseUrl(pathname, baseUrl).replace(/\/index\.html$/, '/');
+  return `${stripped.replace(/\/+$/, '')}/`;
 };
 
 export const getSceneCollectionPath = (sceneKey: SceneLogKey) => `/scene/${sceneRouteSegments[sceneKey]}/`;
@@ -52,3 +54,7 @@ export const resolveSceneLogDetailRoute = (pathname: string, baseUrl = '/') => {
 
   return sceneKey && match ? { sceneKey, publishedAt: match[2] } : null;
 };
+
+export const isSceneLogPath = (pathname: string) =>
+  normalizeRoutePath(pathname) === '/scene/ai-logs/' ||
+  Boolean(resolveSceneLogCollectionRoute(pathname) || resolveSceneLogDetailRoute(pathname));

@@ -2,6 +2,7 @@ import blogOpsSceneLogCollection from '../data/scene/blog-ops';
 import digitalResidentSceneLogCollection from '../data/scene/digital-resident';
 import siteOpsSceneLogCollection from '../data/scene/site-ops';
 import { getSceneCollectionPath, getSceneDetailPath } from '../data/scene';
+import { SCENE_LOGS_UNDER_MAINTENANCE } from '../data/scene/routes';
 import type { SceneLogCollection, SceneLogKey, SceneLogPreview } from '../data/scene';
 
 type SnapshotFaq = {
@@ -350,7 +351,7 @@ const escapeHtml = (value: string) =>
 const renderParagraphs = (paragraphs: string[] = []) =>
   paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('');
 
-const renderItems = (items: SnapshotLinkItem[] = []) => {
+const renderItems = (sceneBasePath: string, items: SnapshotLinkItem[] = []) => {
   if (!items.length) return '';
 
   return `
@@ -361,7 +362,7 @@ const renderItems = (items: SnapshotLinkItem[] = []) => {
             <li>
               <article class="static-page-fallback__item">
                 <h3>
-                  <a href="${escapeHtml(item.href)}">${escapeHtml(item.title)}</a>
+                  <a href="${escapeHtml(item.href.startsWith('/scene/') ? sceneBasePath + item.href : item.href)}">${escapeHtml(item.title)}</a>
                 </h3>
                 ${item.meta ? `<p class="static-page-fallback__meta">${escapeHtml(item.meta)}</p>` : ''}
                 <p>${escapeHtml(item.description)}</p>
@@ -460,9 +461,11 @@ const buildFigureDetailPage = (figure: FigureSeoDefinition): SnapshotDefinition 
   };
 };
 
+const sceneLogsLabel = SCENE_LOGS_UNDER_MAINTENANCE ? '检修升级中的 AI 工作日志' : 'AI 工作日志';
+
 const buildSceneIndexPage = (): SnapshotDefinition => ({
   title: 'Liutongxue · 案发现场：刘同学的 AI 作品与实证',
-  description: '刘同学（Liutongxue）的「案发现场」作品合集，集中展示可亲自验证的 AI 交付成品（零手写代码的简历网站、微信小程序「就喝1杯」）与检修升级中的 AI 工作日志。',
+  description: `刘同学（Liutongxue）的「案发现场」作品合集，集中展示可亲自验证的 AI 交付成品（零手写代码的简历网站、微信小程序「就喝1杯」）与${sceneLogsLabel}。`,
   heading: '案发现场',
   keywords: ['案发现场', '刘同学 AI 作品', '零手写代码简历网站', '就喝1杯微信小程序', 'AI 工作日志', 'Liutongxue'],
   lead: '作品与实证 · 每个项目都能点进去验证。这里集中展示刘同学用 AI 交付的真实上线项目与项目演进记录。',
@@ -485,11 +488,9 @@ const buildSceneIndexPage = (): SnapshotDefinition => ({
       ]
     },
     {
-      title: '检修升级中的档案栏目',
-      paragraphs: [
-        '「AI 工作日志」目前正在进行内容翻新与检修，暂不从主卡片直接开放入口，历史归档栏目仍保留结构记录。'
-      ],
-      items: Object.values(sceneSeoDefinitions).map((scene) => {
+      title: 'AI 工作日志',
+      paragraphs: SCENE_LOGS_UNDER_MAINTENANCE ? ['工作日志正在整理，完成后将通过原网址开放。'] : undefined,
+      items: SCENE_LOGS_UNDER_MAINTENANCE ? undefined : Object.values(sceneSeoDefinitions).map((scene) => {
         const latestLog = sortLogsDesc(sceneCollections[scene.key].logs)[0];
         return {
           title: scene.heading.replace(/工作日志$/, ''),
@@ -503,7 +504,7 @@ const buildSceneIndexPage = (): SnapshotDefinition => ({
   faq: [
     {
       question: '案发现场页面主要展示什么？',
-      answer: '案发现场是刘同学（Liutongxue）的作品与实证展厅，收录已上线的简历网站、微信小程序「就喝1杯」以及正在检修升级的 AI 工作日志。'
+      answer: `案发现场是刘同学（Liutongxue）的作品与实证展厅，收录已上线的简历网站、微信小程序「就喝1杯」以及${sceneLogsLabel}。`
     },
     {
       question: '简历网站和本站是什么关系？',
@@ -593,7 +594,7 @@ export const criticalPageContent: Record<string, SnapshotDefinition> = {
           {
             title: '案发现场',
             href: '/scene/',
-            description: '查看刘同学的 AI 作品与实证：简历网站、微信小程序「就喝1杯」及检修升级中的 AI 工作日志。'
+            description: `查看刘同学的 AI 作品与实证：简历网站、微信小程序「就喝1杯」及${sceneLogsLabel}。`
           },
           {
             title: '硅基同事',
@@ -714,10 +715,11 @@ export function resolveCriticalPageSeoMetadata(pathname: string, fallbackTitle: 
   };
 }
 
-export function renderCriticalPageSnapshot(pathname: string) {
+export function renderCriticalPageSnapshot(pathname: string, baseUrl = '/') {
   const page = getCriticalPageContent(pathname);
 
   if (!page) return '';
+  const sceneBasePath = baseUrl.startsWith('/') ? baseUrl.replace(/\/+$/, '') : '';
 
   return `
     <article class="static-page-fallback" data-static-prerender>
@@ -732,7 +734,7 @@ export function renderCriticalPageSnapshot(pathname: string) {
               <section class="static-page-fallback__section">
                 <h2>${escapeHtml(section.title)}</h2>
                 ${renderParagraphs(section.paragraphs)}
-                ${renderItems(section.items)}
+                ${renderItems(sceneBasePath, section.items)}
               </section>
             `
           )
@@ -761,6 +763,41 @@ export function renderCriticalPageSnapshot(pathname: string) {
       </main>
     </article>
   `;
+}
+
+export function renderSceneLogMaintenancePage(canonicalUrl: string, sceneHref: string, robots: string) {
+  const heading = 'AI 工作日志正在整理';
+  const description = '日志内容暂时关闭，整理完成后可通过原网址查看。';
+  return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${heading} · Liutongxue</title>
+    <meta name="description" content="${description}" />
+    <meta name="robots" content="${escapeHtml(robots)}" />
+    <meta name="googlebot" content="${escapeHtml(robots)}" />
+    <meta name="bingbot" content="${escapeHtml(robots)}" />
+    <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
+    <style>
+      ${criticalPageFallbackStyle}
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: system-ui, "Microsoft YaHei", sans-serif; }
+      .static-page-fallback__hero a { display: inline-block; margin-top: 1.25rem; color: #b1c7ff; }
+    </style>
+  </head>
+  <body>
+    <main class="static-page-fallback" data-scene-log-maintenance>
+      <div class="static-page-fallback__main">
+        <section class="static-page-fallback__hero" aria-labelledby="maintenance-title">
+          <h1 id="maintenance-title">${heading}</h1>
+          <p>${description}</p>
+          <a href="${escapeHtml(sceneHref)}">返回案发现场</a>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>`;
 }
 
 export function createCriticalPageFaqStructuredData(pathname: string, absoluteUrl: string) {
@@ -1152,7 +1189,7 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
             {
               '@type': 'ListItem',
               position: 3,
-              name: 'AI 工作日志（检修升级中）',
+              name: sceneLogsLabel,
               url: `${canonicalSiteUrl}/scene/ai-logs/`
             }
           ]
@@ -1319,10 +1356,6 @@ export function createCriticalPagePrimaryStructuredData(pathname: string, absolu
 }
 
 export const criticalPageFallbackStyle = `
-  .js [data-static-prerender] {
-    display: none !important;
-  }
-
   .static-page-fallback {
     min-height: 100vh;
     padding: clamp(6rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem) 4rem;

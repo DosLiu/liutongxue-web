@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, relative, resolve } from 'node:path';
+import { isSceneLogPath, SCENE_LOGS_UNDER_MAINTENANCE } from '../src/data/scene/routes.ts';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, '..');
@@ -116,6 +117,17 @@ for (const collection of readdirSync(resolve(repoRoot, 'scene'), { withFileTypes
 danglingSceneDirectories.sort();
 
 const failures = [];
+
+for (const route of actualRoutes) {
+  const figureId = /^\/figures\/([^/]+)\/$/.exec(route)?.[1];
+  if (!figureId) continue;
+
+  const html = readUtf8IfExists(resolve(repoRoot, `${route.slice(1)}index.html`));
+  const pageFigureId = /<body\b[^>]*\bdata-figure-id=["']([^"']+)["']/i.exec(html)?.[1];
+  if (pageFigureId !== figureId) {
+    failures.push(`${route} 的 data-figure-id 应为 "${figureId}"。`);
+  }
+}
 
 const hasToolsRedirect = vercelRedirects.some((rule) => {
   const source = typeof rule?.source === 'string' ? rule.source : '';
@@ -305,6 +317,26 @@ if (existsSync(distToolsIndexPath)) {
   failures.push('dist/tools/index.html 仍然存在，/tools/ 仍可能以 200 页面落地。');
 }
 
+const sceneLogRoutes = [...actualRoutes].filter(isSceneLogPath);
+const hasBuild = existsSync(resolve(repoRoot, 'dist/index.html'));
+if (hasBuild) {
+  for (const route of sceneLogRoutes) {
+    const html = readUtf8IfExists(resolve(repoRoot, 'dist', `${route.slice(1)}index.html`));
+    if (!html || !html.includes(`rel="canonical" href="${buildAbsoluteUrl(route)}"`)) {
+      failures.push(`日志页缺少构建产物或正确的 canonical: ${route}`);
+      continue;
+    }
+
+    const showsMaintenance = html.includes('data-scene-log-maintenance');
+    const hasPrerenderedLog = /<article\b[^>]*\sdata-static-prerender(?:\s|>)/i.test(html);
+    if (SCENE_LOGS_UNDER_MAINTENANCE
+      ? !showsMaintenance || hasPrerenderedLog || /<script\b/i.test(html)
+      : showsMaintenance || !hasPrerenderedLog) {
+      failures.push(`日志页构建结果与维护开关不一致: ${route}`);
+    }
+  }
+}
+
 if (isNonCanonicalBuild) {
   for (const entry of requiredEntries) {
     const filePath = resolve(repoRoot, 'dist', entry);
@@ -347,6 +379,7 @@ const sceneDetailCount = [...actualRoutes].filter((route) => /^\/scene\/[^/]+\/\
 console.log(`Smoke check passed: ${totalHtmlRoutes} 个入口路由已校验。`);
 console.log(`- scene 明细页: ${sceneDetailCount}`);
 console.log(`- sitemap URL: ${sitemapRoutes.size}`);
+if (hasBuild) console.log(`- 日志页面: ${sceneLogRoutes.length} 个，${SCENE_LOGS_UNDER_MAINTENANCE ? '维护中' : '已开放'}`);
 console.log(`- ${apiHealthCheckSummary}`);
 console.log(`- ${apiDirectReplySummary}`);
 console.log(`- ${authCallbackSummary}`);

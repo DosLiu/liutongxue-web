@@ -1,3 +1,5 @@
+import { FIGURE_CHAT_HISTORY_LIMIT } from './figure-chat-limits.js';
+
 export const trimTrailingSlash = (value) => value.replace(/\/+$/, '');
 export const normalizeFigureChatText = (value) => typeof value === 'string'
     ? value
@@ -1228,7 +1230,7 @@ export const sanitizeFigureChatMessages = (messages) => {
         content: normalizeFigureChatText(message.content).slice(0, 2000)
     }))
         .filter((message) => message.content)
-        .slice(-12);
+        .slice(-FIGURE_CHAT_HISTORY_LIMIT);
 };
 export const normalizeFigureChatId = (value) => value === 'liu-dongsheng'
     ? 'liu-dongsheng'

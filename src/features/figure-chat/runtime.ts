@@ -40,3 +40,10 @@ export const getFigureChatApiUrl = () => {
 
   return `${trimTrailingSlash(window.location.origin)}/api/chat`;
 };
+
+export const canUseFigureChatStaticFallback = (apiUrl: string | null) => {
+  if (!apiUrl || typeof window === 'undefined') return false;
+  const { hostname, origin } = window.location;
+  const isPreviewHost = ['localhost', '127.0.0.1', '[::1]'].includes(hostname) || hostname.endsWith('.github.io');
+  return isPreviewHost && (apiUrl === `${origin}/api/chat` || apiUrl === '/api/chat');
+};

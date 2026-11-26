@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import SiteHeader from '../components/SiteHeader';
 import SiteFooter from '../components/SiteFooter';
-import { getSceneDetailPath, type SceneLogCollection } from '../data/scene';
+import { type SceneLogCollection } from '../data/scene';
+import { getSceneDetailHref } from '../site';
 import './ScenePage.css';
 
 type SceneTeamLogPageProps = {
@@ -45,7 +46,7 @@ export default function SceneTeamLogPage({ collection }: SceneTeamLogPageProps) 
             <ol className="scene-log-timeline__list">
               {currentLogs.map((log) => (
                 <li key={log.id} className="scene-log-timeline__item scene-log-timeline__item--plain">
-                  <a href={getSceneDetailPath(collection.key, log.publishedAt)} className="scene-log-timeline__card scene-log-timeline__card--link">
+                  <a href={getSceneDetailHref(collection.key, log.publishedAt)} className="scene-log-timeline__card scene-log-timeline__card--link">
                     <p className="scene-log-timeline__date">{log.publishedAt}</p>
                     <h3 className="scene-log-timeline__title">{log.title}</h3>
                     <p className="scene-log-timeline__text">{log.preview}</p>

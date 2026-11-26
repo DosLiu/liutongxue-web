@@ -6,7 +6,7 @@ import { loadSceneLogCollection } from './data/scene/runtime';
 import './index.css';
 
 async function mount() {
-  const route = resolveSceneLogCollectionRoute(window.location.pathname);
+  const route = resolveSceneLogCollectionRoute(window.location.pathname, import.meta.env.BASE_URL);
 
   if (!route) {
     throw new Error(`Unknown scene log collection route: ${window.location.pathname}`);

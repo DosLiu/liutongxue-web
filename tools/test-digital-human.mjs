@@ -8,6 +8,7 @@ test('digital human loads only the agreed files, refreshes atomically, and fails
   const envKeys = ['OPENAI_API_KEY', 'DIGITAL_HUMAN_GITHUB_TOKEN', 'OPENAI_BASE_URL', 'AUTH_LOGIN_ENABLED', 'AUTH_SESSION_SECRET', 'AUTH_KV_ENABLED', 'AUTH_DAILY_LIMIT', 'KV_REST_API_URL', 'KV_REST_API_TOKEN'];
   const oldEnv = Object.fromEntries(envKeys.map((key) => [key, process.env[key]]));
   const token = 'local-test-token';
+  let expectedGitHubToken = token;
   const paths = ['SKILL.md', 'references/profile.md', 'references/evidence.md'];
   let now = 1000000;
   let sha = 'a'.repeat(40);
@@ -21,13 +22,16 @@ test('digital human loads only the agreed files, refreshes atomically, and fails
   globalThis.fetch = async (input, options = {}) => {
     const url = new URL(String(input));
     if (url.hostname === 'api.github.com') {
-      assert.equal(options.headers.Authorization, `Bearer ${token}`);
+      assert.equal(options.headers.Authorization, `Bearer ${expectedGitHubToken}`);
       githubRequests.push(url);
-      if (failure) return new Response('', { status: failure === 'denied' ? 403 : 500 });
+      if (failure === 'denied' || failure === 'temporary') {
+        return new Response('', { status: failure === 'denied' ? 403 : 500 });
+      }
       if (url.pathname.endsWith('/commits/main')) return Response.json({ sha });
       const path = decodeURIComponent(url.pathname.split('/contents/')[1] || '');
       assert.ok(paths.includes(path), `unexpected path: ${path}`);
       assert.equal(url.searchParams.get('ref'), sha);
+      if (failure === 'partial-update' && path === paths[2]) return new Response('', { status: 500 });
       const contents = Buffer.from(`${version}: ${path}`);
       return Response.json({ type: 'file', encoding: 'base64', content: contents.toString('base64'), size: contents.length });
     }
@@ -52,13 +56,33 @@ test('digital human loads only the agreed files, refreshes atomically, and fails
     await loadDigitalHumanKnowledge(token);
     assert.equal(githubRequests.length, 4, 'a fresh cache should not refetch');
 
+    now += 240001;
+    const [verified, concurrentVerification] = await Promise.all([loadDigitalHumanKnowledge(token), loadDigitalHumanKnowledge(token)]);
+    assert.equal(verified, concurrentVerification);
+    assert.equal(verified.documents, first.documents);
+    assert.equal(githubRequests.length, 5, 'concurrent refreshes of an unchanged commit make one request');
+    assert.ok(githubRequests.at(-1).pathname.endsWith('/commits/main'));
+
+    now += 60000;
+    assert.equal(await loadDigitalHumanKnowledge(token), verified);
+    assert.equal(githubRequests.length, 5, 'confirming the SHA starts a new cache window');
+
     now += 300001;
     sha = 'b'.repeat(40);
     version = 'second';
+    failure = 'partial-update';
+    const partialUpdate = await loadDigitalHumanKnowledge(token);
+    assert.equal(partialUpdate.sha, first.sha);
+    assert.equal(partialUpdate.documents, first.documents, 'a failed download keeps the entire previous version');
+    assert.equal(partialUpdate.stale, true);
+
+    now += 300001;
+    failure = '';
+    const beforeUpdate = githubRequests.length;
     const updated = await loadDigitalHumanKnowledge(token);
     assert.equal(updated.sha, sha);
     assert.ok(updated.documents.every((document) => document.content.startsWith('second:')));
-    assert.equal(githubRequests.length, 8);
+    assert.equal(githubRequests.length - beforeUpdate, 4, 'a new commit downloads all three documents');
 
     now += 300001;
     failure = 'temporary';
@@ -67,11 +91,21 @@ test('digital human loads only the agreed files, refreshes atomically, and fails
     assert.equal(stale.stale, true);
 
     now += 300001;
+    failure = '';
+    const beforeRecovery = githubRequests.length;
+    const recovered = await loadDigitalHumanKnowledge(token);
+    assert.equal(recovered.documents, updated.documents);
+    assert.equal(recovered.stale, undefined, 'a verified commit clears the stale status');
+    assert.equal(githubRequests.length - beforeRecovery, 1);
+
+    now += 300001;
     failure = 'denied';
     await assert.rejects(loadDigitalHumanKnowledge(token), 'revoked access must not reuse cached documents');
 
     failure = '';
+    const beforeReload = githubRequests.length;
     await loadDigitalHumanKnowledge(token);
+    assert.equal(githubRequests.length - beforeReload, 4, 'permission denial discards the previous snapshot');
     now += 300001;
     failure = 'temporary';
     assert.equal((await loadDigitalHumanKnowledge(token)).stale, true);
@@ -79,6 +113,14 @@ test('digital human loads only the agreed files, refreshes atomically, and fails
     await assert.rejects(loadDigitalHumanKnowledge(token), 'stale documents must eventually expire');
     failure = '';
     await loadDigitalHumanKnowledge(token);
+
+    expectedGitHubToken = 'other-local-test-token';
+    const beforeTokenChange = githubRequests.length;
+    await loadDigitalHumanKnowledge(expectedGitHubToken);
+    assert.equal(githubRequests.length - beforeTokenChange, 4, 'a different token must retrieve its own complete snapshot');
+    expectedGitHubToken = token;
+    await loadDigitalHumanKnowledge(token);
+
     process.env.OPENAI_API_KEY = 'local-test-model-key';
     process.env.DIGITAL_HUMAN_GITHUB_TOKEN = token;
     process.env.OPENAI_BASE_URL = 'https://example.test/v1';

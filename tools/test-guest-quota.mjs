@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { requestFigureChat } from '../src/features/figure-chat/request.ts';
-import { reserveGuestQuotaSlot, rollbackGuestQuotaSlot, readOrCreateGuestIdentity } from '../api/_lib/guest-quota.js';
+import { commitGuestQuotaSlot, reserveGuestQuotaSlot, rollbackGuestQuotaSlot, readOrCreateGuestIdentity } from '../api/_lib/guest-quota.js';
 
 test('guest quota is enforced before model calls and remains separate from account quota', async (t) => {
   const midnight = new Date('2026-01-31T16:00:00.000Z');
   const nextMidnight = '2026-02-01T16:00:00.000Z';
-  t.mock.timers.enable({ apis: ['Date'], now: midnight.getTime() - 1000 });
+  t.mock.timers.enable({ apis: ['Date'], now: midnight.getTime() - 120000 });
   const savedFetch = globalThis.fetch;
   const keys = ['OPENAI_API_KEY', 'OPENAI_BASE_URL', 'AUTH_LOGIN_ENABLED', 'AUTH_SESSION_SECRET', 'AUTH_KV_ENABLED', 'KV_REST_API_URL', 'KV_REST_API_TOKEN', 'AUTH_DAILY_LIMIT'];
   const savedEnv = Object.fromEntries(keys.map(key => [key, process.env[key]]));
@@ -44,6 +44,9 @@ test('guest quota is enforced before model calls and remains separate from accou
   const hashes = new Map();
   const accountCounts = new Map();
   let storageFailure = false;
+  let lostReserveReplies = 0;
+  let lostCommitReplies = 0;
+  let rollbackUnavailable = false;
   let providerMode = 'ok';
   let modelReplyTime = null;
   let modelCalls = 0;
@@ -67,18 +70,48 @@ test('guest quota is enforced before model calls and remains separate from accou
         if (command === 'INCR') { const next = (accountCounts.get(args[0]) || 0) + 1; accountCounts.set(args[0], next); return { result: next }; }
         if (command === 'EXPIRE') return { result: 1 };
         assert.equal(command, 'EVAL');
-        const [script, keyCount, key, first, second, ttl] = args;
+        const [script, keyCount, key, ...parameters] = args;
         assert.equal(keyCount, 1);
         const hash = hashes.get(key) || new Map();
         let used = Number(hash.get('used') || 0);
-        if (script.startsWith('-- guest-reserve-v1')) {
-          if (used >= first) return { result: [0, used] };
+        if (script.startsWith('-- guest-reserve-v2')) {
+          const [limit, ticket, ttl, now, deadline] = parameters;
+          if (used >= limit) return { result: [0, used] };
+          let pending = 0;
+          for (const [field, expiresAt] of hash) {
+            if (!field.startsWith('pending:')) continue;
+            if (expiresAt > now) pending++;
+            else hash.delete(field);
+          }
+          if (used + pending >= limit) return { result: [2, used] };
           assert.ok(ttl > 0 && ttl <= 86400, 'daily usage records expire within one day');
-          hash.set('used', ++used); hash.set(second, '1'); hashes.set(key, hash);
+          hash.set(`pending:${ticket}`, deadline);
+          hashes.set(key, hash);
+          if (lostReserveReplies > 0) {
+            lostReserveReplies--;
+            throw new Error('lost reservation response after Redis wrote the reservation');
+          }
           return { result: [1, used] };
         }
-        assert.ok(script.startsWith('-- guest-rollback-v1'));
-        if (hash.delete(first)) hash.set('used', used = Math.max(0, used - 1));
+        assert.ok(script.startsWith('-- guest-settle-v2'));
+        const [ticket, action, now, limit] = parameters;
+        const pendingField = `pending:${ticket}`;
+        if (action === 'rollback') {
+          if (rollbackUnavailable) throw new Error('Redis unavailable during rollback');
+          hash.delete(pendingField);
+          if (hash.delete(ticket)) hash.set('used', used = Math.max(0, used - 1));
+          return { result: used };
+        }
+        if (!hash.has(ticket)) {
+          if ((hash.get(pendingField) || 0) <= now || used >= limit) return { result: null };
+          hash.delete(pendingField);
+          hash.set(ticket, '1');
+          hash.set('used', ++used);
+        }
+        if (lostCommitReplies > 0) {
+          lostCommitReplies--;
+          throw new Error('lost commit response after Redis confirmed the use');
+        }
         return { result: used };
       });
       return Response.json(results);
@@ -120,7 +153,7 @@ test('guest quota is enforced before model calls and remains separate from accou
   const beforeConcurrent = modelCalls;
   const concurrent = await Promise.all(Array.from({ length: 20 }, () => invoke('POST', concurrentCookie)));
   assert.equal(concurrent.filter(result => result.status === 200).length, 5);
-  assert.equal(concurrent.filter(result => result.status === 429).length, 15);
+  assert.equal(concurrent.filter(result => [429, 503].includes(result.status)).length, 15);
   assert.equal(modelCalls - beforeConcurrent, 5);
 
   const retryCookie = await guestCookie();
@@ -133,9 +166,40 @@ test('guest quota is enforced before model calls and remains separate from accou
   providerMode = 'ok';
   const identity = readOrCreateGuestIdentity({ headers: { cookie: retryCookie } }, { setHeader() {} }).identity;
   const reserved = await reserveGuestQuotaSlot(identity);
-  assert.equal(reserved.quota.remaining, 4);
+  assert.equal(reserved.quota.remaining, 5, 'a reservation is not a charge');
+  assert.equal((await commitGuestQuotaSlot(reserved.reservation)).remaining, 4);
+  assert.equal((await commitGuestQuotaSlot(reserved.reservation)).remaining, 4, 'confirming the same reply twice only charges once');
   await rollbackGuestQuotaSlot(reserved.reservation);
   assert.equal((await rollbackGuestQuotaSlot(reserved.reservation)).remaining, 5, 'refund is idempotent');
+
+  const beforeLostReserve = modelCalls;
+  lostReserveReplies = 1;
+  assert.equal((await invoke('POST', retryCookie)).status, 503);
+  assert.equal((await invoke('GET', retryCookie)).body.quota.remaining, 5);
+  assert.equal(hashes.get(reserved.reservation.key).size, 1, 'cancellation removes the original pending ticket');
+  assert.equal(modelCalls, beforeLostReserve, 'an unconfirmed reservation never calls the model');
+
+  const pendingCookie = await guestCookie();
+  lostReserveReplies = 5;
+  rollbackUnavailable = true;
+  for (let i = 0; i < 5; i++) assert.equal((await invoke('POST', pendingCookie)).status, 503);
+  rollbackUnavailable = false;
+  assert.equal((await invoke('GET', pendingCookie)).body.quota.remaining, 5, 'lost holds do not look like spent attempts');
+  assert.equal((await invoke('POST', pendingCookie)).status, 503, 'active holds are counted when admitting model calls');
+  assert.equal(modelCalls, beforeLostReserve);
+  t.mock.timers.setTime(Date.now() + 41000);
+  lostCommitReplies = 1;
+  const afterExpiry = await invoke('POST', pendingCookie);
+  assert.equal(afterExpiry.status, 200, 'unreachable cancellations expire on the same day');
+  assert.equal(afterExpiry.body.quota.remaining, 4, 'retrying an ambiguous commit preserves a single charge');
+  assert.equal(modelCalls, beforeLostReserve + 1);
+
+  const existingCookie = await guestCookie();
+  const { identity: existingGuest } = readOrCreateGuestIdentity({ headers: { cookie: existingCookie } }, { setHeader() {} });
+  const existingKey = `liutongxue:figure-chat:guest:2026-01-31:${existingGuest.id}`;
+  hashes.set(existingKey, new Map([['used', 2], ['old-ticket-a', '1'], ['old-ticket-b', '1']]));
+  assert.equal((await invoke('GET', existingCookie)).body.quota.remaining, 3);
+  assert.equal((await invoke('POST', existingCookie)).body.quota.remaining, 2, 'existing daily charges still apply after deployment');
 
   const beforeHandshake = modelCalls;
   const handshaken = await requestFigureChat('https://site.invalid/api/chat', { messages: [{ role: 'user', content: '首次访问' }] }, new AbortController().signal);
@@ -175,10 +239,11 @@ test('guest quota is enforced before model calls and remains separate from accou
   assert.equal(signedIn.body.quota.scope, 'account');
   assert.equal(signedIn.body.quota.remaining, 9);
 
+  t.mock.timers.setTime(midnight.getTime() - 1000);
   const crossingCookie = await guestCookie();
   const crossingIdentity = readOrCreateGuestIdentity({ headers: { cookie: crossingCookie } }, { setHeader() {} }).identity;
   const priorDayReservation = await reserveGuestQuotaSlot(crossingIdentity);
-  assert.equal(priorDayReservation.quota.remaining, 4);
+  assert.equal(priorDayReservation.quota.remaining, 5);
 
   modelReplyTime = midnight.getTime();
   const crossingReply = await invoke('POST', crossingCookie);

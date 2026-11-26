@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useId, useRef, useState } from 'react';
+import { touchDeviceMediaQuery } from '../device';
 import ReactBitsLogo from './ReactBitsLogo';
 import { siteContactCta, siteNavItems, sitePaths, type SiteNavKey } from '../site';
 
@@ -36,8 +37,9 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
       }
     };
 
-    const handleResize = () => {
-      if (window.innerWidth >= 900) {
+    const touchDevice = window.matchMedia(touchDeviceMediaQuery);
+    const closeIfDesktopNav = () => {
+      if (window.innerWidth >= 900 && !touchDevice.matches) {
         setIsMobileNavOpen(false);
       }
     };
@@ -45,13 +47,15 @@ const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(function SiteHeader(
     window.addEventListener('mousedown', handlePointerDown);
     window.addEventListener('touchstart', handlePointerDown);
     window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', closeIfDesktopNav);
+    touchDevice.addEventListener?.('change', closeIfDesktopNav);
 
     return () => {
       window.removeEventListener('mousedown', handlePointerDown);
       window.removeEventListener('touchstart', handlePointerDown);
       window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', closeIfDesktopNav);
+      touchDevice.removeEventListener?.('change', closeIfDesktopNav);
     };
   }, [isMobileNavOpen]);
 

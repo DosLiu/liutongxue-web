@@ -118,10 +118,14 @@
   animation-duration: var(--testimonial-marquee-duration, 18s);
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  animation-play-state: paused;
+}
+
+.testimonials-marquee-container.is-visible .testimonial-track {
   animation-play-state: running;
 }
 
-.testimonial-row:hover .testimonial-track {
+.testimonial-row.is-mouse-over .testimonial-track {
   animation-play-state: paused;
 }
 

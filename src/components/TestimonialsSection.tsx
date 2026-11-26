@@ -24,6 +24,7 @@ function MarqueeRow({ tweets, direction = 'left', speed = 3 }: { tweets: Testimo
   const rowRef = useRef<HTMLDivElement | null>(null);
   const firstGroupRef = useRef<HTMLDivElement | null>(null);
   const [distance, setDistance] = useState(0);
+  const [isMouseOver, setIsMouseOver] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -53,7 +54,14 @@ function MarqueeRow({ tweets, direction = 'left', speed = 3 }: { tweets: Testimo
   const duration = distance > 0 ? distance / (speed * MARQUEE_BASE_PX_PER_SECOND) : 0;
 
   return (
-    <div ref={rowRef} className="testimonial-row">
+    <div
+      ref={rowRef}
+      className={`testimonial-row${isMouseOver ? ' is-mouse-over' : ''}`}
+      onPointerEnter={(event) => setIsMouseOver(event.pointerType === 'mouse')}
+      onPointerLeave={(event) => {
+        if (event.pointerType === 'mouse') setIsMouseOver(false);
+      }}
+    >
       <div className="testimonial-track-viewport">
         <div
           className={`testimonial-track testimonial-track--${direction}`}
@@ -84,23 +92,31 @@ function MarqueeRow({ tweets, direction = 'left', speed = 3 }: { tweets: Testimo
 
 export default function TestimonialsSection() {
   const [titleVisible, setTitleVisible] = useState(false);
+  const [isMarqueeVisible, setIsMarqueeVisible] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
+  const marqueeRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    const marquee = marqueeRef.current;
+    if (!section || !marquee) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTitleVisible(true);
-          observer.disconnect();
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.target === marquee) {
+            setIsMarqueeVisible(entry.isIntersecting);
+          } else if (entry.isIntersecting) {
+            setTitleVisible(true);
+            observer.unobserve(section);
+          }
         }
       },
       { threshold: 0.3 }
     );
 
     observer.observe(section);
+    observer.observe(marquee);
 
     return () => observer.disconnect();
   }, []);
@@ -114,7 +130,7 @@ export default function TestimonialsSection() {
           </h2>
         </div>
 
-        <div className="testimonials-marquee-container">
+        <div ref={marqueeRef} className={`testimonials-marquee-container${isMarqueeVisible ? ' is-visible' : ''}`}>
           <MarqueeRow tweets={TESTIMONIALS.slice(0, 4)} direction="left" speed={2.5} />
           <MarqueeRow tweets={TESTIMONIALS.slice(4, 7)} direction="right" speed={3} />
           <MarqueeRow tweets={TESTIMONIALS.slice(7, 10)} direction="left" speed={3.5} />

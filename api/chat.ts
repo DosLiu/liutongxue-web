@@ -18,7 +18,7 @@ import {
 import { getAccountQuotaSnapshot, reserveAccountQuotaSlot, rollbackAccountQuotaSlot } from './_lib/quota.js';
 import { buildDigitalHumanSystemPrompt, loadDigitalHumanKnowledge } from './_lib/digital-human-skill.js';
 import {
-  getGuestQuotaSnapshot, readOrCreateGuestIdentity, reserveGuestQuotaSlot, rollbackGuestQuotaSlot,
+  commitGuestQuotaSlot, getGuestQuotaSnapshot, readOrCreateGuestIdentity, reserveGuestQuotaSlot, rollbackGuestQuotaSlot,
   type GuestReservation
 } from './_lib/guest-quota.js';
 
@@ -244,9 +244,21 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const replyQuota = guestReservation && Date.parse(guestReservation.resetAt) <= Date.now()
-      ? await getGuestQuotaSnapshot(guestReservation.identity)
-      : accountQuota;
+    let replyQuota = accountQuota;
+    if (guestReservation) {
+      const reservation = guestReservation;
+      const quota = await commitGuestQuotaSlot(reservation);
+      if (!quota.enforced) {
+        const restoredQuota = await restoreQuota();
+        res.status(503).json(buildFigureChatResponse({
+          error: 'guest_quota_unavailable', quota: restoredQuota ?? quota, reply: '', mode: 'mock', status: 'offline',
+          reason: '游客体验次数暂时无法校验，请稍后重试。', shouldConsume: false
+        }));
+        return;
+      }
+      guestReservation = undefined;
+      replyQuota = Date.parse(reservation.resetAt) <= Date.now() ? await getGuestQuotaSnapshot(reservation.identity) : quota;
+    }
     res.status(200).json(
       buildFigureChatResponse({
         quota: replyQuota,

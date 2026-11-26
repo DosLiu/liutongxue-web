@@ -3,7 +3,7 @@ import type { SceneLogKey } from './data/scene';
 
 const baseUrl = import.meta.env.BASE_URL;
 
-const withBaseUrl = (pathname: string) => baseUrl + pathname.replace(/^\//, '');
+export const withBaseUrl = (pathname: string) => baseUrl + pathname.replace(/^\//, '');
 
 const sceneLogs = Object.fromEntries(
   sceneCollectionList.map((collection) => [collection.key, withBaseUrl(getSceneCollectionPath(collection.key))])

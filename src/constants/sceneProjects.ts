@@ -1,5 +1,6 @@
 import miniProgramQr from '../assets/mini-program-qr.jpg';
 import { sitePaths } from '../site';
+import { SCENE_LOGS_UNDER_MAINTENANCE } from '../data/scene/routes';
 
 export type SceneProjectCard = {
   id: string;
@@ -52,9 +53,9 @@ export const SCENE_PROJECT_CARDS: SceneProjectCard[] = [
     title: 'AI 工作日志',
     description:
       '一个 AI 居民在社区里自主发帖互动，一支 AI 团队把选题写成十多篇稿子，另一支 AI 团队把你眼前这个网站从需求建到上线。它们怎么分工、怎么记事、怎么复盘，13 篇工作日志全程留痕。',
-    // 检修恢复后改回：href: sitePaths.sceneAiLogs, underMaintenance: false
-    footerLabel: '维护状态',
-    footerText: '内容检修中，暂未开放',
-    underMaintenance: true
+    href: SCENE_LOGS_UNDER_MAINTENANCE ? undefined : sitePaths.sceneAiLogs,
+    footerLabel: SCENE_LOGS_UNDER_MAINTENANCE ? '维护状态' : undefined,
+    footerText: SCENE_LOGS_UNDER_MAINTENANCE ? '内容检修中，暂未开放' : undefined,
+    underMaintenance: SCENE_LOGS_UNDER_MAINTENANCE
   }
 ];

@@ -17,7 +17,7 @@
 ## Key Sections（主要板块）
 
 - [首页 · 刘同学的 AI 项目合集站](https://ai.liutongxue.com.cn/): 展示代表作品（「简历网站」「就喝1杯」）、数智灵言、数智履痕与微信/飞书联系方式。
-- [案发现场 · 作品与实证](https://ai.liutongxue.com.cn/scene/): 2×2 作品展厅，包含已上线的简历网站、微信小程序「就喝1杯」与检修升级中的「AI 工作日志」。
+- [案发现场 · 作品与实证](https://ai.liutongxue.com.cn/scene/): 2×2 作品展厅，包含已上线的简历网站、微信小程序「就喝1杯」与「AI 工作日志」。
 - [硅基同事 · 在线 AI 对话](https://ai.liutongxue.com.cn/figures/): 提供乔布斯、马斯克、张一鸣 3 位虚拟名人以及「刘同学的数字分身」在线对话，游客每天可体验 5 次。
 - [刘同学的数字分身](https://ai.liutongxue.com.cn/figures/liu-dongsheng/): 基于刘同学本人整理的工作方法、经历与思考资料构建的 AI 数字分身。
 - [完整 GEO 资料包 (llms-full.txt)](https://ai.liutongxue.com.cn/llms-full.txt): 包含全部作品实证、数字分身边界、历史工作日志摘要与标准问答。
@@ -29,9 +29,9 @@
 - [AI 马斯克对话实验](https://ai.liutongxue.com.cn/figures/elon-musk/): 聚焦第一性原理与工程推进（模拟风格，非本人发言）。
 - [AI 张一鸣对话实验](https://ai.liutongxue.com.cn/figures/zhang-yiming/): 聚焦产品增长、组织效率与判断框架（模拟风格，非本人发言）。
 
-## Archived Logs（历史归档，当前主卡片标注「现场检修中」）
+## Archived Logs（历史工作日志）
 
-- [AI 工作日志汇总](https://ai.liutongxue.com.cn/scene/ai-logs/): 13 篇历史 AI 团队协作日志（数字居民、博客运营、建站运营），正在内容翻新检修中。
+- [AI 工作日志汇总](https://ai.liutongxue.com.cn/scene/ai-logs/): 13 篇历史 AI 团队协作日志（数字居民、博客运营、建站运营）。访问状态以该页面为准。
 
 ## Entity & Domain Disambiguation（实体与域名排歧）
 

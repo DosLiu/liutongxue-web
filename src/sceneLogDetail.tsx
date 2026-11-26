@@ -6,7 +6,7 @@ import { loadSceneLogDetail } from './data/scene/runtime';
 import './index.css';
 
 async function mount() {
-  const route = resolveSceneLogDetailRoute(window.location.pathname);
+  const route = resolveSceneLogDetailRoute(window.location.pathname, import.meta.env.BASE_URL);
 
   if (!route) {
     throw new Error(`Unknown scene log detail route: ${window.location.pathname}`);

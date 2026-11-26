@@ -6,24 +6,57 @@ import { getNextResetAt, getQuotaDateKey, getQuotaRuntime, getSecondsUntilReset,
 const COOKIE_NAME = 'liutongxue_guest';
 const IDENTITY_LIFETIME_MS = 365 * 24 * 60 * 60 * 1000;
 const GUEST_LIMIT = 5;
+// Covers the model timeout and the quota writes around it.
+const RESERVATION_LIFETIME_MS = 40000;
 const env = globalThis.process?.env ?? {};
 
-// One hash holds the usage and reservation tickets. Each script is atomic.
-const RESERVE_SCRIPT = `-- guest-reserve-v1
-local used = tonumber(redis.call('HGET', KEYS[1], 'used') or '0')
-if used >= tonumber(ARGV[1]) then return {0, used} end
-used = used + 1
-redis.call('HSET', KEYS[1], 'used', used, ARGV[2], '1')
-redis.call('EXPIRE', KEYS[1], tonumber(ARGV[3]))
+// The daily hash keeps confirmed usage separate from in-flight reservations.
+const RESERVE_SCRIPT = `-- guest-reserve-v2
+local key = KEYS[1]
+local limit, ticket, ttl, now, deadline = tonumber(ARGV[1]), ARGV[2], tonumber(ARGV[3]), tonumber(ARGV[4]), tonumber(ARGV[5])
+local used = tonumber(redis.call('HGET', key, 'used') or '0')
+if used >= limit then return {0, used} end
+
+local pending = 0
+local entries = redis.call('HGETALL', key)
+for index = 1, #entries, 2 do
+  local field = entries[index]
+  if string.sub(field, 1, 8) == 'pending:' then
+    if tonumber(entries[index + 1]) > now then
+      pending = pending + 1
+    else
+      redis.call('HDEL', key, field)
+    end
+  end
+end
+if used + pending >= limit then return {2, used} end
+
+redis.call('HSET', key, 'pending:' .. ticket, deadline)
+redis.call('EXPIRE', key, ttl)
 return {1, used}`;
 
-const ROLLBACK_SCRIPT = `-- guest-rollback-v1
-local used = tonumber(redis.call('HGET', KEYS[1], 'used') or '0')
-if redis.call('HDEL', KEYS[1], ARGV[1]) == 1 then
-  used = math.max(0, used - 1)
-  redis.call('HSET', KEYS[1], 'used', used)
+const SETTLE_SCRIPT = `-- guest-settle-v2
+local key = KEYS[1]
+local ticket, action, now, limit = ARGV[1], ARGV[2], tonumber(ARGV[3]), tonumber(ARGV[4])
+local pendingField = 'pending:' .. ticket
+local used = tonumber(redis.call('HGET', key, 'used') or '0')
+local confirmed = redis.call('HGET', key, ticket) == '1'
+if action == 'rollback' then
+  redis.call('HDEL', key, pendingField)
+  if confirmed then
+    redis.call('HDEL', key, ticket)
+    used = math.max(0, used - 1)
+    redis.call('HSET', key, 'used', used)
+  end
+  return used
 end
-return used`;
+
+if confirmed then return used end
+local deadline = tonumber(redis.call('HGET', key, pendingField) or '0')
+if deadline <= now or used >= limit then return nil end
+redis.call('HSET', key, 'used', used + 1, ticket, '1')
+redis.call('HDEL', key, pendingField)
+return used + 1`;
 
 const keyFor = (identity, date) => `liutongxue:figure-chat:guest:${getQuotaDateKey(date)}:${identity.id}`;
 const signatureFor = (id, expiresAt, secret) => createHmac('sha256', secret).update(`guest:${id}:${expiresAt}`).digest('hex');
@@ -89,33 +122,47 @@ export async function reserveGuestQuotaSlot(identity) {
   if (!identity || identity.expiresAt <= date.getTime()) return unavailable();
   const runtime = getQuotaRuntime();
   if (!runtime.kv.enforced) return unavailable();
-  const ticket = randomUUID();
-  const key = keyFor(identity, date);
-  const resetAt = getNextResetAt(date);
+  const reservation = { identity, ticket: randomUUID(), key: keyFor(identity, date), resetAt: getNextResetAt(date) };
+  const { key, ticket, resetAt } = reservation;
   const ttl = getSecondsUntilReset(resetAt);
+  const now = date.getTime();
   try {
-    const [response] = await runKvPipeline(runtime, [['EVAL', RESERVE_SCRIPT, 1, key, GUEST_LIMIT, ticket, ttl]]);
-    if (!Array.isArray(response.result) || response.result.length !== 2 || ![0, 1].includes(response.result[0])) throw new Error('Invalid reservation');
-    const [allowed, used] = response.result;
+    const [response] = await runKvPipeline(runtime, [['EVAL', RESERVE_SCRIPT, 1, key, GUEST_LIMIT, ticket, ttl, now, now + RESERVATION_LIFETIME_MS]]);
+    if (!Array.isArray(response.result) || response.result.length !== 2 || ![0, 1, 2].includes(response.result[0])) throw new Error('Invalid reservation');
+    const [state, used] = response.result;
     const count = parseUsed(used);
-    if ((allowed === 1 && (count < 1 || count > GUEST_LIMIT)) || (allowed === 0 && count < GUEST_LIMIT)) throw new Error('Invalid reservation count');
+    if (used === null || (state === 0 ? count < GUEST_LIMIT : count >= GUEST_LIMIT)) throw new Error('Invalid reservation count');
+    if (state === 2) return unavailable();
     const quota = snapshotFromUsed(count, resetAt);
-    return { allowed: allowed === 1, quota, reservation: allowed === 1 ? { identity, ticket, key, resetAt } : undefined };
+    return { allowed: state === 1, quota, reservation: state === 1 ? reservation : undefined };
   } catch {
-    // The write may have succeeded before the connection failed; never call the model when uncertain.
+    // A lost response can leave a temporary hold. If the cancellation also fails,
+    // it will expire automatically and never appear as confirmed usage.
+    await settleGuestQuotaSlot(reservation, 'rollback');
     return unavailable();
   }
 }
 
-export async function rollbackGuestQuotaSlot(reservation) {
+async function settleGuestQuotaSlot(reservation, action) {
   const runtime = getQuotaRuntime();
   if (!runtime.kv.enforced) return getUnavailableGuestQuota();
-  try {
-    const { identity, key, resetAt, ticket } = reservation;
-    const [response] = await runKvPipeline(runtime, [['EVAL', ROLLBACK_SCRIPT, 1, key, ticket]]);
-    if (Date.parse(resetAt) <= Date.now()) return getGuestQuotaSnapshot(identity);
-    return snapshotFromUsed(parseUsed(response.result), resetAt);
-  } catch {
-    return getUnavailableGuestQuota();
+  const { key, resetAt, ticket } = reservation;
+  const attempts = action === 'commit' ? 2 : 1;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    try {
+      const [response] = await runKvPipeline(runtime, [['EVAL', SETTLE_SCRIPT, 1, key, ticket, action, Date.now(), GUEST_LIMIT]]);
+      if (response.result === null) return getUnavailableGuestQuota();
+      return snapshotFromUsed(parseUsed(response.result), resetAt);
+    } catch {
+      // Repeating the same ticket is safe if a commit succeeded before the response was lost.
+    }
   }
+  return getUnavailableGuestQuota();
+}
+
+export const commitGuestQuotaSlot = (reservation) => settleGuestQuotaSlot(reservation, 'commit');
+
+export async function rollbackGuestQuotaSlot(reservation) {
+  const quota = await settleGuestQuotaSlot(reservation, 'rollback');
+  return Date.parse(reservation.resetAt) <= Date.now() ? getGuestQuotaSnapshot(reservation.identity) : quota;
 }

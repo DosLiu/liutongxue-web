@@ -1,14 +1,23 @@
+import { DIGITAL_HUMAN_REFRESH_TIMEOUT_MS, QUOTA_REQUEST_TIMEOUT_MS } from '../../../api/_lib/figure-chat-limits.js';
 import { type FigureChatConfig, type FigureChatResolvedStatus, type FigureChatRole, type FigureChatServiceStatus } from './shared';
 
 export const FIGURE_CHAT_INPUT_MAX_LENGTH = 400;
-export const FIGURE_CHAT_HEALTHCHECK_TIMEOUT_MS = 5000;
-// Includes knowledge refresh, quota storage, model response and any quota rollback.
-export const FIGURE_CHAT_REQUEST_TIMEOUT_MS = 40000;
+export const FIGURE_CHAT_HEALTHCHECK_TIMEOUT_MS = QUOTA_REQUEST_TIMEOUT_MS + 1000;
+// The digital human health check reads quota before it can refresh knowledge.
+export const FIGURE_CHAT_DIGITAL_HUMAN_HEALTHCHECK_TIMEOUT_MS = QUOTA_REQUEST_TIMEOUT_MS + DIGITAL_HUMAN_REFRESH_TIMEOUT_MS + 2000;
+// Includes knowledge refresh, model response, and confirming or releasing the quota reservation.
+export const FIGURE_CHAT_REQUEST_TIMEOUT_MS = 45000;
 
 const FIGURE_CHAT_DEBUG_PARAM = 'debug-unlimited';
 const FIGURE_CHAT_DEBUG_ALLOWED = import.meta.env.DEV;
 
-const getStorage = () => (typeof window === 'undefined' ? null : window.localStorage);
+const withStorage = <T>(useStorage: (storage: Storage) => T): T | undefined => {
+  try {
+    if (typeof window !== 'undefined') return useStorage(window.localStorage);
+  } catch {
+    // Storage can be blocked even when cookies and the chat API are available.
+  }
+};
 
 const getFigureChatDebugKey = (config: FigureChatConfig) => `${config.storageKey}-debug-unlimited`;
 const getFigureChatQuotaKey = (config: FigureChatConfig, subject?: string) => (subject ? `${config.storageKey}-${subject}` : config.storageKey);
@@ -16,44 +25,27 @@ const getFigureChatLegacyQuotaKeys = (config: FigureChatConfig, subject?: string
   (config.legacyStorageKeys ?? []).map((key) => (subject ? `${key}-${subject}` : key));
 const clampFigureChatRemaining = (limit: number, value: number) => Math.min(limit, Math.max(0, value));
 
-const setDeveloperUnlimited = (config: FigureChatConfig, enabled: boolean) => {
-  const storage = getStorage();
-  if (!storage) return;
-
-  if (enabled) {
-    storage.setItem(getFigureChatDebugKey(config), '1');
-    return;
-  }
-
-  storage.removeItem(getFigureChatDebugKey(config));
-};
-
 export const getFigureChatDeveloperUnlimited = (config: FigureChatConfig) => {
-  if (typeof window === 'undefined' || !FIGURE_CHAT_DEBUG_ALLOWED) {
-    setDeveloperUnlimited(config, false);
-    return false;
-  }
+  if (typeof window === 'undefined' || !FIGURE_CHAT_DEBUG_ALLOWED) return false;
 
   const params = new URLSearchParams(window.location.search);
   const debugParam = params.get(FIGURE_CHAT_DEBUG_PARAM);
+  const debugKey = getFigureChatDebugKey(config);
 
   if (debugParam === '1') {
-    setDeveloperUnlimited(config, true);
+    withStorage((storage) => storage.setItem(debugKey, '1'));
     return true;
   }
 
   if (debugParam === '0') {
-    setDeveloperUnlimited(config, false);
+    withStorage((storage) => storage.removeItem(debugKey));
     return false;
   }
 
-  return getStorage()?.getItem(getFigureChatDebugKey(config)) === '1';
+  return withStorage((storage) => storage.getItem(debugKey)) === '1';
 };
 
-const getStoredRemaining = (config: FigureChatConfig, limit = config.freeLimit, subject?: string) => {
-  const storage = getStorage();
-  if (!storage) return limit;
-
+const getStoredRemaining = (config: FigureChatConfig, limit = config.freeLimit, subject?: string) => withStorage((storage) => {
   const storageKey = getFigureChatQuotaKey(config, subject);
   const cached = storage.getItem(storageKey);
   if (cached !== null) {
@@ -71,17 +63,18 @@ const getStoredRemaining = (config: FigureChatConfig, limit = config.freeLimit, 
     .filter((value): value is number => value !== null);
 
   const nextValue = legacyValues.length ? Math.min(...legacyValues) : limit;
-  storage.setItem(storageKey, String(nextValue));
-
-  for (const legacyKey of getFigureChatLegacyQuotaKeys(config, subject)) {
-    storage.removeItem(legacyKey);
-  }
+  withStorage((writableStorage) => {
+    writableStorage.setItem(storageKey, String(nextValue));
+    for (const legacyKey of getFigureChatLegacyQuotaKeys(config, subject)) {
+      writableStorage.removeItem(legacyKey);
+    }
+  });
 
   return nextValue;
-};
+}) ?? limit;
 
 export const setFigureChatStoredRemaining = (config: FigureChatConfig, value: number, limit = config.freeLimit, subject?: string) => {
-  getStorage()?.setItem(getFigureChatQuotaKey(config, subject), String(clampFigureChatRemaining(limit, value)));
+  withStorage((storage) => storage.setItem(getFigureChatQuotaKey(config, subject), String(clampFigureChatRemaining(limit, value))));
 };
 
 export const getFigureChatInitialRemaining = (config: FigureChatConfig, limit = config.freeLimit, subject?: string) =>

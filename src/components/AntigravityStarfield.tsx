@@ -1,50 +1,49 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-// 以下两项只对手机端（< 768px）生效，桌面端保持与改动前完全一致
-const MOBILE_VIEWPORT_MAX_WIDTH = 768;
-const isMobileViewport = () => window.innerWidth < MOBILE_VIEWPORT_MAX_WIDTH;
-
-// 桌面基准宽高比：手机上光斑（呼吸环）在世界坐标中的尺寸按此补偿，
-// 让竖屏手机的视觉占比与桌面版一致；桌面端不补偿，维持原始尺寸
+const isNarrowViewport = () => window.innerWidth < 768;
 const HALO_REFERENCE_ASPECT = 1.6;
 const MIN_HALO_SCALE = 0.28;
-
-// 手机端在系统开启"减弱动效"时的动效缩放：动画照常播放，但把时间驱动的
-// 漂移/呼吸/位移速度与幅度一起压缩，做到"看得出在动、但明显更柔和"。
-// 取值参考：0.45 时呼吸周期约 16s、闪烁周期约 10s；若取 0.2 周期会到 30–180s，
-// 肉眼近乎静止，反而像没有动效。想更慢/更快只改这一个常量即可。
 const REDUCED_MOTION_SCALE = 0.45;
 
 const computeHaloScale = (width: number, height: number) => {
-  if (!width || !height || !isMobileViewport()) return 1;
+  if (!width || !height || !isNarrowViewport()) return 1;
   return Math.min(1, Math.max(MIN_HALO_SCALE, width / height / HALO_REFERENCE_ASPECT));
 };
 
-export default function AntigravityStarfield() {
+export default function AntigravityStarfield({ mobile }: { mobile: boolean }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
+    let width = container.offsetWidth;
+    let height = container.offsetHeight;
+    const pixelRatioCap = mobile ? 1.25 : 2;
+    let pixelRatio = Math.min(window.devicePixelRatio, pixelRatioCap);
+
     // --- 1. Scene & Camera Setup ---
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       45,
-      container.offsetWidth / container.offsetHeight,
+      width / height,
       0.1,
       100
     );
     camera.position.z = 15;
 
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance'
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(container.offsetWidth, container.offsetHeight);
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: true,
+        powerPreference: 'high-performance'
+      });
+    } catch {
+      return;
+    }
+    renderer.setDrawingBufferSize(width, height, pixelRatio);
     renderer.domElement.style.position = 'absolute';
     renderer.domElement.style.inset = '0';
     renderer.domElement.style.width = '100%';
@@ -52,9 +51,9 @@ export default function AntigravityStarfield() {
     renderer.domElement.style.pointerEvents = 'none';
     container.appendChild(renderer.domElement);
 
-    // --- 2. Particle Matrix Parameters (与桌面端完全一致) ---
-    const countX = 110;
-    const countY = 64;
+    // --- 2. Particle Matrix Parameters ---
+    const countX = mobile ? 76 : 110;
+    const countY = mobile ? 44 : 64;
     const count = countX * countY;
 
     // Instanced Plane Geometry for pill-shaped particles
@@ -65,10 +64,8 @@ export default function AntigravityStarfield() {
     const uniforms = {
       uTime: { value: 0 },
       uMouse: { value: new THREE.Vector2(0, 0) },
-      uResolution: { value: new THREE.Vector2(container.offsetWidth, container.offsetHeight) },
-      uHaloScale: { value: computeHaloScale(container.offsetWidth, container.offsetHeight) },
-      // 手机端且系统开启减弱动效时才降速降幅，桌面端始终全速
-      uMotionScale: { value: prefersReducedMotion && isMobileViewport() ? REDUCED_MOTION_SCALE : 1 }
+      uHaloScale: { value: computeHaloScale(width, height) },
+      uMotionScale: { value: prefersReducedMotion && isNarrowViewport() ? REDUCED_MOTION_SCALE : 1 }
     };
 
     const material = new THREE.ShaderMaterial({
@@ -274,15 +271,17 @@ export default function AntigravityStarfield() {
     scene.add(mesh);
 
     // --- 3. Pointer & Viscous Drag Tracking ---
+    let animationFrameId = 0;
+    let disposed = false;
     const pointer = {
       targetX: 0,
       targetY: 0,
       currentX: 0,
-      currentY: 0,
-      isHovering: true
+      currentY: 0
     };
 
     const updateTargetPosition = (clientX: number, clientY: number) => {
+      if (animationFrameId === 0) return;
       const rect = container.getBoundingClientRect();
       const normX = ((clientX - rect.left) / rect.width) * 2 - 1;
       const normY = -(((clientY - rect.top) / rect.height) * 2 - 1);
@@ -293,7 +292,6 @@ export default function AntigravityStarfield() {
 
       pointer.targetX = (normX * visibleWidth) / 2;
       pointer.targetY = (normY * visibleHeight) / 2;
-      pointer.isHovering = true;
     };
 
     const handlePointerMove = (e: MouseEvent) => {
@@ -319,26 +317,27 @@ export default function AntigravityStarfield() {
 
     // --- 4. Resize Handling ---
     const handleResize = () => {
-      if (!container) return;
-      const width = container.offsetWidth;
-      const height = container.offsetHeight;
+      const nextWidth = container.offsetWidth;
+      const nextHeight = container.offsetHeight;
+      const nextPixelRatio = Math.min(window.devicePixelRatio, pixelRatioCap);
+      if (!nextWidth || !nextHeight || (nextWidth === width && nextHeight === height && nextPixelRatio === pixelRatio)) return;
 
+      width = nextWidth;
+      height = nextHeight;
+      pixelRatio = nextPixelRatio;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
 
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setDrawingBufferSize(width, height, pixelRatio);
 
-      material.uniforms.uResolution.value.set(width, height);
       material.uniforms.uHaloScale.value = computeHaloScale(width, height);
-      material.uniforms.uMotionScale.value = prefersReducedMotion && isMobileViewport() ? REDUCED_MOTION_SCALE : 1;
+      material.uniforms.uMotionScale.value = prefersReducedMotion && isNarrowViewport() ? REDUCED_MOTION_SCALE : 1;
     };
 
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
 
     // --- 5. Main Animation Loop ---
-    let animationFrameId = 0;
     const clock = new THREE.Clock();
 
     const renderFrame = () => {
@@ -360,8 +359,15 @@ export default function AntigravityStarfield() {
     };
 
     const startAnimation = () => {
-      if (animationFrameId !== 0) return;
+      if (disposed || animationFrameId !== 0) return;
       clock.start();
+      // 在首屏可见时尝试渲染，失败则释放资源并保留静态背景。
+      try {
+        renderFrame();
+      } catch {
+        cleanup();
+        return;
+      }
       animationFrameId = requestAnimationFrame(step);
     };
 
@@ -387,13 +393,10 @@ export default function AntigravityStarfield() {
     );
     intersectionObserver.observe(container);
 
-    // 先同步渲染一帧，避免 rAF 尚未推进时（如后台标签页）首屏完全没有画面
-    renderFrame();
-    // 减弱动效下不再停帧，改由 uMotionScale 降速降幅，因此这里始终启动动画
-    startAnimation();
-
     // --- 6. Cleanup ---
-    return () => {
+    const cleanup = () => {
+      if (disposed) return;
+      disposed = true;
       stopAnimation();
       intersectionObserver.disconnect();
       window.removeEventListener('mousemove', handlePointerMove);
@@ -410,11 +413,14 @@ export default function AntigravityStarfield() {
         renderer.domElement.parentElement.removeChild(renderer.domElement);
       }
     };
-  }, []);
+
+    return cleanup;
+  }, [mobile]);
 
   return (
     <div
       ref={containerRef}
+      className="landing-starfield"
       style={{
         position: 'absolute',
         inset: 0,
@@ -422,9 +428,7 @@ export default function AntigravityStarfield() {
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
-        zIndex: 1,
-        // Deep obsidian cosmic canvas background
-        background: 'radial-gradient(ellipse 90% 70% at 50% 32%, rgba(10, 14, 26, 0.88) 0%, rgba(4, 5, 10, 0.98) 75%, #030408 100%)'
+        zIndex: 1
       }}
       aria-hidden="true"
     >

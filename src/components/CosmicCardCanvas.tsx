@@ -13,8 +13,8 @@ interface Particle {
 }
 
 interface Star {
-  x: number;
-  y: number;
+  xRatio: number;
+  yRatio: number;
   radius: number;
   alpha: number;
   twinkleSpeed: number;
@@ -64,8 +64,8 @@ export default function CosmicCardCanvas() {
     // 1. Background Micro-Stars
     const starCount = Math.floor(Math.min(width, 1200) / 25);
     const stars: Star[] = Array.from({ length: starCount }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
+      xRatio: Math.random(),
+      yRatio: Math.random(),
       radius: 0.4 + Math.random() * 0.9,
       alpha: 0.2 + Math.random() * 0.5,
       twinkleSpeed: 0.015 + Math.random() * 0.03,
@@ -178,7 +178,7 @@ export default function CosmicCardCanvas() {
         const currentAlpha = star.alpha * (0.6 + 0.4 * Math.sin(star.phase));
 
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.arc(star.xRatio * width, star.yRatio * height, star.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(224, 231, 255, ${currentAlpha.toFixed(3)})`;
         ctx.fill();
       }

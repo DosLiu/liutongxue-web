@@ -3,6 +3,7 @@ import SiteHeader from '../components/SiteHeader';
 import SiteFooter from '../components/SiteFooter';
 import { loadAllSceneLogEntries, type SceneLogListItem } from '../data/scene/runtime';
 import type { SceneLogKey } from '../data/scene/types';
+import { withBaseUrl } from '../site';
 import './ScenePage.css';
 
 const LOGS_PER_PAGE = 4;
@@ -94,7 +95,7 @@ export default function SceneAiLogsPage() {
               <ol className="scene-log-timeline__list">
                 {currentLogs.map((entry) => (
                   <li key={entry.id} className="scene-log-timeline__item scene-log-timeline__item--plain">
-                    <a href={entry.detailHref} className="scene-log-timeline__card scene-log-timeline__card--link">
+                    <a href={withBaseUrl(entry.detailHref)} className="scene-log-timeline__card scene-log-timeline__card--link">
                       <p className="scene-log-timeline__date">{entry.publishedAt}</p>
                       <h3 className="scene-log-timeline__title">{entry.title}</h3>
                       <p className="scene-log-timeline__text">{entry.preview}</p>

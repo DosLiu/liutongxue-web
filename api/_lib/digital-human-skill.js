@@ -1,4 +1,6 @@
 // Server-only: never import this module into the browser bundle.
+import { DIGITAL_HUMAN_REFRESH_TIMEOUT_MS } from './figure-chat-limits.js';
+
 const REPOSITORY = 'DosLiu/liudongsheng-skill';
 const SOURCE_FILES = ['SKILL.md', 'references/profile.md', 'references/evidence.md'];
 const REFRESH_MS = 5 * 60 * 1000;
@@ -33,13 +35,16 @@ async function githubJson(path, token, signal) {
   return response.json();
 }
 
-async function fetchSnapshot(token) {
+async function fetchSnapshot(token, previousSnapshot) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  const timeout = setTimeout(() => controller.abort(), DIGITAL_HUMAN_REFRESH_TIMEOUT_MS);
   try {
     const commit = await githubJson('commits/main', token, controller.signal);
     const sha = commit?.sha;
     if (typeof sha !== 'string' || !/^[a-f0-9]{40}$/i.test(sha)) throw new KnowledgeError('Invalid commit');
+
+    // The files are pinned to this commit, so confirming its SHA renews the snapshot.
+    if (previousSnapshot?.sha === sha) return { sha, documents: previousSnapshot.documents };
 
     const documents = await Promise.all(SOURCE_FILES.map(async (path) => {
       const encodedPath = path.split('/').map(encodeURIComponent).join('/');
@@ -66,16 +71,18 @@ export async function loadDigitalHumanKnowledge(token) {
   if (!token?.trim()) throw new KnowledgeError('Knowledge token not configured', true);
   const now = Date.now();
   if (cached?.token === token && now - cached.checkedAt < REFRESH_MS &&
-      (!cached.snapshot.stale || now - cached.loadedAt < MAX_STALE_MS)) return cached.snapshot;
+      (!cached.snapshot.stale || now - cached.verifiedAt < MAX_STALE_MS)) return cached.snapshot;
   if (inFlight?.token === token) return inFlight.promise;
 
+  const previousSnapshot = cached?.token === token ? cached.snapshot : undefined;
   const promise = (async () => {
     try {
-      const snapshot = await fetchSnapshot(token);
-      cached = { token, snapshot, checkedAt: Date.now(), loadedAt: Date.now() };
+      const snapshot = await fetchSnapshot(token, previousSnapshot);
+      const verifiedAt = Date.now();
+      cached = { token, snapshot, checkedAt: verifiedAt, verifiedAt };
       return snapshot;
     } catch (error) {
-      if (cached?.token === token && !error?.permanent && Date.now() - cached.loadedAt < MAX_STALE_MS) {
+      if (cached?.token === token && !error?.permanent && Date.now() - cached.verifiedAt < MAX_STALE_MS) {
         cached.checkedAt = Date.now();
         cached.snapshot = { ...cached.snapshot, stale: true };
         return cached.snapshot;

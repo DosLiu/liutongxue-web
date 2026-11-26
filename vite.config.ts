@@ -3,12 +3,15 @@ import { relative, resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { isSceneLogPath, SCENE_LOGS_UNDER_MAINTENANCE } from './src/data/scene/routes';
+import { touchDeviceMediaQuery } from './src/device';
 import {
   createCriticalPageBreadcrumbStructuredData,
   createCriticalPageFaqStructuredData,
   createCriticalPagePrimaryStructuredData,
   criticalPageFallbackStyle,
   renderCriticalPageSnapshot,
+  renderSceneLogMaintenancePage,
   resolveCriticalPageSeoMetadata
 } from './src/seo/criticalPageContent';
 
@@ -75,8 +78,8 @@ const applyHeadMetadata = (html: string, title: string, description: string) => 
   return nextHtml;
 };
 
-const injectRootSnapshot = (html: string, pathname: string) => {
-  const snapshotHtml = renderCriticalPageSnapshot(pathname);
+const injectRootSnapshot = (html: string, pathname: string, baseUrl: string) => {
+  const snapshotHtml = renderCriticalPageSnapshot(pathname, baseUrl);
 
   if (!snapshotHtml) {
     return html;
@@ -109,14 +112,38 @@ const htmlInputs = [
   ...['figures', 'scene'].flatMap((directory) => collectHtmlFiles(resolve(__dirname, directory)))
 ];
 
+let buildBaseUrl = '/';
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
     {
+      name: 'scene-log-maintenance',
+      transformIndexHtml: {
+        order: 'pre',
+        handler(html, ctx) {
+          const pathname = toCanonicalPath(ctx.filename, ctx.path);
+          if (!SCENE_LOGS_UNDER_MAINTENANCE || !isSceneLogPath(pathname)) return html;
+
+          // Replace the entry before Vite discovers its scripts and log data.
+          return renderSceneLogMaintenancePage(
+            buildAbsoluteUrl(canonicalSiteUrl, pathname),
+            `${buildBaseUrl}scene/`,
+            isNonCanonicalBuild ? nonCanonicalRobotsContent : 'index, follow'
+          );
+        }
+      }
+    },
+    {
       name: 'inject-seo-tags',
+      configResolved(config) {
+        buildBaseUrl = config.base;
+      },
       transformIndexHtml(html, ctx) {
         const pathname = toCanonicalPath(ctx.filename, ctx.path);
+        if (SCENE_LOGS_UNDER_MAINTENANCE && isSceneLogPath(pathname)) return html;
+
         const canonicalPath = canonicalPathOverrides[pathname] ?? pathname;
         const absoluteUrl = buildAbsoluteUrl(canonicalSiteUrl, canonicalPath);
         const rawTitle = extractTagContent(html, /<title>([\s\S]*?)<\/title>/i) || 'Liutongxue';
@@ -124,7 +151,7 @@ export default defineConfig({
         const seoMeta = resolveCriticalPageSeoMetadata(canonicalPath, rawTitle, rawDescription);
         const socialImageUrl = buildAbsoluteUrl(canonicalSiteUrl, defaultSocialImagePath);
         const socialImageAlt = `Liutongxue 分享图：${seoMeta.socialTitle}`;
-        const htmlWithSnapshot = injectRootSnapshot(html, pathname);
+        const htmlWithSnapshot = injectRootSnapshot(html, pathname, buildBaseUrl);
         const htmlWithMetadata = applyHeadMetadata(htmlWithSnapshot, seoMeta.title, seoMeta.description);
         const hasCriticalSnapshot = htmlWithSnapshot !== html;
         const primaryStructuredData = createCriticalPagePrimaryStructuredData(canonicalPath, absoluteUrl, canonicalSiteUrl);
@@ -137,17 +164,23 @@ export default defineConfig({
             ...(hasCriticalSnapshot
               ? [
                   {
-                    tag: 'script',
-                    children: 'document.documentElement.classList.add("js");',
-                    injectTo: 'head-prepend' as const
-                  },
-                  {
                     tag: 'style',
                     children: criticalPageFallbackStyle,
                     injectTo: 'head' as const
                   }
                 ]
               : []),
+            // Let touch devices paint while the font stylesheet loads.
+            {
+              tag: 'link',
+              attrs: {
+                rel: 'stylesheet',
+                href: 'https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap',
+                media: `not all and ${touchDeviceMediaQuery}`,
+                onload: "this.media='all'"
+              },
+              injectTo: 'head'
+            },
             {
               tag: 'link',
               attrs: {

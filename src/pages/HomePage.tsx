@@ -1,11 +1,15 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import FeatureCardsSection from '../components/FeatureCardsSection';
-import AntigravityStarfield from '../components/AntigravityStarfield';
 import SiteFooter from '../components/SiteFooter';
 import SiteHeader from '../components/SiteHeader';
 import StartBuildingSection from '../components/StartBuildingSection';
 import TestimonialsSection from '../components/TestimonialsSection';
 import ToolsSection from '../components/ToolsSection';
+import { touchDeviceMediaQuery } from '../device';
+
+const AntigravityStarfield = lazy<(props: { mobile: boolean }) => ReactNode>(() =>
+  import('../components/AntigravityStarfield').catch(() => ({ default: () => null }))
+);
 
 const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
@@ -31,9 +35,32 @@ const subtitleAnimatedChars = subtitleChars.slice(2);
 
 export default function HomePage() {
   const headerRef = useRef<HTMLElement | null>(null);
+  const landingSectionRef = useRef<HTMLElement | null>(null);
   const landingContentRef = useRef<HTMLDivElement | null>(null);
   const heroMainContentRef = useRef<HTMLDivElement | null>(null);
   const [isSubtitleAnimated, setIsSubtitleAnimated] = useState(false);
+  const [shouldLoadStarfield, setShouldLoadStarfield] = useState(false);
+  const [starfieldMode, setStarfieldMode] = useState<'full' | 'mobile' | 'static'>('static');
+
+  useEffect(() => {
+    const touchDevice = window.matchMedia(touchDeviceMediaQuery);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => {
+      if (touchDevice.matches && reducedMotion.matches) {
+        setStarfieldMode('static');
+        return;
+      }
+      setStarfieldMode(touchDevice.matches ? 'mobile' : 'full');
+    };
+
+    update();
+    touchDevice.addEventListener?.('change', update);
+    reducedMotion.addEventListener?.('change', update);
+    return () => {
+      touchDevice.removeEventListener?.('change', update);
+      reducedMotion.removeEventListener?.('change', update);
+    };
+  }, []);
 
   useEffect(() => {
     let firstFrameId: number | null = null;
@@ -54,13 +81,25 @@ export default function HomePage() {
   useEffect(() => {
     const root = document.documentElement;
     const header = headerRef.current;
+    const landingSection = landingSectionRef.current;
     const landingContent = landingContentRef.current;
     const heroMainContent = heroMainContentRef.current;
 
-    if (!header) return;
+    if (!header || !landingSection || !landingContent || !heroMainContent) return;
 
     let frameId: number | null = null;
+    let isInitialLayout = true;
+    let disposed = false;
+    const shouldScrollToContact = window.location.hash === '#contact';
     const viewport = window.visualViewport;
+    const starfieldObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (disposed || !entry.isIntersecting) return;
+        setShouldLoadStarfield(true);
+        starfieldObserver.disconnect();
+      },
+      { rootMargin: '320px 0px' }
+    );
 
     const applyViewportMetrics = () => {
       frameId = null;
@@ -72,8 +111,6 @@ export default function HomePage() {
       root.style.setProperty('--hero-viewport-height', `${viewportHeight}px`);
       root.style.setProperty('--hero-header-height', `${headerHeight}px`);
       root.style.setProperty('--hero-shell-height', `${shellHeight}px`);
-
-      if (!landingContent || !heroMainContent) return;
 
       const landingContentStyles = window.getComputedStyle(landingContent);
       const paddingTop = parseFloat(landingContentStyles.paddingTop) || 0;
@@ -92,17 +129,27 @@ export default function HomePage() {
       const shiftY = Math.round((desiredCenterY - currentCenterY) * 10) / 10;
 
       root.style.setProperty('--hero-copy-shift-y', `${shiftY}px`);
+
+      if (isInitialLayout) {
+        isInitialLayout = false;
+        // 先完成联系区直链定位，再判断首屏是否需要加载星空。
+        if (shouldScrollToContact && window.location.hash === '#contact' && window.scrollY === 0) {
+          document.getElementById('contact')?.scrollIntoView({ block: 'start', behavior: 'instant' });
+        }
+        starfieldObserver.observe(landingSection);
+      }
     };
 
     const queueViewportMetrics = () => {
+      if (disposed) return;
       if (frameId !== null) window.cancelAnimationFrame(frameId);
       frameId = window.requestAnimationFrame(applyViewportMetrics);
     };
 
     const resizeObserver = new ResizeObserver(queueViewportMetrics);
     resizeObserver.observe(header);
-    if (landingContent) resizeObserver.observe(landingContent);
-    if (heroMainContent) resizeObserver.observe(heroMainContent);
+    resizeObserver.observe(landingContent);
+    resizeObserver.observe(heroMainContent);
 
     queueViewportMetrics();
     void document.fonts?.ready.then(queueViewportMetrics);
@@ -114,6 +161,8 @@ export default function HomePage() {
     viewport?.addEventListener('scroll', queueViewportMetrics);
 
     return () => {
+      disposed = true;
+      starfieldObserver.disconnect();
       resizeObserver.disconnect();
       window.removeEventListener('load', queueViewportMetrics);
       window.removeEventListener('pageshow', queueViewportMetrics);
@@ -136,8 +185,12 @@ export default function HomePage() {
       <SiteHeader ref={headerRef} activeKey="home" />
 
       <main>
-        <section className="landing-wrapper">
-          <AntigravityStarfield />
+        <section ref={landingSectionRef} className="landing-wrapper">
+          {isSubtitleAnimated && shouldLoadStarfield && starfieldMode !== 'static' && (
+            <Suspense fallback={null}>
+              <AntigravityStarfield mobile={starfieldMode === 'mobile'} />
+            </Suspense>
+          )}
 
           <div ref={landingContentRef} className="landing-content">
             <div className="landing-gradient-blur" aria-hidden="true" />
