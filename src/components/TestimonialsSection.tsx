@@ -93,38 +93,44 @@ function MarqueeRow({ tweets, direction = 'left', speed = 3 }: { tweets: Testimo
 export default function TestimonialsSection() {
   const [titleVisible, setTitleVisible] = useState(false);
   const [isMarqueeVisible, setIsMarqueeVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement | null>(null);
+  const headerRef = useRef<HTMLDivElement | null>(null);
   const marqueeRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const section = sectionRef.current;
+    const header = headerRef.current;
     const marquee = marqueeRef.current;
-    if (!section || !marquee) return;
+    if (!header || !marquee) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.target === marquee) {
-            setIsMarqueeVisible(entry.isIntersecting);
-          } else if (entry.isIntersecting) {
-            setTitleVisible(true);
-            observer.unobserve(section);
-          }
+    const headerObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTitleVisible(true);
+          headerObserver.disconnect();
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0 }
     );
 
-    observer.observe(section);
-    observer.observe(marquee);
+    const marqueeObserver = new IntersectionObserver(
+      ([entry]) => {
+        setIsMarqueeVisible(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
 
-    return () => observer.disconnect();
+    headerObserver.observe(header);
+    marqueeObserver.observe(marquee);
+
+    return () => {
+      headerObserver.disconnect();
+      marqueeObserver.disconnect();
+    };
   }, []);
 
   return (
-    <section id="testimonials" ref={sectionRef} className="testimonials-section" aria-labelledby="testimonials-title">
+    <section id="testimonials" className="testimonials-section" aria-labelledby="testimonials-title">
       <div className="testimonials-container">
-        <div className={`testimonials-header ${titleVisible ? 'visible' : ''}`}>
+        <div ref={headerRef} className={`testimonials-header ${titleVisible ? 'visible' : ''}`}>
           <h2 id="testimonials-title" className="testimonials-title">
             数智灵言
           </h2>

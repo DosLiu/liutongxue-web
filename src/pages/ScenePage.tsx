@@ -37,14 +37,33 @@ type ProjectCardProps = {
 function ProjectCard({ card, onOpenQr }: ProjectCardProps) {
   const isMaintenance = Boolean(card.underMaintenance);
   const isExternal = card.href ? /^https?:\/\//i.test(card.href) : false;
+  const isInteractive = !isMaintenance && Boolean(card.qr || card.href);
+  const actionArrow = isExternal ? '↗' : '→';
 
   if (card.isPlaceholder) {
-    return <div className="scene-card scene-card--placeholder" aria-label="新项目占位框" />;
+    return (
+      <div className="scene-card scene-card--placeholder" aria-label={card.title || '新项目预告'}>
+        <div className="scene-card__teaser">
+          <span className="scene-card__teaser-dot" aria-hidden="true" />
+          <h2 className="scene-card__teaser-title">{card.title}</h2>
+          {card.description ? <p className="scene-card__teaser-desc">{card.description}</p> : null}
+        </div>
+      </div>
+    );
   }
 
   const body = (
     <>
-      <h2 className="scene-card__title">{card.title}</h2>
+      <div className="scene-card__header">
+        <h2 className="scene-card__title">{card.title}</h2>
+        {isInteractive ? (
+          <span className="scene-card__corner-arrow" aria-hidden="true">
+            {actionArrow}
+          </span>
+        ) : null}
+      </div>
+
+      {card.lead ? <p className="scene-card__lead">{card.lead}</p> : null}
       <p className="scene-card__description">{card.description || '介绍文案待补充。'}</p>
 
       <div className="scene-card__footer">
@@ -54,7 +73,14 @@ function ProjectCard({ card, onOpenQr }: ProjectCardProps) {
               <span className="scene-card__log-date">{card.footerLabel}</span>
             </span>
           ) : null}
-          <span className="scene-card__log-text">{card.footerText}</span>
+          <span className={`scene-card__log-text${isInteractive ? ' scene-card__log-text--action' : ''}`}>
+            <span>{card.footerText}</span>
+            {isInteractive ? (
+              <span className="scene-card__action-arrow" aria-hidden="true">
+                {actionArrow}
+              </span>
+            ) : null}
+          </span>
         </div>
       </div>
     </>
@@ -105,6 +131,7 @@ export default function ScenePage() {
       <SiteHeader activeKey="scene" />
 
       <main className="scene-page">
+        <div className="scene-page__grid" aria-hidden="true" />
         <div className="scene-page__ambient scene-page__ambient--left" aria-hidden="true" />
         <div className="scene-page__ambient scene-page__ambient--right" aria-hidden="true" />
         <div className="scene-page__edge scene-page__edge--left" aria-hidden="true" />

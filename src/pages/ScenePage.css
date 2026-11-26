@@ -222,21 +222,20 @@
 .scene-card {
   display: flex;
   min-width: 0;
-  min-height: clamp(18.5rem, 22vw, 20.5rem);
+  min-height: clamp(17.5rem, 21vw, 19.5rem);
   flex-direction: column;
-  border: 1px solid transparent;
-  border-radius: 16px;
-  background:
-    linear-gradient(180deg, rgba(16, 12, 24, 0.96), rgba(12, 9, 20, 0.94)) padding-box,
-    linear-gradient(135deg, rgba(198, 164, 255, 0.52), rgba(255, 145, 92, 0.2), rgba(117, 208, 255, 0.16)) border-box;
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, rgba(17, 19, 29, 0.92) 0%, rgba(11, 13, 21, 0.96) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 16px 42px -26px rgba(60, 28, 112, 0.75);
-  padding: clamp(1.35rem, 1.6vw, 1.6rem);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 42px -22px rgba(0, 0, 0, 0.78);
+  padding: clamp(1.4rem, 1.8vw, 1.75rem);
   transition:
-    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    background 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.35s ease;
 }
 
 .scene-card--link {
@@ -254,38 +253,56 @@
 .scene-card::after {
   content: '';
   position: absolute;
-  inset: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.35s ease;
 }
 
 .scene-card::before {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 28%);
-  opacity: 0.72;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196, 181, 253, 0.36), rgba(56, 189, 248, 0.24), transparent);
+  opacity: 0.55;
 }
 
 .scene-card::after {
-  inset: auto -12% -24% auto;
-  width: 12rem;
-  height: 12rem;
+  inset: auto -14% -28% auto;
+  width: 13rem;
+  height: 13rem;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(197, 163, 255, 0.18) 0%, rgba(197, 163, 255, 0) 72%);
-  opacity: 0.5;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(56, 189, 248, 0.04) 48%, transparent 72%);
+  opacity: 0.45;
 }
 
-.scene-card:hover {
-  background:
-    linear-gradient(180deg, rgba(22, 16, 34, 0.98), rgba(14, 10, 24, 0.96)) padding-box,
-    linear-gradient(135deg, rgba(219, 187, 255, 0.82), rgba(255, 173, 122, 0.36), rgba(117, 208, 255, 0.24)) border-box;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 22px 54px -24px rgba(72, 30, 138, 0.86);
-  transform: translateY(-4px);
-}
+@media (hover: hover) {
+  .scene-card--link:hover {
+    background: linear-gradient(180deg, rgba(21, 24, 37, 0.96) 0%, rgba(13, 15, 25, 0.98) 100%);
+    border-color: rgba(129, 140, 248, 0.4);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 24px 52px -18px rgba(0, 0, 0, 0.85),
+      0 0 36px -10px rgba(99, 102, 241, 0.22);
+    transform: translateY(-4px);
+  }
 
-.scene-card:hover::before,
-.scene-card:hover::after {
-  opacity: 1;
+  .scene-card--link:hover::before,
+  .scene-card--link:hover::after {
+    opacity: 1;
+  }
+
+  .scene-card--link:hover .scene-card__corner-arrow {
+    color: #38bdf8;
+    transform: translate(2px, -2px);
+  }
+
+  .scene-card--link:hover .scene-card__log-text--action {
+    color: #c7d2fe;
+  }
+
+  .scene-card--link:hover .scene-card__action-arrow {
+    transform: translateX(3px);
+  }
 }
 
 .scene-card > :not(.maintenance-tape-overlay),
@@ -295,23 +312,47 @@
   z-index: 1;
 }
 
+.scene-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
 .scene-card__title {
-  max-width: 16ch;
   margin: 0;
-  color: #fff;
-  font-size: clamp(1.14rem, 1.02rem + 0.35vw, 1.34rem);
+  color: #ffffff;
+  font-size: clamp(1.2rem, 1.08rem + 0.35vw, 1.42rem);
   font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  letter-spacing: -0.015em;
+  line-height: 1.28;
   text-wrap: balance;
 }
 
+.scene-card__corner-arrow {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.34);
+  font-size: 1.05rem;
+  line-height: 1;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.scene-card__lead {
+  margin: 0.85rem 0 0;
+  color: rgba(241, 245, 255, 0.92);
+  font-size: clamp(0.96rem, 0.92rem + 0.12vw, 1.02rem);
+  font-weight: 500;
+  line-height: 1.62;
+  letter-spacing: 0.005em;
+  text-wrap: pretty;
+}
+
 .scene-card__description {
-  margin: 0.9rem 0 0;
-  color: rgba(225, 218, 236, 0.78);
-  font-size: clamp(0.94rem, 0.9rem + 0.1vw, 1rem);
+  margin: 0.55rem 0 0;
+  color: rgba(186, 198, 222, 0.72);
+  font-size: clamp(0.88rem, 0.85rem + 0.08vw, 0.93rem);
   font-weight: 400;
-  line-height: 1.78;
+  line-height: 1.72;
   letter-spacing: 0.01em;
   text-wrap: pretty;
 }
@@ -319,25 +360,23 @@
 .scene-card__footer {
   display: flex;
   align-items: flex-end;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 1rem;
   margin-top: auto;
-  padding-top: 1.2rem;
-  border-top: 1px solid rgba(224, 207, 255, 0.12);
+  padding-top: 1.15rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .scene-card__log-preview,
 .scene-back-link {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.32rem;
   color: rgba(255, 255, 255, 0.92);
   text-decoration: none;
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.scene-card--link:hover .scene-card__log-preview,
-.scene-card--link:focus-visible .scene-card__log-preview,
 .scene-back-link:hover {
   color: #e5d8ff;
   transform: translateX(2px);
@@ -349,18 +388,32 @@
 }
 
 .scene-card__log-date {
-  color: rgba(255, 255, 255, 0.56);
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  color: rgba(148, 163, 184, 0.76);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .scene-card__log-text {
-  color: rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: rgba(255, 255, 255, 0.88);
   font-size: 0.92rem;
   font-weight: 500;
-  line-height: 1.62;
+  line-height: 1.5;
+  transition: color 0.2s ease;
+}
+
+.scene-card__log-text--action {
+  color: #93a3ff;
+  font-weight: 600;
+}
+
+.scene-card__action-arrow {
+  display: inline-block;
+  transition: transform 0.22s ease;
 }
 
 .scene-archive-panel {
@@ -889,6 +942,10 @@
     min-height: auto;
   }
 
+  .scene-card--placeholder {
+    min-height: 8.25rem;
+  }
+
   .scene-card__title {
     max-width: none;
   }
@@ -898,12 +955,12 @@
   .scene-shell,
   .scene-log-shell {
     min-height: auto;
-    padding-inline: 1.5rem;
+    padding-inline: 20px;
   }
 
   .scene-shell {
-    gap: clamp(2.25rem, 6vw, 3rem);
-    padding-top: calc(var(--header-height) + 2.5rem);
+    gap: 1.75rem;
+    padding-top: calc(var(--header-height) + 1.5rem);
   }
 
   .scene-log-shell {
@@ -1013,22 +1070,44 @@
 @media (max-width: 480px) {
   .scene-shell,
   .scene-log-shell {
-    padding-inline: 1rem;
-    padding-bottom: 3rem;
+    padding-inline: 16px;
+    padding-bottom: 2.25rem;
   }
 
   .scene-shell {
-    gap: 2rem;
-    padding-top: calc(var(--header-height) + 2rem);
+    gap: 1.5rem;
+    padding-top: calc(var(--header-height) + 1.25rem);
   }
 
   .scene-page__edge {
-    width: 120px;
+    width: 60px;
   }
 
   .scene-title {
-    font-size: 2rem;
-    line-height: 1.14;
+    font-size: 1.85rem;
+    line-height: 1.16;
+  }
+
+  .scene-card {
+    padding: 1.15rem 1.1rem;
+    border-radius: 1.15rem;
+  }
+
+  .scene-card__lead {
+    margin-top: 0.7rem;
+    font-size: 0.92rem;
+    line-height: 1.58;
+  }
+
+  .scene-card__description {
+    margin-top: 0.45rem;
+    font-size: 0.85rem;
+    line-height: 1.66;
+  }
+
+  .scene-card__footer {
+    margin-top: 1.05rem;
+    padding-top: 0.9rem;
   }
 
   .scene-log-title {
@@ -1170,31 +1249,26 @@ button.scene-card {
   flex-direction: column;
 }
 
-/* /scene/ 检修态卡片（恢复原纯文字卡片风格，与首页同步采用 46% 视觉中心宽腰带） */
+/* /scene/ 检修态卡片（底层柔和毛玻璃虚化 + 46% 视觉中心宽腰带） */
 
 .scene-card--maintenance {
   cursor: not-allowed;
-  background:
-    linear-gradient(180deg, rgba(16, 12, 24, 0.96), rgba(12, 9, 20, 0.94)) padding-box,
-    linear-gradient(135deg, rgba(245, 158, 11, 0.34), rgba(198, 164, 255, 0.14)) border-box;
+  border-color: rgba(245, 158, 11, 0.24);
+  background: linear-gradient(180deg, rgba(16, 15, 23, 0.92) 0%, rgba(11, 10, 17, 0.96) 100%);
 }
 
-.scene-card--maintenance:hover {
-  background:
-    linear-gradient(180deg, rgba(16, 12, 24, 0.96), rgba(12, 9, 20, 0.94)) padding-box,
-    linear-gradient(135deg, rgba(245, 158, 11, 0.38), rgba(198, 164, 255, 0.14)) border-box;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 16px 42px -26px rgba(60, 28, 112, 0.75);
-  transform: none;
+.scene-card--maintenance .card-body-dimmed {
+  opacity: 0.44;
+  filter: blur(2.4px) saturate(0.35);
 }
 
-.scene-card--maintenance:hover::before {
-  opacity: 0.72;
-}
-
-.scene-card--maintenance:hover::after {
+.scene-card--maintenance::before {
+  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.3), transparent);
   opacity: 0.5;
+}
+
+.scene-card--maintenance::after {
+  opacity: 0.2;
 }
 
 .scene-card__log-preview--disabled .scene-card__log-date {
@@ -1205,22 +1279,53 @@ button.scene-card {
   color: rgba(255, 255, 255, 0.56);
 }
 
-/* 空内容占位框（2x2 版式预览用） */
+/* 新项目酝酿中预告卡 */
 .scene-card--placeholder {
-  background: rgba(16, 12, 24, 0.42);
-  border: 1.5px dashed rgba(198, 164, 255, 0.3);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(99, 102, 241, 0.08), transparent 68%),
+    rgba(14, 15, 24, 0.56);
+  border: 1px dashed rgba(165, 180, 252, 0.24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   cursor: default;
-}
-
-.scene-card--placeholder:hover {
-  background: rgba(16, 12, 24, 0.42);
-  border-color: rgba(198, 164, 255, 0.3);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  transform: none;
 }
 
 .scene-card--placeholder::before,
 .scene-card--placeholder::after {
   opacity: 0;
+}
+
+.scene-card__teaser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: 22rem;
+  padding: 0.5rem;
+}
+
+.scene-card__teaser-dot {
+  width: 8px;
+  height: 8px;
+  margin-bottom: 0.15rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #38bdf8, #a78bfa);
+  box-shadow: 0 0 14px rgba(129, 140, 248, 0.75);
+}
+
+.scene-card__teaser-title {
+  margin: 0;
+  color: rgba(240, 246, 255, 0.84);
+  font-size: clamp(1.04rem, 0.98rem + 0.2vw, 1.16rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.scene-card__teaser-desc {
+  margin: 0;
+  color: rgba(148, 163, 184, 0.72);
+  font-size: 0.86rem;
+  line-height: 1.65;
 }

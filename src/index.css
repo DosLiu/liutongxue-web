@@ -244,13 +244,12 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.7rem;
-  /* 与桌面端导航胶囊同高（60px），保持页头观感一致 */
-  min-height: 3.75rem;
-  padding: 0.72rem 0.9rem 0.72rem 1rem;
-  color: rgba(255, 255, 255, 0.9);
+  gap: 0.52rem;
+  min-height: 2.45rem;
+  padding: 0.46rem 0.78rem 0.46rem 0.88rem;
+  color: rgba(255, 255, 255, 0.92);
   cursor: pointer;
-  background: rgba(10, 4, 19, 0.72);
+  background: rgba(10, 4, 19, 0.78);
   border: 1px solid rgba(210, 193, 242, 0.16);
   border-radius: 999px;
   box-shadow:
@@ -725,9 +724,15 @@ svg {
 }
 
 @media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  :root {
+    --header-height: 64px;
+    --hero-target-center-ratio: 0.33;
+  }
+
   /* 页头左右留白与首屏共用同一变量，保证 Logo、导航与首屏文案对齐 */
   .header {
     padding: 0 var(--hero-inline-padding);
+    background: linear-gradient(to bottom, rgba(6, 0, 16, 0.92) 0%, rgba(6, 0, 16, 0.62) 68%, transparent 100%);
   }
 
   .header-container {
@@ -747,16 +752,17 @@ svg {
 }
 
 @media (hover: none) and (pointer: coarse) {
-  :root {
-    --header-height: 72px;
-  }
-
   .header-desktop-actions {
     display: none;
   }
 }
 
 @media (max-width: 768px) {
+  :root {
+    --hero-inline-padding: 20px;
+    --page-gutter: 20px;
+  }
+
   .header-container {
     justify-content: space-between;
   }
@@ -777,13 +783,34 @@ svg {
 }
 
 @media (max-width: 480px) {
+  :root {
+    --hero-inline-padding: 16px;
+    --page-gutter: 16px;
+  }
+
+  .brand-wordmark__text {
+    font-size: 1.05rem;
+  }
+
+  .landing-title {
+    margin-bottom: 0.85rem;
+    font-size: clamp(1.68rem, 8.5vw, 2.45rem);
+    line-height: 1.16;
+  }
+
+  .landing-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.66;
+    letter-spacing: 0.04em;
+  }
+
   .landing-subtitle-line {
     display: block;
   }
 
   .landing-wrapper::before,
   .landing-wrapper::after {
-    width: 14vw;
+    width: 10vw;
   }
 
   .header-container {
@@ -792,7 +819,7 @@ svg {
 
   .mobile-nav-panel {
     top: calc(100% + 0.55rem);
-    width: min(16.5rem, calc(100vw - 1.2rem));
+    width: min(16.5rem, calc(100vw - 2rem));
   }
 
   .mobile-nav-panel__inner {

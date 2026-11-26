@@ -162,18 +162,20 @@ button.tool-showcase-card {
   transition: opacity 0.3s ease;
 }
 
-.tool-showcase-card:hover {
-  background: #151722;
-  border-color: rgba(99, 102, 241, 0.36);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 22px 50px -16px rgba(0, 0, 0, 0.8),
-    0 0 35px -8px rgba(99, 102, 241, 0.18);
-  transform: translateY(-5px);
-}
+@media (hover: hover) {
+  .tool-showcase-card:hover {
+    background: #151722;
+    border-color: rgba(99, 102, 241, 0.36);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 22px 50px -16px rgba(0, 0, 0, 0.8),
+      0 0 35px -8px rgba(99, 102, 241, 0.18);
+    transform: translateY(-5px);
+  }
 
-.tool-showcase-card:hover::before {
-  opacity: 1;
+  .tool-showcase-card:hover::before {
+    opacity: 1;
+  }
 }
 
 /* ===========================================
@@ -291,24 +293,29 @@ button.tool-showcase-card {
   .tool-showcase-card {
     min-height: auto;
   }
+
+  /* 移动端单列模式下隐藏空占位框，避免塌陷成扁虚线横条 */
+  .tool-showcase-card--placeholder {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
   .tools-showcase-section--embedded {
     --tools-section-min-height: auto;
-    --tools-mobile-section-padding: clamp(4.5rem, 7.6vw, 5.25rem);
+    --tools-mobile-section-padding: 3.25rem;
     --tools-mobile-inline-padding: 20px;
-    --tools-mobile-header-gap: 2rem;
-    --tools-mobile-grid-gap: clamp(0.9rem, 2.8vw, 1rem);
-    --tools-mobile-card-padding: 1.3rem 1.25rem;
-    --tools-mobile-card-gap: 0.7rem;
-    --tools-mobile-description-size: 0.95rem;
-    --tools-mobile-description-line-height: 1.72;
+    --tools-mobile-header-gap: 1.75rem;
+    --tools-mobile-grid-gap: 0.95rem;
+    --tools-mobile-card-padding: 1.2rem 1.15rem;
+    --tools-mobile-card-gap: 0.65rem;
+    --tools-mobile-description-size: 0.92rem;
+    --tools-mobile-description-line-height: 1.68;
     padding: var(--tools-mobile-section-padding) 0;
   }
 
   .tools-showcase-section--standalone {
-    padding: calc(var(--header-height) + 80px) 1.5rem 80px;
+    padding: calc(var(--header-height) + 48px) 20px 64px;
   }
 
   .tools-showcase-section--embedded .tools-showcase-container {
@@ -326,7 +333,7 @@ button.tool-showcase-card {
   }
 
   .tools-showcase-section--standalone .tools-showcase-header {
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
   }
 
   .tools-showcase-section--embedded .tools-showcase-grid {
@@ -334,13 +341,13 @@ button.tool-showcase-card {
   }
 
   .tools-showcase-title {
-    font-size: 2.35rem;
+    font-size: 2.15rem;
     letter-spacing: -0.015em;
-    line-height: 1.12;
+    line-height: 1.14;
   }
 
   .tools-showcase-subtitle {
-    font-size: 1rem;
+    font-size: 0.96rem;
     line-height: 1.58;
   }
 
@@ -354,7 +361,7 @@ button.tool-showcase-card {
 
   .tool-card-title {
     max-width: none;
-    font-size: 1.12rem;
+    font-size: 1.1rem;
     line-height: 1.32;
   }
 
@@ -366,33 +373,33 @@ button.tool-showcase-card {
 
 @media (max-width: 480px) {
   .tools-showcase-section--embedded {
-    --tools-mobile-section-padding: 4rem;
+    --tools-mobile-section-padding: 2.75rem;
     --tools-mobile-inline-padding: 16px;
-    --tools-mobile-header-gap: 1.6rem;
-    --tools-mobile-grid-gap: 0.75rem;
+    --tools-mobile-header-gap: 1.4rem;
+    --tools-mobile-grid-gap: 0.85rem;
     --tools-mobile-card-padding: 1.05rem 1rem;
-    --tools-mobile-card-gap: 0.6rem;
-    --tools-mobile-description-size: 0.92rem;
-    --tools-mobile-description-line-height: 1.66;
+    --tools-mobile-card-gap: 0.58rem;
+    --tools-mobile-description-size: 0.88rem;
+    --tools-mobile-description-line-height: 1.64;
   }
 
   .tools-showcase-section--standalone {
-    padding: calc(var(--header-height) + 72px) 1rem 72px;
+    padding: calc(var(--header-height) + 32px) 16px 56px;
   }
 
   .tools-showcase-title {
-    font-size: 2rem;
-    line-height: 1.14;
+    font-size: 1.78rem;
+    line-height: 1.16;
   }
 
   .tools-showcase-subtitle {
     padding: 0;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     line-height: 1.56;
   }
 
   .tool-card-title {
-    font-size: 1.05rem;
+    font-size: 1.04rem;
   }
 }
 

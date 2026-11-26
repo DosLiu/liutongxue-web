@@ -38,8 +38,7 @@
   align-items: center;
   justify-content: center;
   gap: 1.35rem;
-  /* 上移仅用于收拢与上方区块的间距；用等量负外边距抵消，避免卡片下方留下空白带。
-     各断点数值等价于原先的 translateY(-18% / -12% / -8%)，保持原有视觉位移不变 */
+  /* 上移仅用于收拢与上方区块的间距；用等量负外边距抵消，避免卡片下方留下空白带 */
   --start-building-shift: 2.75rem;
   transform: translateY(calc(-1 * var(--start-building-shift)));
   margin-bottom: calc(-1 * var(--start-building-shift));
@@ -145,14 +144,16 @@
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.start-building-button:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.25),
-    0 12px 32px -4px rgba(192, 132, 252, 0.55),
-    0 0 32px rgba(56, 189, 248, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
-  color: #070312;
+@media (hover: hover) {
+  .start-building-button:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.25),
+      0 12px 32px -4px rgba(192, 132, 252, 0.55),
+      0 0 32px rgba(56, 189, 248, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 1);
+    color: #070312;
+  }
 }
 
 /* ===========================================
@@ -184,10 +185,6 @@
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.contact-qr-card:hover {
-  transform: translateY(-4px);
-}
-
 .contact-qr-image {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -203,12 +200,6 @@
   transition: box-shadow 0.35s ease;
 }
 
-.contact-qr-card:hover .contact-qr-image {
-  box-shadow:
-    0 22px 56px -12px rgba(0, 0, 0, 0.75),
-    0 0 32px rgba(168, 85, 247, 0.25);
-}
-
 .contact-qr-caption {
   color: rgba(240, 244, 255, 0.82);
   font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -219,8 +210,20 @@
   transition: color 0.3s ease;
 }
 
-.contact-qr-card:hover .contact-qr-caption {
-  color: #ffffff;
+@media (hover: hover) {
+  .contact-qr-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .contact-qr-card:hover .contact-qr-image {
+    box-shadow:
+      0 22px 56px -12px rgba(0, 0, 0, 0.75),
+      0 0 32px rgba(168, 85, 247, 0.25);
+  }
+
+  .contact-qr-card:hover .contact-qr-caption {
+    color: #ffffff;
+  }
 }
 
 /* ===========================================
@@ -251,7 +254,7 @@
 
 @media (max-width: 768px) {
   .start-building-section {
-    padding: clamp(5.5rem, 9vw, 6.5rem) 0;
+    padding: 3.25rem 0 2.5rem;
   }
 
   .start-building-container {
@@ -259,39 +262,45 @@
   }
 
   .start-building-card {
-    --start-building-shift: 1.5rem;
-    padding: 2.75rem 1.75rem;
-    border-radius: 36px;
-    gap: 1.1rem;
+    --start-building-shift: 0px;
+    padding: 2.25rem 1.5rem;
+    border-radius: 28px;
+    gap: 1rem;
   }
 
   .start-building-title {
-    font-size: 2.35rem;
+    font-size: 2.15rem;
     letter-spacing: -0.015em;
-    line-height: 1.12;
+    line-height: 1.14;
   }
 
   .start-building-button {
-    width: 12rem;
+    width: 11rem;
     max-width: 100%;
-    padding: 0.72rem 1.4rem;
-    font-size: 1rem;
+    padding: 0.65rem 1.3rem;
+    font-size: 0.98rem;
   }
 
   .contact-qr-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-top: 0.9rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.35rem;
   }
 
   .contact-qr-card {
-    max-width: 300px;
+    max-width: 210px;
+    gap: 0.65rem;
+  }
+
+  .contact-qr-image {
+    padding: 0.65rem;
+    border-radius: 20px;
   }
 }
 
 @media (max-width: 480px) {
   .start-building-section {
-    padding: 5rem 0;
+    padding: 2.75rem 0 2rem;
   }
 
   .start-building-container {
@@ -299,45 +308,47 @@
   }
 
   .start-building-card {
-    --start-building-shift: 0.9rem;
-    padding: 2.25rem 1.25rem;
-    border-radius: 28px;
-    gap: 0.95rem;
+    --start-building-shift: 0px;
+    padding: 1.95rem 1.25rem;
+    border-radius: 24px;
+    gap: 0.85rem;
   }
 
   .start-building-title {
-    font-size: 1.95rem;
+    font-size: 1.78rem;
     letter-spacing: -0.015em;
-    line-height: 1.15;
+    line-height: 1.16;
   }
 
   .start-building-button {
-    width: 10.5rem;
+    width: 9.5rem;
     max-width: 100%;
-    padding: 0.65rem 1.2rem;
-    font-size: 0.95rem;
+    padding: 0.56rem 1.1rem;
+    font-size: 0.92rem;
   }
 
   .contact-qr-grid {
-    gap: 1.1rem;
-    margin-top: 0.7rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-top: 1.15rem;
   }
 
   .contact-qr-card {
-    max-width: 270px;
+    max-width: 172px;
+    gap: 0.5rem;
   }
 
   .contact-qr-image {
-    padding: 0.8rem;
-    border-radius: 22px;
+    padding: 0.55rem;
+    border-radius: 16px;
   }
 
   .contact-qr-caption {
-    font-size: 0.85rem;
+    font-size: 0.84rem;
   }
 }
 
 /* 导航「与我链接」锚点：跳转时避开固定页头 */
 #contact {
-  scroll-margin-top: calc(var(--header-height, 80px) + 1rem);
+  scroll-margin-top: calc(var(--header-height, 64px) + 1rem);
 }

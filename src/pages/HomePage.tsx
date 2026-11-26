@@ -15,8 +15,8 @@ const AntigravityStarfield = lazy<() => ReactNode>(() =>
 const clampNumber = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 const DEFAULT_HERO_TARGET_CENTER_RATIO = 0.25;
-const MOBILE_HERO_HEIGHT_RATIO = 0.76;
-const MOBILE_HERO_MIN_HEIGHT = 500;
+const MOBILE_HERO_HEIGHT_RATIO = 0.64;
+const MOBILE_HERO_MIN_HEIGHT = 420;
 const getViewportHeight = (viewport: VisualViewport | null) =>
   Math.max(
     1,
@@ -236,7 +236,7 @@ export default function HomePage() {
                           key={charIndex}
                           className={isLeadingChar ? 'landing-subtitle-leading-char' : 'landing-subtitle-char'}
                           style={isLeadingChar ? undefined : {
-                            '--subtitle-char-delay': `${((index - subtitleLeadingCharCount) * 0.3).toFixed(1)}s`
+                            '--subtitle-char-delay': `${((index - subtitleLeadingCharCount) * (isMobileHero ? 0.055 : 0.3)).toFixed(3)}s`
                           } as CSSProperties}
                         >
                           {char}
