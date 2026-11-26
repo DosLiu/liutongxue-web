@@ -3,6 +3,7 @@ import SiteFooter from '../components/SiteFooter';
 import steveJobsAvatar from '../assets/figures/steve-jobs.jpg';
 import elonMuskAvatar from '../assets/figures/elon-musk.jpg';
 import zhangYimingAvatar from '../assets/figures/zhang-yiming.jpg';
+import liuDongshengAvatar from '../assets/figures/liu-dongsheng.jpg';
 import { sitePaths } from '../site';
 import './FiguresPage.css';
 
@@ -107,12 +108,14 @@ export default function FiguresPage() {
           <a className="figures-entry figures-entry--active figures-digital-placeholder" href={sitePaths.figuresLiuDongsheng} aria-label="进入刘同学的数字分身对话">
             <div className="figures-entry__visual-shell" aria-hidden="true">
               <div className="figures-entry__glow-backdrop" />
-              <div className="figures-entry__avatar figures-digital-placeholder__avatar">
-                <svg className="figures-digital-placeholder__icon" viewBox="0 0 64 64" fill="none">
-                  <circle cx="32" cy="22" r="10" />
-                  <path d="M13 53c1.8-9.7 8.9-15 19-15s17.2 5.3 19 15" />
-                </svg>
-              </div>
+              <div
+                className="figures-entry__avatar figures-entry__avatar--image"
+                style={{
+                  backgroundImage: `url(${liuDongshengAvatar})`,
+                  backgroundPosition: 'center',
+                  backgroundSize: 'cover'
+                }}
+              />
             </div>
             <span className="figures-entry__name">刘同学</span>
           </a>
